@@ -1,8 +1,10 @@
 import { Input } from '@/components/ui/input';
 import { Feature } from '@/types/resource-planner';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, GripVertical } from 'lucide-react';
 import React from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface FeatureItemProps {
   feature: Feature;
@@ -17,10 +19,31 @@ export function FeatureItem({
   onRequirementChange,
   onFeatureRemove,
 }: FeatureItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: feature.id.toString(),
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
-    <div className="space-y-2">
+    <div ref={setNodeRef} style={style} className="space-y-2">
       <div className="flex gap-4">
-        <div className="w-8 text-sm font-medium pt-2">{feature.id}.</div>
+        <div className="w-8 text-sm font-medium pt-2 flex items-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="cursor-grab active:cursor-grabbing p-0 h-auto"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4" />
+          </Button>
+          {feature.id}.
+        </div>
         <div className="flex-1 flex gap-2">
           <Input
             value={feature.name}
