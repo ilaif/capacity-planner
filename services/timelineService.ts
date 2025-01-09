@@ -80,9 +80,10 @@ export function calculateTimeline(
 
         featureAllocation.startWeek = startWeek;
         featureAllocation.endWeek =
-          startWeek + startWeek + Object.keys(resourceNeeds).length > 0
+          startWeek +
+          (Object.keys(resourceNeeds).length > 0
             ? Math.max(...Object.values(resourceNeeds).map(n => n.weeks))
-            : 0;
+            : 0);
         newTimeline.push(featureAllocation);
         logger.info(`Scheduled feature ${feature.name}`, {
           startWeek: featureAllocation.startWeek,
@@ -93,17 +94,12 @@ export function calculateTimeline(
         startWeek++;
       }
     }
-
-    if (startWeek >= 52) {
-      logger.warn(`Could not schedule feature ${feature.name} within 52 weeks`, {
-        requirements: feature.requirements,
-      });
-    }
   });
 
   logger.info('Timeline calculation completed', {
     scheduledFeatures: newTimeline.length,
     totalDuration: Math.max(...newTimeline.map(t => t.endWeek || 0)),
+    newTimeline,
   });
   return newTimeline;
 }

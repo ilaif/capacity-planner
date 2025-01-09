@@ -143,25 +143,29 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
         </div>
       </div>
       <div ref={timelineRef} className="relative h-[600px] overflow-x-auto">
-        <TimelineGrid
-          gridCount={getTimelineGridCount()}
-          columnWidth={columnWidth}
-          onResizeStart={handleMouseDown}
-          getTimelineLabel={getTimelineLabel}
-          getQuarterLabel={getQuarterLabel}
-          viewMode={viewMode}
-        />
-        {timeline.map((allocation, index) => (
-          <TimelineItem
-            key={index}
-            allocation={allocation}
-            index={index}
-            overheadFactor={overheadFactor}
-            getColumnPosition={getColumnPosition}
-            getColumnWidth={getColumnWidth}
-            startDate={startDate}
+        <div>
+          <TimelineGrid
+            gridCount={getTimelineGridCount()}
+            columnWidth={columnWidth}
+            onResizeStart={handleMouseDown}
+            getTimelineLabel={getTimelineLabel}
+            getQuarterLabel={getQuarterLabel}
+            viewMode={viewMode}
           />
-        ))}
+        </div>
+        <div className="relative">
+          {timeline.map((allocation, index) => (
+            <TimelineItem
+              key={index}
+              allocation={allocation}
+              index={index}
+              overheadFactor={overheadFactor}
+              getColumnPosition={getColumnPosition}
+              getColumnWidth={getColumnWidth}
+              startDate={startDate}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -263,7 +267,7 @@ function TimelineGrid({
   };
 
   return (
-    <div className="sticky top-0 left-0 right-0 bg-white z-10">
+    <div className="top-0 left-0 right-0 bg-white">
       <div className="h-6 relative border-b border-gray-200">{renderQuarterMarkers()}</div>
       {viewMode === 'weeks' && (
         <div className="h-6 relative">
