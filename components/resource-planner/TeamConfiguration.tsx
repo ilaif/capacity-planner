@@ -134,22 +134,22 @@ export function TeamConfiguration({
               </>
             ) : (
               <>
-                <div className="flex-1">
-                  <label className="text-xs font-medium">{team}</label>
-                  <Input
-                    type="number"
-                    value={getBaseTeamSize(size)}
-                    onChange={e => onTeamSizeChange(team, e.target.value)}
-                    min="0"
-                    className="h-8"
-                  />
-                </div>
-                <div className="flex gap-1">
+                <div className="flex-1 flex items-center gap-1">
+                  <div className="flex-1">
+                    <label className="text-xs font-medium">{team}</label>
+                    <Input
+                      type="number"
+                      value={getBaseTeamSize(size)}
+                      onChange={e => onTeamSizeChange(team, e.target.value)}
+                      min="0"
+                      className="h-8"
+                    />
+                  </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => startEditingTeam(team)}
-                    className="h-8 px-2"
+                    className="h-8 px-2 self-end"
                   >
                     <Edit2 className="h-3 w-3" />
                   </Button>
@@ -157,7 +157,7 @@ export function TeamConfiguration({
                     variant="ghost"
                     size="sm"
                     onClick={() => onTeamRemove(team)}
-                    className="h-8 px-2"
+                    className="h-8 px-2 self-end"
                   >
                     <X className="h-3 w-3" />
                   </Button>

@@ -7,6 +7,7 @@ import { TeamConfiguration } from './resource-planner/TeamConfiguration';
 import { Features } from './resource-planner/Features';
 import { TimelineView } from './resource-planner/TimelineView';
 import { PlanningConfiguration } from './resource-planner/PlanningConfiguration';
+import { TeamSizeChart } from './resource-planner/TeamSizeChart';
 
 const ResourcePlanner = () => {
   const [features, setFeatures] = useState<Feature[]>([
@@ -196,9 +197,22 @@ const ResourcePlanner = () => {
       Object.entries(teams).map(([team, size]) => {
         if (Array.isArray(size)) {
           const fullArray = Array(52).fill(size[0]);
-          size.forEach((s, i) => {
-            if (s !== undefined) fullArray[i] = s;
+
+          // Find all weeks with variations
+          const variationWeeks = size
+            .map((s, week) => (s !== undefined && week > 0 ? week : -1))
+            .filter(week => week !== -1)
+            .sort((a, b) => a - b);
+
+          // Apply each variation forward until the next variation
+          variationWeeks.forEach((week, index) => {
+            const nextVariationWeek = variationWeeks[index + 1] || 52;
+            const variationSize = size[week];
+            for (let w = week; w < nextVariationWeek; w++) {
+              fullArray[w] = variationSize;
+            }
           });
+
           return [team, fullArray];
         }
         return [team, Array(52).fill(size)];
@@ -235,6 +249,8 @@ const ResourcePlanner = () => {
             onTeamRemove={handleTeamRemove}
             onTeamRename={handleTeamRename}
           />
+
+          <TeamSizeChart teams={teams} />
 
           <Features
             features={features}
