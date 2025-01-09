@@ -10,6 +10,7 @@ interface FeatureListProps {
   onFeatureNameChange: (featureId: number, name: string) => void;
   onRequirementChange: (featureId: number, team: string, field: string, value: string) => void;
   onFeaturesUploaded: (features: Feature[]) => void;
+  onFeatureRemove: (featureId: number) => void;
 }
 
 export function Features({
@@ -19,6 +20,7 @@ export function Features({
   onFeatureNameChange,
   onRequirementChange,
   onFeaturesUploaded,
+  onFeatureRemove,
 }: FeatureListProps) {
   return (
     <div className="space-y-4">
@@ -36,6 +38,7 @@ export function Features({
             feature={feature}
             onFeatureNameChange={onFeatureNameChange}
             onRequirementChange={onRequirementChange}
+            onFeatureRemove={onFeatureRemove}
           />
         ))}
       </div>

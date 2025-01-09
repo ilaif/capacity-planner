@@ -117,6 +117,11 @@ const ResourcePlanner = () => {
     logger.debug('New feature added', newFeature);
   };
 
+  const handleFeatureRemove = (featureId: number) => {
+    setFeatures(features.filter(f => f.id !== featureId));
+    logger.debug('Feature removed', { featureId });
+  };
+
   const handleFeatureNameChange = (featureId: number, name: string) => {
     setFeatures(features.map(f => (f.id === featureId ? { ...f, name } : f)));
   };
@@ -246,6 +251,7 @@ const ResourcePlanner = () => {
             onFeatureNameChange={handleFeatureNameChange}
             onRequirementChange={handleRequirementChange}
             onFeaturesUploaded={setFeatures}
+            onFeatureRemove={handleFeatureRemove}
           />
 
           <TimelineView
