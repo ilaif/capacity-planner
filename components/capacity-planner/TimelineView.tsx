@@ -96,7 +96,6 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
 
   const getQuarterLabel = (weekIndex: number) => {
     const date = addWeeks(startDate, weekIndex);
-    const year = Math.floor(weekIndex / 52) + 1;
     const weekInYear = weekIndex % 52;
     const quarter = Math.floor(weekInYear / 13) + 1;
     if (columnWidth * 13 < 100) return `Q${quarter}`;

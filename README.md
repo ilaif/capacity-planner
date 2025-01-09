@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Capacity Planner
+
+A modern, interactive capacity planning tool for engineering teams to visualize and manage project timelines, team allocations, and resource requirements.
+
+## Features
+
+- 📊 Interactive timeline visualization
+- 👥 Team capacity management with variable team sizes
+- 📈 Feature planning with parallel work support
+- 📅 Overhead factor configuration for realistic estimations
+- 📤 Export timeline as PNG
+- 📎 CSV import support for bulk feature planning
+- 🔄 Drag-and-drop feature reordering
+- 💾 State persistence via URL for easy sharing
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js (LTS version recommended)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/capacity-planner.git
+cd capacity-planner
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Start the development server:
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:5173](http://localhost:5173) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Team Configuration
 
-## Learn More
+1. Add teams and set their base capacity (team size)
+2. Configure team size variations for specific weeks if needed
+3. Set the overhead factor to account for meetings and other non-project work
 
-To learn more about Next.js, take a look at the following resources:
+### Feature Planning
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Add features to your timeline
+2. For each feature, specify:
+   - Feature name
+   - Required weeks per team
+   - Number of parallel resources needed
+3. Alternatively, import features in bulk using CSV
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Timeline View
 
-## Deploy on Vercel
+- View the calculated timeline with all features
+- Switch between weekly and quarterly views
+- Export the timeline as PNG for presentations
+- Set custom start date for planning
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Bulk Import Format
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Features can be imported via CSV with the following format:
+
+```csv
+Feature Name,Team1_weeks,Team1_parallel,Team2_weeks,Team2_parallel
+Login System,3,2,2,1
+```
+
+## Development
+
+```bash
+# Run tests
+npm run test
+
+# Run linter
+npm run lint
+
+# Format code
+npm run format
+
+# Type checking
+npm run check-types
+
+# Find dead code
+npm run find-deadcode
+```
+
+## Built With
+
+- [Vite](https://vitejs.dev/) - Build tool and development server
+- [React](https://reactjs.org/) - UI framework
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [date-fns](https://date-fns.org/) - Date manipulation
+- [Recharts](https://recharts.org/) - Charting library
+- [@dnd-kit](https://dndkit.com/) - Drag and drop functionality
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

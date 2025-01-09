@@ -22,33 +22,36 @@ const formatMessage = (level: LogLevel, message: string) => {
   return `${timestamp} [${level}] ${message}`;
 };
 
+// Define a type for loggable data
+type LoggableData = Record<string, unknown>;
+
 // Main logger functions
 export const logger = {
-  debug: (message: string, data?: any) => {
+  debug: (message: string, data?: LoggableData) => {
     if (config.minLevel === LogLevel.DEBUG) {
       console.debug(formatMessage(LogLevel.DEBUG, message), data);
     }
   },
 
-  info: (message: string, data?: any) => {
+  info: (message: string, data?: LoggableData) => {
     if (config.minLevel <= LogLevel.INFO) {
       console.info(formatMessage(LogLevel.INFO, message), data);
     }
   },
 
-  warn: (message: string, data?: any) => {
+  warn: (message: string, data?: LoggableData) => {
     if (config.minLevel <= LogLevel.WARN) {
       console.warn(formatMessage(LogLevel.WARN, message), data);
     }
   },
 
-  error: (message: string, error?: Error, data?: any) => {
+  error: (message: string, error?: Error, data?: LoggableData) => {
     if (config.minLevel <= LogLevel.ERROR) {
       const errorData = error
         ? {
             message: error.message,
             stack: config.enableStackTrace ? error.stack : undefined,
-            ...data,
+            ...(data || {}),
           }
         : data;
       console.error(formatMessage(LogLevel.ERROR, message), errorData);

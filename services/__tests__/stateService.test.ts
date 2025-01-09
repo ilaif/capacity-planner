@@ -43,13 +43,13 @@ describe('stateService', () => {
 
     // Reset URL by deleting and redefining location
     const locationProps: MutableLocationProps = {
-      href: 'http://localhost:3000',
+      href: 'http://localhost:5173',
       search: '',
       pathname: '/',
       hash: '',
-      host: 'localhost:3000',
+      host: 'localhost:5173',
       hostname: 'localhost',
-      port: '3000',
+      port: '5173',
       protocol: 'http:',
     };
 
