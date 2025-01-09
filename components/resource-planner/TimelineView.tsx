@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { TimelineItem } from '@/types/resource-planner';
+import type { TimelineItem, Feature, Teams } from '@/types/resource-planner';
 import { RefObject, useState, useCallback, useEffect } from 'react';
 import {
   Select,
@@ -11,18 +11,21 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { format, addWeeks, startOfWeek } from 'date-fns';
+import { calculateTimeline } from '@/services/timelineService';
 
 type ViewMode = 'weeks' | 'quarters';
 
 interface TimelineViewProps {
-  timeline: TimelineItem[];
+  features: Feature[];
+  teams: Teams;
   timelineRef: RefObject<HTMLDivElement | null>;
   overheadFactor: number;
   onExport: () => void;
 }
 
 export function TimelineView({
-  timeline,
+  features,
+  teams,
   timelineRef,
   overheadFactor,
   onExport,
@@ -31,6 +34,13 @@ export function TimelineView({
   const [isDragging, setIsDragging] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('weeks');
   const [startDate, setStartDate] = useState<Date>(startOfWeek(new Date()));
+  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
+
+  // Generate timeline whenever features, teams, or overhead factor changes
+  useEffect(() => {
+    const generatedTimeline = calculateTimeline(features, teams, overheadFactor);
+    setTimeline(generatedTimeline);
+  }, [features, teams, overheadFactor]);
 
   const handleMouseDown = useCallback(() => {
     setIsDragging(true);

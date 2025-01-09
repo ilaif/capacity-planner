@@ -17,29 +17,28 @@ const config = {
 const getTimestamp = () => new Date().toISOString();
 
 // Helper to format the message
-const formatMessage = (level: LogLevel, message: string, data?: any) => {
+const formatMessage = (level: LogLevel, message: string) => {
   const timestamp = config.enableTimestamp ? `[${getTimestamp()}]` : '';
-  const dataString = data ? `\n${JSON.stringify(data, null, 2)}` : '';
-  return `${timestamp} [${level}] ${message}${dataString}`;
+  return `${timestamp} [${level}] ${message}`;
 };
 
 // Main logger functions
 export const logger = {
   debug: (message: string, data?: any) => {
     if (config.minLevel === LogLevel.DEBUG) {
-      console.debug(formatMessage(LogLevel.DEBUG, message, data));
+      console.debug(formatMessage(LogLevel.DEBUG, message), data);
     }
   },
 
   info: (message: string, data?: any) => {
     if (config.minLevel <= LogLevel.INFO) {
-      console.info(formatMessage(LogLevel.INFO, message, data));
+      console.info(formatMessage(LogLevel.INFO, message), data);
     }
   },
 
   warn: (message: string, data?: any) => {
     if (config.minLevel <= LogLevel.WARN) {
-      console.warn(formatMessage(LogLevel.WARN, message, data));
+      console.warn(formatMessage(LogLevel.WARN, message), data);
     }
   },
 
@@ -52,7 +51,7 @@ export const logger = {
             ...data,
           }
         : data;
-      console.error(formatMessage(LogLevel.ERROR, message, errorData));
+      console.error(formatMessage(LogLevel.ERROR, message), errorData);
     }
   },
 };

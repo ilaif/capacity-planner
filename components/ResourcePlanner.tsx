@@ -223,51 +223,6 @@ const ResourcePlanner = () => {
     });
   };
 
-  const handleTimelineGenerate = () => {
-    logger.info('Generating timeline', {
-      featuresCount: features.length,
-      teamsCount: Object.keys(teams).length,
-    });
-
-    const teamsForTimeline = Object.fromEntries(
-      Object.entries(teams).map(([team, size]) => {
-        if (Array.isArray(size)) {
-          const fullArray = Array(52).fill(size[0]);
-          const variationWeeks = size
-            .map((s, week) => (s !== undefined && week > 0 ? week : -1))
-            .filter(week => week !== -1)
-            .sort((a, b) => a - b);
-
-          variationWeeks.forEach((week, index) => {
-            const nextVariationWeek = variationWeeks[index + 1] || 52;
-            const variationSize = size[week];
-            for (let w = week; w < nextVariationWeek; w++) {
-              fullArray[w] = variationSize;
-            }
-          });
-
-          return [team, fullArray];
-        }
-        return [team, Array(52).fill(size)];
-      })
-    );
-
-    try {
-      const newTimeline = calculateTimeline(features, teamsForTimeline, overheadFactor);
-      setTimeline(newTimeline);
-      logger.info('Timeline generated successfully', {
-        timelineLength: newTimeline.length,
-        totalWeeks: newTimeline[newTimeline.length - 1]?.endWeek || 0,
-      });
-    } catch (error) {
-      logger.error('Failed to generate timeline', error as Error, {
-        features,
-        teamsForTimeline,
-        overheadFactor,
-      });
-    }
-  };
-
   const handleExportPng = () => {
     logger.info('Attempting to export timeline as PNG');
     if (!timelineRef.current || timeline.length === 0) {
@@ -315,12 +270,9 @@ const ResourcePlanner = () => {
             onFeaturesUploaded={setFeatures}
           />
 
-          <Button onClick={handleTimelineGenerate} className="w-full">
-            Generate Timeline
-          </Button>
-
           <TimelineView
-            timeline={timeline}
+            features={features}
+            teams={teams}
             timelineRef={timelineRef}
             overheadFactor={overheadFactor}
             onExport={handleExportPng}
