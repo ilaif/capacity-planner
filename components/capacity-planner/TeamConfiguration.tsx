@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { X, Plus, Edit2 } from 'lucide-react';
+import { TeamSizeChart } from './TeamSizeChart';
 
 interface TeamConfigurationProps {
   teams: Teams;
@@ -103,7 +104,6 @@ export function TeamConfiguration({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Teams</h3>
         <div className="flex gap-2">
           <Input
             value={newTeamName}
@@ -242,6 +242,8 @@ export function TeamConfiguration({
           )}
         </div>
       </div>
+
+      <TeamSizeChart teams={teams} />
     </div>
   );
 }

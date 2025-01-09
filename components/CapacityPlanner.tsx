@@ -8,6 +8,7 @@ import { Features } from './capacity-planner/Features';
 import { TimelineView } from './capacity-planner/TimelineView';
 import { PlanningConfiguration } from './capacity-planner/PlanningConfiguration';
 import { TeamSizeChart } from './capacity-planner/TeamSizeChart';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const CapacityPlanner = () => {
   const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
@@ -226,40 +227,66 @@ const CapacityPlanner = () => {
         <CardTitle>Capacity Planner</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          <PlanningConfiguration
-            overheadFactor={overheadFactor}
-            onOverheadFactorChange={setOverheadFactor}
-          />
+        <div>
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger>
+              <h3 className="text-lg font-medium">Planning</h3>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <PlanningConfiguration
+                overheadFactor={overheadFactor}
+                onOverheadFactorChange={setOverheadFactor}
+              />
+            </CollapsibleContent>
+          </Collapsible>
 
-          <TeamConfiguration
-            teams={teams}
-            onTeamAdd={handleTeamAdd}
-            onTeamRemove={handleTeamRemove}
-            onTeamRename={handleTeamRename}
-            onTeamSizeChange={handleTeamSizeChange}
-            onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
-            onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
-          />
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger>
+              <h3 className="text-lg font-medium">Teams</h3>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <TeamConfiguration
+                teams={teams}
+                onTeamAdd={handleTeamAdd}
+                onTeamRemove={handleTeamRemove}
+                onTeamRename={handleTeamRename}
+                onTeamSizeChange={handleTeamSizeChange}
+                onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
+                onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
+              />
+            </CollapsibleContent>
+          </Collapsible>
 
-          <TeamSizeChart teams={teams} />
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger>
+              <h3 className="text-lg font-medium">Features</h3>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <Features
+                features={features}
+                teams={Object.keys(teams)}
+                onFeatureAdd={handleFeatureAdd}
+                onFeatureNameChange={handleFeatureNameChange}
+                onRequirementChange={handleRequirementChange}
+                onFeaturesUploaded={setFeatures}
+                onFeatureRemove={handleFeatureRemove}
+              />
+            </CollapsibleContent>
+          </Collapsible>
 
-          <Features
-            features={features}
-            teams={Object.keys(teams)}
-            onFeatureAdd={handleFeatureAdd}
-            onFeatureNameChange={handleFeatureNameChange}
-            onRequirementChange={handleRequirementChange}
-            onFeaturesUploaded={setFeatures}
-            onFeatureRemove={handleFeatureRemove}
-          />
-
-          <TimelineView
-            features={features}
-            teams={teams}
-            timelineRef={timelineRef}
-            overheadFactor={overheadFactor}
-          />
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger>
+              <h3 className="text-lg font-medium">Timeline</h3>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <TimelineView
+                features={features}
+                teams={teams}
+                timelineRef={timelineRef}
+                overheadFactor={overheadFactor}
+              />
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </CardContent>
     </Card>

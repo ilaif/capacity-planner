@@ -57,14 +57,9 @@ export function Features({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Features</h3>
-        <div className="flex gap-2">
-          <Button onClick={onFeatureAdd}>Add Feature</Button>
-        </div>
-      </div>
+    <div className="space-y-2">
       <FeatureUpload onFeaturesUploaded={onFeaturesUploaded} teams={teams} />
+      <Button onClick={onFeatureAdd}>Add Feature</Button>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="max-h-[300px] overflow-y-auto space-y-4 p-1">
           <SortableContext

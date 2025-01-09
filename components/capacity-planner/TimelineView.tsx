@@ -116,9 +116,8 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
   if (timeline.length === 0) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Timeline</h3>
         <div className="flex gap-2 items-center">
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">Start:</span>
@@ -143,7 +142,7 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
           <Button onClick={handleExport}>Export PNG</Button>
         </div>
       </div>
-      <div ref={timelineRef} className="relative h-96 overflow-x-auto">
+      <div ref={timelineRef} className="relative h-[600px] overflow-x-auto">
         <TimelineGrid
           gridCount={getTimelineGridCount()}
           columnWidth={columnWidth}
