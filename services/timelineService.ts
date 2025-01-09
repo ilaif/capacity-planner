@@ -148,7 +148,7 @@ export function exportTimelineAsPng(
 
   try {
     // Draw grid and labels
-    drawTimelineGrid(ctx, gridCount, columnWidth, viewMode, startDate, width, height);
+    drawTimelineGrid(ctx, gridCount, columnWidth, viewMode, startDate, height);
 
     // Draw features
     drawTimelineFeatures(ctx, timeline, overheadFactor, columnWidth, viewMode, startDate);
@@ -167,7 +167,6 @@ function drawTimelineGrid(
   columnWidth: number,
   viewMode: 'weeks' | 'quarters',
   startDate: Date,
-  width: number,
   height: number
 ): void {
   ctx.strokeStyle = '#e5e7eb';
