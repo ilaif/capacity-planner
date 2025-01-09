@@ -7,7 +7,6 @@ import { TeamConfiguration } from './capacity-planner/TeamConfiguration';
 import { Features } from './capacity-planner/Features';
 import { TimelineView } from './capacity-planner/TimelineView';
 import { PlanningConfiguration } from './capacity-planner/PlanningConfiguration';
-import { TeamSizeChart } from './capacity-planner/TeamSizeChart';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const CapacityPlanner = () => {
