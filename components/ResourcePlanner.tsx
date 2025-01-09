@@ -1,14 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Feature, TimelineItem, Teams, TeamSizeVariation } from '@/types/resource-planner';
-import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
-import {
-  getInitialState,
-  saveToLocalStorage,
-  updateURL,
-  DEFAULT_STATE,
-} from '@/services/stateService';
+import { Feature, Teams, TeamSizeVariation } from '@/types/resource-planner';
+import { getInitialState, updateURL, DEFAULT_STATE } from '@/services/stateService';
 import { logger } from '@/services/loggerService';
 import { TeamConfiguration } from './resource-planner/TeamConfiguration';
 import { Features } from './resource-planner/Features';
@@ -20,7 +13,6 @@ const ResourcePlanner = () => {
   const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
   const [teams, setTeams] = useState<Teams>(DEFAULT_STATE.teams);
   const [overheadFactor, setOverheadFactor] = useState(DEFAULT_STATE.overheadFactor);
-  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -223,20 +215,6 @@ const ResourcePlanner = () => {
     });
   };
 
-  const handleExportPng = () => {
-    logger.info('Attempting to export timeline as PNG');
-    if (!timelineRef.current || timeline.length === 0) {
-      logger.warn('Cannot export PNG: timeline is empty or reference is missing');
-      return;
-    }
-    try {
-      exportTimelineAsPng(timeline, overheadFactor);
-      logger.info('Timeline exported successfully as PNG');
-    } catch (error) {
-      logger.error('Failed to export timeline as PNG', error as Error);
-    }
-  };
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -251,12 +229,12 @@ const ResourcePlanner = () => {
 
           <TeamConfiguration
             teams={teams}
-            onTeamSizeChange={handleTeamSizeChange}
-            onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
-            onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
             onTeamAdd={handleTeamAdd}
             onTeamRemove={handleTeamRemove}
             onTeamRename={handleTeamRename}
+            onTeamSizeChange={handleTeamSizeChange}
+            onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
+            onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
           />
 
           <TeamSizeChart teams={teams} />
@@ -275,7 +253,6 @@ const ResourcePlanner = () => {
             teams={teams}
             timelineRef={timelineRef}
             overheadFactor={overheadFactor}
-            onExport={handleExportPng}
           />
         </div>
       </CardContent>

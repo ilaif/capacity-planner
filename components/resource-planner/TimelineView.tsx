@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { format, addWeeks, startOfWeek } from 'date-fns';
-import { calculateTimeline } from '@/services/timelineService';
+import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
 
 type ViewMode = 'weeks' | 'quarters';
 
@@ -20,16 +20,9 @@ interface TimelineViewProps {
   teams: Teams;
   timelineRef: RefObject<HTMLDivElement | null>;
   overheadFactor: number;
-  onExport: () => void;
 }
 
-export function TimelineView({
-  features,
-  teams,
-  timelineRef,
-  overheadFactor,
-  onExport,
-}: TimelineViewProps) {
+export function TimelineView({ features, teams, timelineRef, overheadFactor }: TimelineViewProps) {
   const [columnWidth, setColumnWidth] = useState(100);
   const [isDragging, setIsDragging] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('weeks');
@@ -110,6 +103,16 @@ export function TimelineView({
     return `Q${quarter} ${format(date, 'yyyy')}`;
   };
 
+  const handleExport = useCallback(() => {
+    if (timeline.length > 0) {
+      exportTimelineAsPng(timeline, overheadFactor, {
+        startDate,
+        columnWidth,
+        viewMode,
+      });
+    }
+  }, [timeline, overheadFactor, startDate, columnWidth, viewMode]);
+
   if (timeline.length === 0) return null;
 
   return (
@@ -121,8 +124,10 @@ export function TimelineView({
             <span className="text-sm text-gray-500">Start:</span>
             <Input
               type="date"
-              value={format(startDate, 'yyyy-MM-dd')}
-              onChange={e => setStartDate(startOfWeek(new Date(e.target.value)))}
+              value={startDate ? format(startDate, 'yyyy-MM-dd') : ''}
+              onChange={e =>
+                setStartDate(e.target.value ? startOfWeek(new Date(e.target.value)) : new Date())
+              }
               className="w-[140px]"
             />
           </div>
@@ -135,7 +140,7 @@ export function TimelineView({
               <SelectItem value="quarters">Quarters</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={onExport}>Export PNG</Button>
+          <Button onClick={handleExport}>Export PNG</Button>
         </div>
       </div>
       <div ref={timelineRef} className="relative h-96 overflow-x-auto">

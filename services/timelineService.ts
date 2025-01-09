@@ -6,6 +6,7 @@ import {
   ResourceNeeds,
 } from '@/types/resource-planner';
 import { logger } from '@/services/loggerService';
+import { format, addWeeks } from 'date-fns';
 
 export function calculateTimeline(
   features: Feature[],
@@ -107,10 +108,19 @@ export function calculateTimeline(
   return newTimeline;
 }
 
-export function exportTimelineAsPng(timeline: TimelineItem[], overheadFactor: number): void {
+export function exportTimelineAsPng(
+  timeline: TimelineItem[],
+  overheadFactor: number,
+  options: {
+    startDate: Date;
+    columnWidth: number;
+    viewMode: 'weeks' | 'quarters';
+  }
+): void {
   logger.info('Starting timeline export to PNG', {
     timelineLength: timeline.length,
     overheadFactor,
+    options,
   });
 
   if (timeline.length === 0) {
@@ -125,7 +135,10 @@ export function exportTimelineAsPng(timeline: TimelineItem[], overheadFactor: nu
     return;
   }
 
-  const width = Math.max(...timeline.map(t => t.endWeek || 0)) * 100 + 100;
+  const { startDate, columnWidth, viewMode } = options;
+  const maxWeek = Math.max(...timeline.map(t => t.endWeek || 0)) + 1;
+  const gridCount = viewMode === 'weeks' ? maxWeek : Math.ceil(maxWeek / 13);
+  const width = gridCount * (viewMode === 'weeks' ? columnWidth : columnWidth * 13);
   const height = timeline.length * 80 + 50;
 
   canvas.width = width;
@@ -138,11 +151,11 @@ export function exportTimelineAsPng(timeline: TimelineItem[], overheadFactor: nu
   ctx.fillRect(0, 0, width, height);
 
   try {
-    // Draw grid and week numbers
-    drawTimelineGrid(ctx, timeline, width, height);
+    // Draw grid and labels
+    drawTimelineGrid(ctx, gridCount, columnWidth, viewMode, startDate, width, height);
 
     // Draw features
-    drawTimelineFeatures(ctx, timeline, overheadFactor);
+    drawTimelineFeatures(ctx, timeline, overheadFactor, columnWidth, viewMode, startDate);
 
     // Trigger download
     downloadCanvas(canvas);
@@ -154,7 +167,10 @@ export function exportTimelineAsPng(timeline: TimelineItem[], overheadFactor: nu
 
 function drawTimelineGrid(
   ctx: CanvasRenderingContext2D,
-  timeline: TimelineItem[],
+  gridCount: number,
+  columnWidth: number,
+  viewMode: 'weeks' | 'quarters',
+  startDate: Date,
   width: number,
   height: number
 ): void {
@@ -162,43 +178,90 @@ function drawTimelineGrid(
   ctx.fillStyle = '#6b7280';
   ctx.font = '10px sans-serif';
 
-  for (let w = 0; w <= Math.max(...timeline.map(t => t.endWeek || 0)); w++) {
+  // Draw quarter markers
+  const quarters = Math.ceil(gridCount / (viewMode === 'weeks' ? 13 : 1));
+  for (let q = 0; q < quarters; q++) {
+    const x = q * (viewMode === 'weeks' ? columnWidth * 13 : columnWidth);
+    const weekIndex = q * 13;
+    const date = addWeeks(startDate, weekIndex);
+    const year = Math.floor(weekIndex / 52) + 1;
+    const weekInYear = weekIndex % 52;
+    const quarter = Math.floor(weekInYear / 13) + 1;
+    const quarterLabel =
+      columnWidth * 13 < 100 ? `Q${quarter}` : `Q${quarter} ${format(date, 'yyyy')}`;
+
     ctx.beginPath();
-    ctx.moveTo(w * 100, 0);
-    ctx.lineTo(w * 100, height);
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    if (q > 0) ctx.strokeStyle = '#d1d5db'; // Thicker border for quarters
     ctx.stroke();
-    ctx.fillText(`Week ${w}`, w * 100 + 5, 15);
+    ctx.strokeStyle = '#e5e7eb'; // Reset to normal border
+
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText(quarterLabel, x + 5, 15);
+  }
+
+  // Draw week markers if in weeks mode
+  if (viewMode === 'weeks') {
+    ctx.font = '10px sans-serif';
+    for (let w = 0; w < gridCount; w++) {
+      const x = w * columnWidth;
+      const date = addWeeks(startDate, w);
+      const weekLabel = columnWidth < 50 ? format(date, 'M/d') : `W${w} (${format(date, 'MMM d')})`;
+
+      ctx.beginPath();
+      ctx.moveTo(x, 24); // Start below quarter markers
+      ctx.lineTo(x, height);
+      ctx.stroke();
+
+      ctx.fillText(weekLabel, x + 5, 35);
+    }
   }
 }
 
 function drawTimelineFeatures(
   ctx: CanvasRenderingContext2D,
   timeline: TimelineItem[],
-  overheadFactor: number
+  overheadFactor: number,
+  columnWidth: number,
+  viewMode: 'weeks' | 'quarters',
+  startDate: Date
 ): void {
   timeline.forEach((allocation, index) => {
-    ctx.fillStyle = '#dbeafe';
-    ctx.fillRect(
-      allocation.startWeek * 100,
-      index * 80 + 20,
-      (allocation.endWeek || 0 - allocation.startWeek) * 100,
-      50
-    );
+    const x =
+      viewMode === 'weeks'
+        ? allocation.startWeek * columnWidth
+        : Math.floor(allocation.startWeek / 13) * columnWidth;
 
+    const width =
+      viewMode === 'weeks'
+        ? (allocation.endWeek || 0 - allocation.startWeek) * columnWidth
+        : Math.ceil((allocation.endWeek || 0 - allocation.startWeek) / 13) * columnWidth;
+
+    // Draw feature box
+    ctx.fillStyle = '#dbeafe';
+    ctx.fillRect(x, index * 80 + 40, width, 60);
+
+    // Draw feature text
     ctx.fillStyle = '#000000';
     ctx.font = '12px sans-serif';
-    ctx.fillText(allocation.feature, allocation.startWeek * 100 + 5, index * 80 + 35);
+    const featureText = `${index + 1}. ${allocation.feature}`;
+    ctx.fillText(featureText, x + 5, index * 80 + 55);
 
+    // Draw requirements
     Object.entries(allocation.assignments).forEach(([team, requirement], teamIndex) => {
       ctx.font = '10px sans-serif';
-      ctx.fillText(
-        `${team}: ${Math.round(requirement.weeks * overheadFactor)} (${
-          requirement.parallel
-        } parallel)`,
-        allocation.startWeek * 100 + 5,
-        index * 80 + 50 + teamIndex * 12
-      );
+      const reqText = `${team}: ${Math.round(requirement.weeks * overheadFactor)} (${
+        requirement.parallel
+      } parallel)`;
+      ctx.fillText(reqText, x + 5, index * 80 + 70 + teamIndex * 12);
     });
+
+    // Draw dates
+    const startDateText = format(addWeeks(startDate, allocation.startWeek), 'MMM d, yyyy');
+    const endDateText = format(addWeeks(startDate, allocation.endWeek || 0), 'MMM d, yyyy');
+    ctx.font = '10px sans-serif';
+    ctx.fillText(`${startDateText} - ${endDateText}`, x + 5, index * 80 + 95);
   });
 }
 
