@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Feature, TimelineItem, Teams } from '@/types/resource-planner';
+import { Feature, TimelineItem, Teams, TeamSizeVariation } from '@/types/resource-planner';
 import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
-import { FeatureUpload } from './resource-planner/FeatureUpload';
 import { TeamConfiguration } from './resource-planner/TeamConfiguration';
-import { FeatureList } from './resource-planner/FeatureList';
+import { Features } from './resource-planner/Features';
 import { TimelineView } from './resource-planner/TimelineView';
+import { PlanningConfiguration } from './resource-planner/PlanningConfiguration';
 
 const ResourcePlanner = () => {
   const [features, setFeatures] = useState<Feature[]>([
@@ -70,14 +70,91 @@ const ResourcePlanner = () => {
   };
 
   const handleTeamSizeChange = (team: string, value: string) => {
-    setTeams({
-      ...teams,
-      [team]: parseInt(value) || 0,
+    const size = parseInt(value) || 0;
+    setTeams(prevTeams => {
+      const currentSize = prevTeams[team];
+      // If it's already an array, update the base size while preserving variations
+      if (Array.isArray(currentSize)) {
+        const newSizes = [...currentSize];
+        newSizes[0] = size;
+        return {
+          ...prevTeams,
+          [team]: newSizes,
+        };
+      }
+      // Otherwise, just set the new size
+      return {
+        ...prevTeams,
+        [team]: size,
+      };
+    });
+  };
+
+  const handleTeamSizeVariationAdd = (variation: TeamSizeVariation) => {
+    setTeams(prevTeams => {
+      const currentSize = prevTeams[variation.team];
+      const baseSize = Array.isArray(currentSize) ? currentSize[0] : currentSize;
+      const newSizes = Array.isArray(currentSize) ? [...currentSize] : [baseSize];
+
+      // Only set the specific week that has a variation
+      newSizes[variation.week] = variation.size;
+
+      return {
+        ...prevTeams,
+        [variation.team]: newSizes,
+      };
+    });
+  };
+
+  const handleTeamSizeVariationRemove = (team: string, week: number) => {
+    setTeams(prevTeams => {
+      const currentSize = prevTeams[team];
+      if (!Array.isArray(currentSize)) return prevTeams;
+
+      const newSizes = [...currentSize];
+      const baseSize = newSizes[0];
+
+      // Only remove the specific variation
+      if (week === 0) {
+        // If removing variation from week 0, update all existing variations to use the new base size
+        newSizes.forEach((size, i) => {
+          if (size !== undefined && i !== 0) {
+            newSizes[i] = size;
+          }
+        });
+        newSizes[0] = baseSize;
+      } else {
+        // For other weeks, just remove that specific variation
+        delete newSizes[week];
+      }
+
+      // If no variations left, convert back to simple number
+      const hasVariations = newSizes.some(
+        (size, i) => i > 0 && size !== undefined && size !== baseSize
+      );
+      return {
+        ...prevTeams,
+        [team]: hasVariations ? newSizes : baseSize,
+      };
     });
   };
 
   const handleTimelineGenerate = () => {
-    const newTimeline = calculateTimeline(features, teams, overheadFactor);
+    // Convert teams object to have full arrays for timeline calculation
+    const teamsForTimeline = Object.fromEntries(
+      Object.entries(teams).map(([team, size]) => {
+        if (Array.isArray(size)) {
+          const fullArray = Array(52).fill(size[0]);
+          size.forEach((s, i) => {
+            if (s !== undefined) fullArray[i] = s;
+          });
+          return [team, fullArray];
+        }
+        return [team, Array(52).fill(size)];
+      })
+    );
+
+    const newTimeline = calculateTimeline(features, teamsForTimeline, overheadFactor);
     setTimeline(newTimeline);
   };
 
@@ -93,20 +170,24 @@ const ResourcePlanner = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          <FeatureUpload onFeaturesUploaded={setFeatures} />
-
-          <TeamConfiguration
-            teams={teams}
+          <PlanningConfiguration
             overheadFactor={overheadFactor}
-            onTeamSizeChange={handleTeamSizeChange}
             onOverheadFactorChange={setOverheadFactor}
           />
 
-          <FeatureList
+          <TeamConfiguration
+            teams={teams}
+            onTeamSizeChange={handleTeamSizeChange}
+            onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
+            onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
+          />
+
+          <Features
             features={features}
             onFeatureAdd={handleFeatureAdd}
             onFeatureNameChange={handleFeatureNameChange}
             onRequirementChange={handleRequirementChange}
+            onFeaturesUploaded={setFeatures}
           />
 
           <Button onClick={handleTimelineGenerate} className="w-full">

@@ -23,7 +23,13 @@ export interface TeamAvailability {
 }
 
 export interface Teams {
-  [key: string]: number;
+  [key: string]: number | number[];
+}
+
+export interface TeamSizeVariation {
+  team: string;
+  week: number;
+  size: number;
 }
 
 export interface ResourceNeeds {

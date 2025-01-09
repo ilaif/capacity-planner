@@ -56,6 +56,21 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      boxShadow: {
+        'linear-sm': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        'linear-md': '0 2px 4px 0 rgb(0 0 0 / 0.05), 0 1px 2px 0 rgb(0 0 0 / 0.06)',
+        'linear-lg': '0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.06)',
+        'linear-xl': '0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.06)',
+      },
+      keyframes: {
+        'linear-in': {
+          '0%': { opacity: '0', transform: 'translateY(-4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'linear-in': 'linear-in 0.2s ease-out',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

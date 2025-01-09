@@ -12,9 +12,10 @@
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "find-deadcode": "ts-prune",
     "check-types": "tsc --noEmit",
-    "generate": "npx shadcn@latest add -y card input button tooltip && npm run format"
+    "generate": "npx shadcn@latest add -y card input button tooltip select && npm run format"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^2.1.4",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
     "class-variance-authority": "^0.7.1",

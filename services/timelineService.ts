@@ -13,8 +13,10 @@ export function calculateTimeline(
 ): TimelineItem[] {
   const newTimeline: TimelineItem[] = [];
   const teamAvailability: TeamAvailability = {};
-  Object.keys(teams).forEach(team => {
-    teamAvailability[team] = Array(52).fill(teams[team]);
+
+  // Initialize team availability with varying team sizes
+  Object.entries(teams).forEach(([team, sizes]) => {
+    teamAvailability[team] = Array.isArray(sizes) ? [...sizes] : Array(52).fill(sizes);
   });
 
   features.forEach(feature => {
@@ -36,8 +38,10 @@ export function calculateTimeline(
         const weeksNeeded = Math.ceil((weeks * overheadFactor) / parallel);
         resourceNeeds[team] = { weeks: weeksNeeded, parallel };
 
+        // Check if we have enough resources for each week of the feature
         for (let w = 0; w < weeksNeeded; w++) {
-          if (teamAvailability[team][startWeek + w] < parallel) {
+          const weekIndex = startWeek + w;
+          if (weekIndex >= 52 || teamAvailability[team][weekIndex] < parallel) {
             canSchedule = false;
             break;
           }

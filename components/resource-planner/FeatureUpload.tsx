@@ -42,8 +42,10 @@ export function FeatureUpload({ onFeaturesUploaded }: FeatureUploadProps) {
 
   return (
     <div>
-      <h3 className="text-lg font-medium mb-4">Upload Features CSV</h3>
-      <Input type="file" accept=".csv" onChange={handleFileUpload} className="mb-4" />
+      <div className="flex items-center gap-4 mb-4">
+        <h3 className="text-sm font-medium whitespace-nowrap">Upload CSV</h3>
+        <Input type="file" accept=".csv" onChange={handleFileUpload} />
+      </div>
       <button
         onClick={() => setIsRequirementsOpen(!isRequirementsOpen)}
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-2"
