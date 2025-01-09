@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Feature, Teams, TeamSizeVariation } from '@/types/resource-planner';
+import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
 import { getInitialState, updateURL, DEFAULT_STATE } from '@/services/stateService';
 import { logger } from '@/services/loggerService';
-import { TeamConfiguration } from './resource-planner/TeamConfiguration';
-import { Features } from './resource-planner/Features';
-import { TimelineView } from './resource-planner/TimelineView';
-import { PlanningConfiguration } from './resource-planner/PlanningConfiguration';
-import { TeamSizeChart } from './resource-planner/TeamSizeChart';
+import { TeamConfiguration } from './capacity-planner/TeamConfiguration';
+import { Features } from './capacity-planner/Features';
+import { TimelineView } from './capacity-planner/TimelineView';
+import { PlanningConfiguration } from './capacity-planner/PlanningConfiguration';
+import { TeamSizeChart } from './capacity-planner/TeamSizeChart';
 
-const ResourcePlanner = () => {
+const CapacityPlanner = () => {
   const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
   const [teams, setTeams] = useState<Teams>(DEFAULT_STATE.teams);
   const [overheadFactor, setOverheadFactor] = useState(DEFAULT_STATE.overheadFactor);
@@ -18,14 +18,14 @@ const ResourcePlanner = () => {
 
   // Initialize state from URL or localStorage
   useEffect(() => {
-    logger.info('Initializing ResourcePlanner state');
+    logger.info('Initializing CapacityPlanner state');
     const initialState = getInitialState();
     logger.debug('Got initial state', initialState);
     setFeatures(initialState.features);
     setTeams(initialState.teams);
     setOverheadFactor(initialState.overheadFactor);
     setIsInitialized(true);
-    logger.info('ResourcePlanner state initialized successfully');
+    logger.info('CapacityPlanner state initialized successfully');
   }, []);
 
   // Save to localStorage and update URL whenever state changes
@@ -223,7 +223,7 @@ const ResourcePlanner = () => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Resource Planner</CardTitle>
+        <CardTitle>Capacity Planner</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -266,4 +266,4 @@ const ResourcePlanner = () => {
   );
 };
 
-export default ResourcePlanner;
+export default CapacityPlanner;

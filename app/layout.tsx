@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Resource Planner',
-  description: 'Resource Planner for feature teams',
+  title: 'Capacity Planner',
+  description: 'Capacity Planner for feature teams',
 };
 
 export default function RootLayout({

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Feature } from '@/types/resource-planner';
+import { Feature } from '@/types/capacity-planner';
 import { FeatureItem } from './FeatureItem';
 import { FeatureUpload } from './FeatureUpload';
 import {

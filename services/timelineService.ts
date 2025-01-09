@@ -1,10 +1,10 @@
 import {
   Feature,
-  TimelineItem,
   Teams,
+  TimelineItem,
   TeamAvailability,
   ResourceNeeds,
-} from '@/types/resource-planner';
+} from '@/types/capacity-planner';
 import { logger } from '@/services/loggerService';
 import { format, addWeeks } from 'date-fns';
 

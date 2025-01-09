@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { ParseResult } from 'papaparse';
 import Papa from 'papaparse';
-import { Feature, FeatureCSV } from '@/types/resource-planner';
+import { Feature, FeatureCSV } from '@/types/capacity-planner';
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 

@@ -1,4 +1,4 @@
-import { Teams } from '@/types/resource-planner';
+import { Teams } from '@/types/capacity-planner';
 import { Card } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 

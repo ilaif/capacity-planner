@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input';
-import { Teams, TeamSizeVariation } from '@/types/resource-planner';
+import { Teams, TeamSizeVariation } from '@/types/capacity-planner';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {

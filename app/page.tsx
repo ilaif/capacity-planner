@@ -1,6 +1,6 @@
 'use client';
-import ResourcePlanner from '../components/ResourcePlanner';
+import CapacityPlanner from '../components/CapacityPlanner';
 
 export default function Home() {
-  return <ResourcePlanner />;
+  return <CapacityPlanner />;
 }

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { TimelineItem, Feature, Teams } from '@/types/resource-planner';
+import type { TimelineItem, Feature, Teams } from '@/types/capacity-planner';
 import { RefObject, useState, useCallback, useEffect } from 'react';
 import {
   Select,

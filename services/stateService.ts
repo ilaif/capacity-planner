@@ -1,10 +1,10 @@
-import { Feature, Teams } from '@/types/resource-planner';
+import { Feature, Teams } from '@/types/capacity-planner';
 import { logger } from '@/services/loggerService';
 
-export const LOCAL_STORAGE_KEYS = {
-  FEATURES: 'resource-planner-features',
-  TEAMS: 'resource-planner-teams',
-  OVERHEAD: 'resource-planner-overhead',
+const STORAGE_KEYS = {
+  FEATURES: 'capacity-planner-features',
+  TEAMS: 'capacity-planner-teams',
+  OVERHEAD: 'capacity-planner-overhead',
 };
 
 export const QUERY_PARAM_KEY = 's';
@@ -52,9 +52,9 @@ export const loadFromLocalStorage = (): PlannerState => {
   }
 
   try {
-    const features = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.FEATURES) || 'null');
-    const teams = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.TEAMS) || 'null');
-    const overheadFactor = parseFloat(localStorage.getItem(LOCAL_STORAGE_KEYS.OVERHEAD) || 'null');
+    const features = JSON.parse(localStorage.getItem(STORAGE_KEYS.FEATURES) || 'null');
+    const teams = JSON.parse(localStorage.getItem(STORAGE_KEYS.TEAMS) || 'null');
+    const overheadFactor = parseFloat(localStorage.getItem(STORAGE_KEYS.OVERHEAD) || 'null');
 
     const state = {
       features: features || DEFAULT_STATE.features,
@@ -84,9 +84,9 @@ export const saveToLocalStorage = (state: PlannerState): void => {
   }
 
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.FEATURES, JSON.stringify(state.features));
-    localStorage.setItem(LOCAL_STORAGE_KEYS.TEAMS, JSON.stringify(state.teams));
-    localStorage.setItem(LOCAL_STORAGE_KEYS.OVERHEAD, state.overheadFactor.toString());
+    localStorage.setItem(STORAGE_KEYS.FEATURES, JSON.stringify(state.features));
+    localStorage.setItem(STORAGE_KEYS.TEAMS, JSON.stringify(state.teams));
+    localStorage.setItem(STORAGE_KEYS.OVERHEAD, state.overheadFactor.toString());
 
     logger.info('State saved to localStorage successfully', {
       featuresCount: state.features.length,
