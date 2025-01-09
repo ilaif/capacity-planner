@@ -59,19 +59,18 @@ export function FeatureUpload({ onFeaturesUploaded, teams }: FeatureUploadProps)
       <div className="flex items-center gap-4 mb-4">
         <h3 className="text-sm font-medium whitespace-nowrap">Upload CSV</h3>
         <Input type="file" accept=".csv" onChange={handleFileUpload} />
+        <button
+          onClick={() => setIsRequirementsOpen(!isRequirementsOpen)}
+          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-2 whitespace-nowrap"
+        >
+          {isRequirementsOpen ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
+          CSV Format Requirements
+        </button>
       </div>
-      <button
-        onClick={() => setIsRequirementsOpen(!isRequirementsOpen)}
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-2"
-      >
-        {isRequirementsOpen ? (
-          <ChevronUp className="w-4 h-4" />
-        ) : (
-          <ChevronDown className="w-4 h-4" />
-        )}
-        CSV Format Requirements
-      </button>
-
       {isRequirementsOpen && (
         <div className="space-y-2 text-sm text-gray-500 pl-6">
           <table className="min-w-full text-xs">
