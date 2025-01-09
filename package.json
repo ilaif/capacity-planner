@@ -11,7 +11,8 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "find-deadcode": "ts-prune",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "generate": "npx shadcn@latest add card input button tooltip"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.1",

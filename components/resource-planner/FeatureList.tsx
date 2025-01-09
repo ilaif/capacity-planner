@@ -21,7 +21,7 @@ export function FeatureList({
         <h3 className="text-lg font-medium">Features</h3>
         <Button onClick={onFeatureAdd}>Add Feature</Button>
       </div>
-      <div className="max-h-[300px] overflow-y-auto pr-2 space-y-4">
+      <div className="max-h-[300px] overflow-y-auto pr-2 space-y-4 p-1">
         {features.map(feature => (
           <FeatureItem
             key={feature.id}
