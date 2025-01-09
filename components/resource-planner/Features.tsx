@@ -5,6 +5,7 @@ import { FeatureUpload } from './FeatureUpload';
 
 interface FeatureListProps {
   features: Feature[];
+  teams: string[];
   onFeatureAdd: () => void;
   onFeatureNameChange: (featureId: number, name: string) => void;
   onRequirementChange: (featureId: number, team: string, field: string, value: string) => void;
@@ -13,6 +14,7 @@ interface FeatureListProps {
 
 export function Features({
   features,
+  teams,
   onFeatureAdd,
   onFeatureNameChange,
   onRequirementChange,
@@ -26,7 +28,7 @@ export function Features({
           <Button onClick={onFeatureAdd}>Add Feature</Button>
         </div>
       </div>
-      <FeatureUpload onFeaturesUploaded={onFeaturesUploaded} />
+      <FeatureUpload onFeaturesUploaded={onFeaturesUploaded} teams={teams} />
       <div className="max-h-[300px] overflow-y-auto space-y-4 p-1">
         {features.map(feature => (
           <FeatureItem

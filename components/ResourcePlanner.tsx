@@ -13,19 +13,67 @@ const ResourcePlanner = () => {
     {
       id: 1,
       name: 'Feature 1',
-      requirements: {
-        provider: { weeks: 2, parallel: 1 },
-        platform: { weeks: 1, parallel: 1 },
-      },
+      requirements: {},
     },
   ]);
-  const [teams, setTeams] = useState<Teams>({
-    provider: 7,
-    platform: 6,
-  });
+  const [teams, setTeams] = useState<Teams>({});
   const [overheadFactor, setOverheadFactor] = useState(1.2);
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const timelineRef = useRef<HTMLDivElement>(null);
+
+  const handleTeamAdd = (teamName: string) => {
+    if (!teams[teamName]) {
+      setTeams(prev => ({ ...prev, [teamName]: 0 }));
+      // Update all existing features to include the new team
+      setFeatures(prev =>
+        prev.map(feature => ({
+          ...feature,
+          requirements: {
+            ...feature.requirements,
+            [teamName]: { weeks: 0, parallel: 1 },
+          },
+        }))
+      );
+    }
+  };
+
+  const handleTeamRemove = (teamName: string) => {
+    setTeams(prev => {
+      const newTeams = { ...prev };
+      delete newTeams[teamName];
+      return newTeams;
+    });
+    // Remove team from all features
+    setFeatures(prev =>
+      prev.map(feature => {
+        const newRequirements = { ...feature.requirements };
+        delete newRequirements[teamName];
+        return { ...feature, requirements: newRequirements };
+      })
+    );
+  };
+
+  const handleTeamRename = (oldName: string, newName: string) => {
+    if (!teams[newName] && oldName !== newName) {
+      setTeams(prev => {
+        const newTeams = { ...prev };
+        newTeams[newName] = newTeams[oldName];
+        delete newTeams[oldName];
+        return newTeams;
+      });
+      // Update team name in all features
+      setFeatures(prev =>
+        prev.map(feature => {
+          const newRequirements = { ...feature.requirements };
+          if (newRequirements[oldName]) {
+            newRequirements[newName] = newRequirements[oldName];
+            delete newRequirements[oldName];
+          }
+          return { ...feature, requirements: newRequirements };
+        })
+      );
+    }
+  };
 
   const handleFeatureAdd = () => {
     setFeatures([
@@ -33,10 +81,13 @@ const ResourcePlanner = () => {
       {
         id: features.length + 1,
         name: `Feature ${features.length + 1}`,
-        requirements: {
-          provider: { weeks: 0, parallel: 1 },
-          platform: { weeks: 0, parallel: 1 },
-        },
+        requirements: Object.keys(teams).reduce(
+          (acc, team) => ({
+            ...acc,
+            [team]: { weeks: 0, parallel: 1 },
+          }),
+          {}
+        ),
       },
     ]);
   };
@@ -180,10 +231,14 @@ const ResourcePlanner = () => {
             onTeamSizeChange={handleTeamSizeChange}
             onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
             onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
+            onTeamAdd={handleTeamAdd}
+            onTeamRemove={handleTeamRemove}
+            onTeamRename={handleTeamRename}
           />
 
           <Features
             features={features}
+            teams={Object.keys(teams)}
             onFeatureAdd={handleFeatureAdd}
             onFeatureNameChange={handleFeatureNameChange}
             onRequirementChange={handleRequirementChange}

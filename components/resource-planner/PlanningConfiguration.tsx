@@ -13,7 +13,7 @@ export function PlanningConfiguration({
 }: PlanningConfigurationProps) {
   return (
     <div className="space-y-2">
-      <h3 className="text-lg font-medium">Planning Configuration</h3>
+      <h3 className="text-lg font-medium">Planning</h3>
       <div className="grid grid-cols-3 gap-2">
         <div className="col-span-1">
           <div className="flex items-center gap-1.5">

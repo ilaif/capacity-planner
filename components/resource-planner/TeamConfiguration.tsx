@@ -9,13 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { X } from 'lucide-react';
+import { X, Plus, Edit2 } from 'lucide-react';
 
 interface TeamConfigurationProps {
   teams: Teams;
   onTeamSizeChange: (team: string, value: string) => void;
   onTeamSizeVariationAdd: (variation: TeamSizeVariation) => void;
   onTeamSizeVariationRemove: (team: string, week: number) => void;
+  onTeamAdd: (teamName: string) => void;
+  onTeamRemove: (teamName: string) => void;
+  onTeamRename: (oldName: string, newName: string) => void;
 }
 
 export function TeamConfiguration({
@@ -23,10 +26,36 @@ export function TeamConfiguration({
   onTeamSizeChange,
   onTeamSizeVariationAdd,
   onTeamSizeVariationRemove,
+  onTeamAdd,
+  onTeamRemove,
+  onTeamRename,
 }: TeamConfigurationProps) {
   const [selectedTeam, setSelectedTeam] = useState<string>('');
   const [selectedWeek, setSelectedWeek] = useState<string>('');
   const [variationSize, setVariationSize] = useState<string>('');
+  const [newTeamName, setNewTeamName] = useState<string>('');
+  const [editingTeam, setEditingTeam] = useState<string | null>(null);
+  const [editedTeamName, setEditedTeamName] = useState<string>('');
+
+  const handleAddTeam = () => {
+    if (newTeamName && !teams[newTeamName]) {
+      onTeamAdd(newTeamName);
+      setNewTeamName('');
+    }
+  };
+
+  const startEditingTeam = (team: string) => {
+    setEditingTeam(team);
+    setEditedTeamName(team);
+  };
+
+  const handleRenameTeam = () => {
+    if (editingTeam && editedTeamName && editingTeam !== editedTeamName) {
+      onTeamRename(editingTeam, editedTeamName);
+      setEditingTeam(null);
+      setEditedTeamName('');
+    }
+  };
 
   const handleAddVariation = () => {
     if (selectedTeam && selectedWeek && variationSize) {
@@ -73,18 +102,68 @@ export function TeamConfiguration({
 
   return (
     <div className="space-y-2">
-      <h3 className="text-lg font-medium">Team Sizes</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">Teams</h3>
+        <div className="flex gap-2">
+          <Input
+            value={newTeamName}
+            onChange={e => setNewTeamName(e.target.value)}
+            placeholder="New team name"
+            className="h-8 w-40"
+          />
+          <Button onClick={handleAddTeam} size="sm" className="h-8">
+            <Plus className="h-4 w-4 mr-1" /> Add Team
+          </Button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-3 gap-2">
         {Object.entries(teams).map(([team, size]) => (
-          <div key={team} className="col-span-1">
-            <label className="text-xs font-medium">{team}</label>
-            <Input
-              type="number"
-              value={getBaseTeamSize(size)}
-              onChange={e => onTeamSizeChange(team, e.target.value)}
-              min="0"
-              className="h-8"
-            />
+          <div key={team} className="col-span-1 flex items-center gap-1">
+            {editingTeam === team ? (
+              <>
+                <Input
+                  value={editedTeamName}
+                  onChange={e => setEditedTeamName(e.target.value)}
+                  className="h-8"
+                  onKeyDown={e => e.key === 'Enter' && handleRenameTeam()}
+                />
+                <Button variant="ghost" size="sm" onClick={handleRenameTeam} className="h-8 px-2">
+                  Save
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="flex-1">
+                  <label className="text-xs font-medium">{team}</label>
+                  <Input
+                    type="number"
+                    value={getBaseTeamSize(size)}
+                    onChange={e => onTeamSizeChange(team, e.target.value)}
+                    min="0"
+                    className="h-8"
+                  />
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => startEditingTeam(team)}
+                    className="h-8 px-2"
+                  >
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onTeamRemove(team)}
+                    className="h-8 px-2"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>

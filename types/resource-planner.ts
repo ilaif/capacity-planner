@@ -1,9 +1,6 @@
 export interface FeatureCSV {
   feature: string;
-  provider_weeks: string;
-  provider_parallel: string;
-  platform_weeks: string;
-  platform_parallel: string;
+  [key: string]: string;
 }
 
 export interface TimelineItem {
