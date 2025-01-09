@@ -5,6 +5,31 @@ import { X, GripVertical } from 'lucide-react';
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import dynamic from 'next/dynamic';
+import type { DraggableAttributes } from '@dnd-kit/core';
+import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
+
+interface SortableHandleProps {
+  listeners: SyntheticListenerMap | undefined;
+  attributes: DraggableAttributes;
+}
+
+// Create a client-side only wrapper for the sortable functionality
+const SortableHandle = dynamic<SortableHandleProps>(
+  () =>
+    Promise.resolve(({ listeners, attributes }) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="cursor-grab active:cursor-grabbing p-0 h-auto"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4" />
+      </Button>
+    )),
+  { ssr: false }
+);
 
 interface FeatureItemProps {
   feature: Feature;
@@ -33,15 +58,7 @@ export function FeatureItem({
     <div ref={setNodeRef} style={style} className="space-y-2">
       <div className="flex gap-4">
         <div className="w-8 text-sm font-medium pt-2 flex items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="cursor-grab active:cursor-grabbing p-0 h-auto"
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical className="h-4 w-4" />
-          </Button>
+          <SortableHandle listeners={listeners} attributes={attributes} />
           {feature.id}.
         </div>
         <div className="flex-1 flex gap-2">
