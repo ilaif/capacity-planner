@@ -21,10 +21,13 @@ export function calculateTimeline(
 
   const newTimeline: TimelineItem[] = [];
   const teamAvailability: TeamAvailability = {};
+  const maxWeeks = 1000; // Large enough number to handle multi-year planning
 
   // Initialize team availability with varying team sizes
   Object.entries(teams).forEach(([team, sizes]) => {
-    teamAvailability[team] = Array.isArray(sizes) ? [...sizes] : Array(52).fill(sizes);
+    teamAvailability[team] = Array.isArray(sizes)
+      ? [...sizes, ...Array(maxWeeks - sizes.length).fill(sizes[sizes.length - 1])] // Extend with last known size
+      : Array(maxWeeks).fill(sizes);
     logger.debug(`Initialized availability for team ${team}`, {
       isVariable: Array.isArray(sizes),
       baseSize: Array.isArray(sizes) ? sizes[0] : sizes,
@@ -42,7 +45,7 @@ export function calculateTimeline(
     let startWeek = 0;
     let canSchedule = false;
 
-    while (!canSchedule && startWeek < 52) {
+    while (!canSchedule && startWeek < maxWeeks) {
       canSchedule = true;
       const resourceNeeds: ResourceNeeds = {};
 
@@ -54,12 +57,12 @@ export function calculateTimeline(
         // Check if we have enough resources for each week of the feature
         for (let w = 0; w < weeksNeeded; w++) {
           const weekIndex = startWeek + w;
-          if (weekIndex >= 52 || teamAvailability[team][weekIndex] < parallel) {
+          if (weekIndex >= maxWeeks || teamAvailability[team][weekIndex] < parallel) {
             logger.debug(`Cannot schedule ${feature.name} at week ${startWeek}`, {
               team,
               weekIndex,
               required: parallel,
-              available: weekIndex < 52 ? teamAvailability[team][weekIndex] : 0,
+              available: weekIndex < maxWeeks ? teamAvailability[team][weekIndex] : 0,
             });
             canSchedule = false;
             break;
@@ -184,7 +187,9 @@ function drawTimelineGrid(
     const weekInYear = weekIndex % 52;
     const quarter = Math.floor(weekInYear / 13) + 1;
     const quarterLabel =
-      columnWidth * 13 < 100 ? `Q${quarter}` : `Q${quarter} ${format(date, 'yyyy')}`;
+      columnWidth * 13 < 100
+        ? `Y${year}Q${quarter}`
+        : `Year ${year} Q${quarter} (${format(date, 'MMM yyyy')})`;
 
     ctx.beginPath();
     ctx.moveTo(x, 0);
@@ -231,8 +236,8 @@ function drawTimelineFeatures(
 
     const width =
       viewMode === 'weeks'
-        ? (allocation.endWeek || 0 - allocation.startWeek) * columnWidth
-        : Math.ceil((allocation.endWeek || 0 - allocation.startWeek) / 13) * columnWidth;
+        ? ((allocation.endWeek || 0) - allocation.startWeek) * columnWidth
+        : Math.ceil(((allocation.endWeek || 0) - allocation.startWeek) / 13) * columnWidth;
 
     // Draw feature box
     ctx.fillStyle = '#dbeafe';
