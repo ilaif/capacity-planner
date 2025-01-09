@@ -5,21 +5,33 @@ import {
   TeamAvailability,
   ResourceNeeds,
 } from '@/types/resource-planner';
+import { logger } from '@/services/loggerService';
 
 export function calculateTimeline(
   features: Feature[],
   teams: Teams,
   overheadFactor: number
 ): TimelineItem[] {
+  logger.info('Starting timeline calculation', {
+    featureCount: features.length,
+    teamCount: Object.keys(teams).length,
+    overheadFactor,
+  });
+
   const newTimeline: TimelineItem[] = [];
   const teamAvailability: TeamAvailability = {};
 
   // Initialize team availability with varying team sizes
   Object.entries(teams).forEach(([team, sizes]) => {
     teamAvailability[team] = Array.isArray(sizes) ? [...sizes] : Array(52).fill(sizes);
+    logger.debug(`Initialized availability for team ${team}`, {
+      isVariable: Array.isArray(sizes),
+      baseSize: Array.isArray(sizes) ? sizes[0] : sizes,
+    });
   });
 
   features.forEach(feature => {
+    logger.debug(`Processing feature: ${feature.name}`, feature);
     const featureAllocation: TimelineItem = {
       feature: feature.name,
       startWeek: 0,
@@ -42,6 +54,12 @@ export function calculateTimeline(
         for (let w = 0; w < weeksNeeded; w++) {
           const weekIndex = startWeek + w;
           if (weekIndex >= 52 || teamAvailability[team][weekIndex] < parallel) {
+            logger.debug(`Cannot schedule ${feature.name} at week ${startWeek}`, {
+              team,
+              weekIndex,
+              required: parallel,
+              available: weekIndex < 52 ? teamAvailability[team][weekIndex] : 0,
+            });
             canSchedule = false;
             break;
           }
@@ -63,22 +81,45 @@ export function calculateTimeline(
         featureAllocation.endWeek =
           startWeek + Math.max(...Object.values(resourceNeeds).map(n => n.weeks));
         newTimeline.push(featureAllocation);
+        logger.info(`Scheduled feature ${feature.name}`, {
+          startWeek: featureAllocation.startWeek,
+          endWeek: featureAllocation.endWeek,
+          assignments: featureAllocation.assignments,
+        });
       } else {
         startWeek++;
       }
     }
+
+    if (startWeek >= 52) {
+      logger.warn(`Could not schedule feature ${feature.name} within 52 weeks`, {
+        requirements: feature.requirements,
+      });
+    }
   });
 
+  logger.info('Timeline calculation completed', {
+    scheduledFeatures: newTimeline.length,
+    totalDuration: Math.max(...newTimeline.map(t => t.endWeek || 0)),
+  });
   return newTimeline;
 }
 
 export function exportTimelineAsPng(timeline: TimelineItem[], overheadFactor: number): void {
-  if (timeline.length === 0) return;
+  logger.info('Starting timeline export to PNG', {
+    timelineLength: timeline.length,
+    overheadFactor,
+  });
+
+  if (timeline.length === 0) {
+    logger.warn('Cannot export empty timeline');
+    return;
+  }
 
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   if (!ctx) {
-    console.error('Canvas context not found');
+    logger.error('Failed to get canvas context');
     return;
   }
 
@@ -88,18 +129,25 @@ export function exportTimelineAsPng(timeline: TimelineItem[], overheadFactor: nu
   canvas.width = width;
   canvas.height = height;
 
+  logger.debug('Canvas initialized', { width, height });
+
   // Draw background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
 
-  // Draw grid and week numbers
-  drawTimelineGrid(ctx, timeline, width, height);
+  try {
+    // Draw grid and week numbers
+    drawTimelineGrid(ctx, timeline, width, height);
 
-  // Draw features
-  drawTimelineFeatures(ctx, timeline, overheadFactor);
+    // Draw features
+    drawTimelineFeatures(ctx, timeline, overheadFactor);
 
-  // Trigger download
-  downloadCanvas(canvas);
+    // Trigger download
+    downloadCanvas(canvas);
+    logger.info('Timeline exported successfully');
+  } catch (error) {
+    logger.error('Failed to draw timeline', error as Error);
+  }
 }
 
 function drawTimelineGrid(

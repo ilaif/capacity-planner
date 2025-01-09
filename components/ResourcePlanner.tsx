@@ -1,8 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Feature, TimelineItem, Teams, TeamSizeVariation } from '@/types/resource-planner';
 import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
+import {
+  getInitialState,
+  saveToLocalStorage,
+  updateURL,
+  DEFAULT_STATE,
+} from '@/services/stateService';
+import { logger } from '@/services/loggerService';
 import { TeamConfiguration } from './resource-planner/TeamConfiguration';
 import { Features } from './resource-planner/Features';
 import { TimelineView } from './resource-planner/TimelineView';
@@ -10,19 +17,37 @@ import { PlanningConfiguration } from './resource-planner/PlanningConfiguration'
 import { TeamSizeChart } from './resource-planner/TeamSizeChart';
 
 const ResourcePlanner = () => {
-  const [features, setFeatures] = useState<Feature[]>([
-    {
-      id: 1,
-      name: 'Feature 1',
-      requirements: {},
-    },
-  ]);
-  const [teams, setTeams] = useState<Teams>({});
-  const [overheadFactor, setOverheadFactor] = useState(1.2);
+  const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
+  const [teams, setTeams] = useState<Teams>(DEFAULT_STATE.teams);
+  const [overheadFactor, setOverheadFactor] = useState(DEFAULT_STATE.overheadFactor);
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initialize state from URL or localStorage
+  useEffect(() => {
+    logger.info('Initializing ResourcePlanner state');
+    const initialState = getInitialState();
+    logger.debug('Got initial state', initialState);
+    setFeatures(initialState.features);
+    setTeams(initialState.teams);
+    setOverheadFactor(initialState.overheadFactor);
+    setIsInitialized(true);
+    logger.info('ResourcePlanner state initialized successfully');
+  }, []);
+
+  // Save to localStorage and update URL whenever state changes
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const state = { features, teams, overheadFactor };
+    logger.debug('Updating state in URL and localStorage', state);
+    updateURL(state);
+    logger.debug('State updated successfully');
+  }, [features, teams, overheadFactor, isInitialized]);
 
   const handleTeamAdd = (teamName: string) => {
+    logger.info(`Adding new team: ${teamName}`);
     if (!teams[teamName]) {
       setTeams(prev => ({ ...prev, [teamName]: 0 }));
       // Update all existing features to include the new team
@@ -35,16 +60,19 @@ const ResourcePlanner = () => {
           },
         }))
       );
+      logger.info(`Team ${teamName} added successfully`);
+    } else {
+      logger.warn(`Team ${teamName} already exists`);
     }
   };
 
   const handleTeamRemove = (teamName: string) => {
+    logger.info(`Removing team: ${teamName}`);
     setTeams(prev => {
       const newTeams = { ...prev };
       delete newTeams[teamName];
       return newTeams;
     });
-    // Remove team from all features
     setFeatures(prev =>
       prev.map(feature => {
         const newRequirements = { ...feature.requirements };
@@ -52,9 +80,11 @@ const ResourcePlanner = () => {
         return { ...feature, requirements: newRequirements };
       })
     );
+    logger.info(`Team ${teamName} removed successfully`);
   };
 
   const handleTeamRename = (oldName: string, newName: string) => {
+    logger.info(`Renaming team from ${oldName} to ${newName}`);
     if (!teams[newName] && oldName !== newName) {
       setTeams(prev => {
         const newTeams = { ...prev };
@@ -62,7 +92,6 @@ const ResourcePlanner = () => {
         delete newTeams[oldName];
         return newTeams;
       });
-      // Update team name in all features
       setFeatures(prev =>
         prev.map(feature => {
           const newRequirements = { ...feature.requirements };
@@ -73,24 +102,27 @@ const ResourcePlanner = () => {
           return { ...feature, requirements: newRequirements };
         })
       );
+      logger.info(`Team renamed successfully from ${oldName} to ${newName}`);
+    } else {
+      logger.warn(`Cannot rename team: new name ${newName} already exists or names are identical`);
     }
   };
 
   const handleFeatureAdd = () => {
-    setFeatures([
-      ...features,
-      {
-        id: features.length + 1,
-        name: `Feature ${features.length + 1}`,
-        requirements: Object.keys(teams).reduce(
-          (acc, team) => ({
-            ...acc,
-            [team]: { weeks: 0, parallel: 1 },
-          }),
-          {}
-        ),
-      },
-    ]);
+    logger.info('Adding new feature');
+    const newFeature = {
+      id: features.length + 1,
+      name: `Feature ${features.length + 1}`,
+      requirements: Object.keys(teams).reduce(
+        (acc, team) => ({
+          ...acc,
+          [team]: { weeks: 0, parallel: 1 },
+        }),
+        {}
+      ),
+    };
+    setFeatures([...features, newFeature]);
+    logger.debug('New feature added', newFeature);
   };
 
   const handleFeatureNameChange = (featureId: number, name: string) => {
@@ -192,19 +224,20 @@ const ResourcePlanner = () => {
   };
 
   const handleTimelineGenerate = () => {
-    // Convert teams object to have full arrays for timeline calculation
+    logger.info('Generating timeline', {
+      featuresCount: features.length,
+      teamsCount: Object.keys(teams).length,
+    });
+
     const teamsForTimeline = Object.fromEntries(
       Object.entries(teams).map(([team, size]) => {
         if (Array.isArray(size)) {
           const fullArray = Array(52).fill(size[0]);
-
-          // Find all weeks with variations
           const variationWeeks = size
             .map((s, week) => (s !== undefined && week > 0 ? week : -1))
             .filter(week => week !== -1)
             .sort((a, b) => a - b);
 
-          // Apply each variation forward until the next variation
           variationWeeks.forEach((week, index) => {
             const nextVariationWeek = variationWeeks[index + 1] || 52;
             const variationSize = size[week];
@@ -219,13 +252,34 @@ const ResourcePlanner = () => {
       })
     );
 
-    const newTimeline = calculateTimeline(features, teamsForTimeline, overheadFactor);
-    setTimeline(newTimeline);
+    try {
+      const newTimeline = calculateTimeline(features, teamsForTimeline, overheadFactor);
+      setTimeline(newTimeline);
+      logger.info('Timeline generated successfully', {
+        timelineLength: newTimeline.length,
+        totalWeeks: newTimeline[newTimeline.length - 1]?.endWeek || 0,
+      });
+    } catch (error) {
+      logger.error('Failed to generate timeline', error as Error, {
+        features,
+        teamsForTimeline,
+        overheadFactor,
+      });
+    }
   };
 
   const handleExportPng = () => {
-    if (!timelineRef.current || timeline.length === 0) return;
-    exportTimelineAsPng(timeline, overheadFactor);
+    logger.info('Attempting to export timeline as PNG');
+    if (!timelineRef.current || timeline.length === 0) {
+      logger.warn('Cannot export PNG: timeline is empty or reference is missing');
+      return;
+    }
+    try {
+      exportTimelineAsPng(timeline, overheadFactor);
+      logger.info('Timeline exported successfully as PNG');
+    } catch (error) {
+      logger.error('Failed to export timeline as PNG', error as Error);
+    }
   };
 
   return (
