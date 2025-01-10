@@ -73,7 +73,7 @@ export function FeatureItem({
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-6 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         {Object.entries(feature.requirements).map(([team, requirement]) => (
           <React.Fragment key={team}>
             <div className="flex items-center gap-2">
