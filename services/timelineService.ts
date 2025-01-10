@@ -110,7 +110,6 @@ export function exportTimelineAsPng(
   options: {
     startDate: Date;
     columnWidth: number;
-    viewMode: 'weeks' | 'quarters';
   }
 ): void {
   logger.info('Starting timeline export to PNG', {
@@ -131,10 +130,10 @@ export function exportTimelineAsPng(
     return;
   }
 
-  const { startDate, columnWidth, viewMode } = options;
+  const { startDate, columnWidth } = options;
   const maxWeek = Math.max(...timeline.map(t => t.endWeek || 0)) + 1;
-  const gridCount = viewMode === 'weeks' ? maxWeek : Math.ceil(maxWeek / 13);
-  const width = gridCount * (viewMode === 'weeks' ? columnWidth : columnWidth * 13);
+  const gridCount = maxWeek;
+  const width = gridCount * columnWidth;
   const height = timeline.length * 80 + 50;
 
   canvas.width = width;
@@ -148,10 +147,10 @@ export function exportTimelineAsPng(
 
   try {
     // Draw grid and labels
-    drawTimelineGrid(ctx, gridCount, columnWidth, viewMode, startDate, height);
+    drawTimelineGrid(ctx, gridCount, columnWidth, startDate, height);
 
     // Draw features
-    drawTimelineFeatures(ctx, timeline, overheadFactor, columnWidth, viewMode, startDate);
+    drawTimelineFeatures(ctx, timeline, overheadFactor, columnWidth, startDate);
 
     // Trigger download
     downloadCanvas(canvas);
@@ -165,7 +164,6 @@ function drawTimelineGrid(
   ctx: CanvasRenderingContext2D,
   gridCount: number,
   columnWidth: number,
-  viewMode: 'weeks' | 'quarters',
   startDate: Date,
   height: number
 ): void {
@@ -174,9 +172,9 @@ function drawTimelineGrid(
   ctx.font = '10px sans-serif';
 
   // Draw quarter markers
-  const quarters = Math.ceil(gridCount / (viewMode === 'weeks' ? 13 : 1));
+  const quarters = Math.ceil(gridCount / 13);
   for (let q = 0; q < quarters; q++) {
-    const x = q * (viewMode === 'weeks' ? columnWidth * 13 : columnWidth);
+    const x = q * columnWidth * 13;
     const weekIndex = q * 13;
     const date = addWeeks(startDate, weekIndex);
     const year = Math.floor(weekIndex / 52) + 1;
@@ -199,20 +197,18 @@ function drawTimelineGrid(
   }
 
   // Draw week markers if in weeks mode
-  if (viewMode === 'weeks') {
-    ctx.font = '10px sans-serif';
-    for (let w = 0; w < gridCount; w++) {
-      const x = w * columnWidth;
-      const date = addWeeks(startDate, w);
-      const weekLabel = columnWidth < 50 ? format(date, 'M/d') : `W${w} (${format(date, 'MMM d')})`;
+  ctx.font = '10px sans-serif';
+  for (let w = 0; w < gridCount; w++) {
+    const x = w * columnWidth;
+    const date = addWeeks(startDate, w);
+    const weekLabel = columnWidth < 50 ? format(date, 'M/d') : `W${w} (${format(date, 'MMM d')})`;
 
-      ctx.beginPath();
-      ctx.moveTo(x, 24); // Start below quarter markers
-      ctx.lineTo(x, height);
-      ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, 24); // Start below quarter markers
+    ctx.lineTo(x, height);
+    ctx.stroke();
 
-      ctx.fillText(weekLabel, x + 5, 35);
-    }
+    ctx.fillText(weekLabel, x + 5, 35);
   }
 }
 
@@ -221,19 +217,12 @@ function drawTimelineFeatures(
   timeline: TimelineItem[],
   overheadFactor: number,
   columnWidth: number,
-  viewMode: 'weeks' | 'quarters',
   startDate: Date
 ): void {
   timeline.forEach((allocation, index) => {
-    const x =
-      viewMode === 'weeks'
-        ? allocation.startWeek * columnWidth
-        : Math.floor(allocation.startWeek / 13) * columnWidth;
+    const x = allocation.startWeek * columnWidth;
 
-    const width =
-      viewMode === 'weeks'
-        ? ((allocation.endWeek || 0) - allocation.startWeek) * columnWidth
-        : Math.ceil(((allocation.endWeek || 0) - allocation.startWeek) / 13) * columnWidth;
+    const width = ((allocation.endWeek || 0) - allocation.startWeek) * columnWidth;
 
     // Draw feature box
     ctx.fillStyle = '#dbeafe';
@@ -242,7 +231,7 @@ function drawTimelineFeatures(
     // Draw feature text
     ctx.fillStyle = '#000000';
     ctx.font = '12px sans-serif';
-    const featureText = `${index + 1}. ${allocation.feature}`;
+    const featureText = allocation.feature;
     ctx.fillText(featureText, x + 5, index * 80 + 55);
 
     // Draw requirements

@@ -61,7 +61,7 @@ export function Features({
       <FeatureUpload onFeaturesUploaded={onFeaturesUploaded} teams={teams} />
       <Button onClick={onFeatureAdd}>Add Feature</Button>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="max-h-[300px] overflow-y-auto space-y-4 p-1">
+        <div className="space-y-4 p-1">
           <SortableContext
             items={features.map(f => f.id.toString())}
             strategy={verticalListSortingStrategy}

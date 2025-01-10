@@ -55,12 +55,9 @@ export function FeatureItem({
   return (
     <div ref={setNodeRef} style={style} className="space-y-2">
       <div className="flex gap-4">
-        <div className="w-8 text-sm font-medium pt-2 flex items-center">
-          <Suspense fallback={<div className="w-4 h-4" />}>
-            <SortableHandle listeners={listeners} attributes={attributes} />
-          </Suspense>
-          {feature.id}.
-        </div>
+        <Suspense fallback={<div className="w-4 h-4" />}>
+          <SortableHandle listeners={listeners} attributes={attributes} />
+        </Suspense>
         <div className="flex-1 flex gap-2">
           <Input
             value={feature.name}

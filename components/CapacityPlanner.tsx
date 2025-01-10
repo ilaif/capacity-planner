@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
 import { getInitialState, updateURL, DEFAULT_STATE } from '@/services/stateService';
 import { logger } from '@/services/loggerService';
@@ -7,12 +6,15 @@ import { TeamConfiguration } from './capacity-planner/TeamConfiguration';
 import { Features } from './capacity-planner/Features';
 import { TimelineView } from './capacity-planner/TimelineView';
 import { PlanningConfiguration } from './capacity-planner/PlanningConfiguration';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 const CapacityPlanner = () => {
   const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
   const [teams, setTeams] = useState<Teams>(DEFAULT_STATE.teams);
   const [overheadFactor, setOverheadFactor] = useState(DEFAULT_STATE.overheadFactor);
+  const [open, setOpen] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -221,29 +223,37 @@ const CapacityPlanner = () => {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Capacity Planner</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div>
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger>
+    <div className="fixed inset-0 flex flex-col h-screen">
+      {/* Timeline View */}
+      <div className="flex-1 overflow-hidden relative">
+        <h2 className="text-2xl font-medium p-4 border-b">Capacity Planner</h2>
+
+        <TimelineView
+          features={features}
+          teams={teams}
+          timelineRef={timelineRef}
+          overheadFactor={overheadFactor}
+        />
+
+        {/* Controls Toggle Button */}
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="absolute top-4 right-4 z-50">
+              <Menu className="h-4 w-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="pr-1">
+            <SheetHeader>
+              <SheetTitle>Configuration</SheetTitle>
+            </SheetHeader>
+            <div className="pl-1 pr-6 space-y-4 mt-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
               <h3 className="text-lg font-medium">Planning</h3>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
               <PlanningConfiguration
                 overheadFactor={overheadFactor}
                 onOverheadFactorChange={setOverheadFactor}
               />
-            </CollapsibleContent>
-          </Collapsible>
 
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger>
               <h3 className="text-lg font-medium">Teams</h3>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
               <TeamConfiguration
                 teams={teams}
                 onTeamAdd={handleTeamAdd}
@@ -253,14 +263,8 @@ const CapacityPlanner = () => {
                 onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
                 onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
               />
-            </CollapsibleContent>
-          </Collapsible>
 
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger>
               <h3 className="text-lg font-medium">Features</h3>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
               <Features
                 features={features}
                 teams={Object.keys(teams)}
@@ -270,25 +274,11 @@ const CapacityPlanner = () => {
                 onFeaturesUploaded={setFeatures}
                 onFeatureRemove={handleFeatureRemove}
               />
-            </CollapsibleContent>
-          </Collapsible>
-
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger>
-              <h3 className="text-lg font-medium">Timeline</h3>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <TimelineView
-                features={features}
-                teams={teams}
-                timelineRef={timelineRef}
-                overheadFactor={overheadFactor}
-              />
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
-      </CardContent>
-    </Card>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </div>
   );
 };
 
