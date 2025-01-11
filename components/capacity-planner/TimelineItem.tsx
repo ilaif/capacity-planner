@@ -39,7 +39,7 @@ export function TimelineItem({
       style={{
         left: `${getColumnPosition(allocation.startWeek)}px`,
         width: `${getColumnWidth(allocation.startWeek, allocation.endWeek || 0)}px`,
-        top: `${index * 80 + 40}px`,
+        top: `${index * 72 + 8}px`,
         minWidth: '30px',
       }}
     >

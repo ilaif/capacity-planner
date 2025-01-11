@@ -6,6 +6,10 @@ import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineServi
 import { TimelineItem, TimelineGrid } from './TimelineItem';
 import { DatePicker } from '@/components/ui/date-picker';
 
+interface TimelineItemWithRow extends TimelineItemType {
+  row: number;
+}
+
 interface TimelineViewProps {
   features: Feature[];
   teams: Teams;
@@ -17,12 +21,30 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
   const [columnWidth, setColumnWidth] = useState(90);
   const [isDragging, setIsDragging] = useState(false);
   const [startDate, setStartDate] = useState<Date>(startOfWeek(new Date()));
-  const [timeline, setTimeline] = useState<TimelineItemType[]>([]);
+  const [timeline, setTimeline] = useState<TimelineItemWithRow[]>([]);
+
+  // Calculate optimal row positions for timeline items
+  const calculateRowPositions = (items: TimelineItemType[]): TimelineItemWithRow[] => {
+    const itemsWithRows: TimelineItemWithRow[] = [];
+
+    let rowIndex = 0;
+    let lastEndWeek = 0;
+    for (const item of items) {
+      if (item.startWeek < lastEndWeek) {
+        rowIndex++;
+      }
+      lastEndWeek = item.endWeek || 0;
+      itemsWithRows.push({ ...item, row: rowIndex });
+    }
+
+    return itemsWithRows;
+  };
 
   // Generate timeline whenever features, teams, or overhead factor changes
   useEffect(() => {
     const generatedTimeline = calculateTimeline(features, teams, overheadFactor);
-    setTimeline(generatedTimeline);
+    const timelineWithRows = calculateRowPositions(generatedTimeline);
+    setTimeline(timelineWithRows);
   }, [features, teams, overheadFactor]);
 
   const handleMouseDown = useCallback(() => {
@@ -114,19 +136,17 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
             getQuarterLabel={getQuarterLabel}
           />
         </div>
-        <div className="relative">
-          {timeline.map((allocation, index) => (
-            <TimelineItem
-              key={index}
-              allocation={allocation}
-              index={index}
-              overheadFactor={overheadFactor}
-              getColumnPosition={getColumnPosition}
-              getColumnWidth={getColumnWidth}
-              startDate={startDate}
-            />
-          ))}
-        </div>
+        {timeline.map((allocation, index) => (
+          <TimelineItem
+            key={index}
+            allocation={allocation}
+            index={allocation.row}
+            overheadFactor={overheadFactor}
+            getColumnPosition={getColumnPosition}
+            getColumnWidth={getColumnWidth}
+            startDate={startDate}
+          />
+        ))}
       </div>
     </div>
   );
