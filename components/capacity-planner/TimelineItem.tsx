@@ -45,9 +45,7 @@ export function TimelineItem({
             ))}
           </TooltipTrigger>
           <TooltipContent>
-            <div className="font-medium">
-              {index + 1}. {allocation.feature}
-            </div>
+            <div className="font-medium">{allocation.feature}</div>
             {Object.entries(allocation.assignments).map(([team, requirement]) => (
               <div key={team}>
                 {team}: {requirement.weeks} ({requirement.parallel} parallel)
