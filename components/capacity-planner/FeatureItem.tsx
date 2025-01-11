@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Feature } from '@/types/capacity-planner';
 import { Button } from '@/components/ui/button';
-import { X, GripVertical } from 'lucide-react';
+import { X, GripVertical, HelpCircle } from 'lucide-react';
 import React, { lazy, Suspense } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -9,6 +9,7 @@ import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { NumberInput } from '@/components/ui/number-input';
 import { TeamAvatar } from '@/components/ui/team-avatar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SortableHandleProps {
   listeners: SyntheticListenerMap | undefined;
@@ -80,7 +81,22 @@ export function FeatureItem({
           <React.Fragment key={team}>
             <div className="flex items-center gap-2">
               <TeamAvatar teamName={team} size={16} />
-              <label className="text-xs whitespace-nowrap">weeks</label>
+              <div className="flex items-center gap-1">
+                <label className="text-xs whitespace-nowrap">weeks</label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">
+                        Number of team member weeks needed by {team} team to complete their part of
+                        the feature
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <NumberInput
                 value={requirement.weeks}
                 onChange={value => onRequirementChange(feature.id, team, 'weeks', value.toString())}
@@ -90,7 +106,21 @@ export function FeatureItem({
             </div>
             <div className="flex items-center gap-2">
               <TeamAvatar teamName={team} size={16} />
-              <label className="text-xs whitespace-nowrap">parallel</label>
+              <div className="flex items-center gap-1">
+                <label className="text-xs whitespace-nowrap">parallel</label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">
+                        Maximum number of team members that can work on this feature simultaneously
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <NumberInput
                 value={requirement.parallel}
                 onChange={value =>

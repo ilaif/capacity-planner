@@ -10,9 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { X, Plus, Edit2 } from 'lucide-react';
+import { X, Plus, Edit2, HelpCircle } from 'lucide-react';
 import { TeamSizeChart } from './TeamSizeChart';
 import { NumberInput } from '@/components/ui/number-input';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface TeamConfigurationProps {
   teams: Teams;
@@ -140,7 +141,19 @@ export function TeamConfiguration({
                       <label className="text-xs font-medium">{team}</label>
                     </div>
                     <div className="flex gap-1 items-center">
-                      <span className="text-xs text-gray-500">Size</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-500">Size</span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">Base number of engineers in the team</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                       <NumberInput
                         value={getBaseTeamSize(size)}
                         onChange={value => onTeamSizeChange(team, value.toString())}
@@ -192,7 +205,19 @@ export function TeamConfiguration({
                 ))}
               </SelectContent>
             </Select>
-            <span className="text-xs text-gray-500">Week</span>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-500">Week</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">The week number when the team size changes</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <NumberInput
               value={selectedWeek ? parseInt(selectedWeek) : 0}
               onChange={value => setSelectedWeek(value.toString())}
@@ -201,7 +226,19 @@ export function TeamConfiguration({
               className="w-24"
               placeholder="Week"
             />
-            <span className="text-xs text-gray-500">Size</span>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-500">Size</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">The new team size starting from the specified week</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <NumberInput
               value={variationSize ? parseInt(variationSize) : 0}
               onChange={value => setVariationSize(value.toString())}

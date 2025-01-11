@@ -92,7 +92,9 @@ export function FeatureUpload({ onFeaturesUploaded, teams }: FeatureUploadProps)
                   <tr key={`${team}_weeks`}>
                     <td className="pr-4">{team}_weeks</td>
                     <td className="pr-4">number</td>
-                    <td>Number of weeks needed by {team} team (e.g., 3) - Case insensitive</td>
+                    <td>
+                      Number of team member weeks needed by {team} team (e.g., 3) - Case insensitive
+                    </td>
                   </tr>
                   <tr key={`${team}_parallel`}>
                     <td className="pr-4">{team}_parallel</td>
