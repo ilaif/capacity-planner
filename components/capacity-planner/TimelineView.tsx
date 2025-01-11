@@ -14,7 +14,7 @@ interface TimelineViewProps {
 }
 
 export function TimelineView({ features, teams, timelineRef, overheadFactor }: TimelineViewProps) {
-  const [columnWidth, setColumnWidth] = useState(40);
+  const [columnWidth, setColumnWidth] = useState(90);
   const [isDragging, setIsDragging] = useState(false);
   const [startDate, setStartDate] = useState<Date>(startOfWeek(new Date()));
   const [timeline, setTimeline] = useState<TimelineItemType[]>([]);
@@ -59,7 +59,7 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
 
   const getTimelineLabel = (index: number) => {
     const date = addWeeks(startDate, index);
-    if (columnWidth < 70) return format(date, 'M/d');
+    if (columnWidth < 90) return format(date, 'M/d');
     return `W${index} (${format(date, 'MMM d')})`;
   };
 
