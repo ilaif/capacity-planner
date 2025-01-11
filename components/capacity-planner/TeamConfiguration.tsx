@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { X, Plus, Edit2 } from 'lucide-react';
 import { TeamSizeChart } from './TeamSizeChart';
+import { NumberInput } from '@/components/ui/number-input';
 
 interface TeamConfigurationProps {
   teams: Teams;
@@ -70,15 +71,12 @@ export function TeamConfiguration({
     }
   };
 
-  const handleVariationEdit = (team: string, week: number, newSize: string) => {
-    const size = parseInt(newSize);
-    if (!isNaN(size)) {
-      onTeamSizeVariationAdd({
-        team,
-        week,
-        size,
-      });
-    }
+  const handleVariationEdit = (team: string, week: number, newSize: number) => {
+    onTeamSizeVariationAdd({
+      team,
+      week,
+      size: newSize,
+    });
   };
 
   const getVariations = () => {
@@ -117,7 +115,7 @@ export function TeamConfiguration({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {Object.entries(teams).map(([team, size]) => (
           <div key={team} className="col-span-1 flex items-center gap-1">
             {editingTeam === team ? (
@@ -137,13 +135,16 @@ export function TeamConfiguration({
                 <div className="flex-1 flex items-center gap-1">
                   <div className="flex-1">
                     <label className="text-xs font-medium">{team}</label>
-                    <Input
-                      type="number"
-                      value={getBaseTeamSize(size)}
-                      onChange={e => onTeamSizeChange(team, e.target.value)}
-                      min="0"
-                      className="h-8"
-                    />
+                    <div className="flex gap-1 items-center">
+                      <span className="text-xs text-gray-500">Size</span>
+                      <NumberInput
+                        value={getBaseTeamSize(size)}
+                        onChange={value => onTeamSizeChange(team, value.toString())}
+                        min={0}
+                        className="w-full"
+                        inputClassName="w-full"
+                      />
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
@@ -171,7 +172,7 @@ export function TeamConfiguration({
       <div className="border-t pt-2">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-medium">Size Variations</h4>
-          <div className="flex gap-1 items-center flex-1 ml-4">
+          <div className="flex gap-2 items-center flex-1 ml-4">
             <Select value={selectedTeam} onValueChange={setSelectedTeam}>
               <SelectTrigger className="h-8">
                 <SelectValue placeholder="Team" />
@@ -184,22 +185,22 @@ export function TeamConfiguration({
                 ))}
               </SelectContent>
             </Select>
-            <Input
-              type="number"
-              value={selectedWeek}
-              onChange={e => setSelectedWeek(e.target.value)}
-              min="0"
-              max="51"
+            <span className="text-xs text-gray-500">Week</span>
+            <NumberInput
+              value={selectedWeek ? parseInt(selectedWeek) : 0}
+              onChange={value => setSelectedWeek(value.toString())}
+              min={0}
+              max={51}
+              className="w-24"
               placeholder="Week"
-              className="h-8"
             />
-            <Input
-              type="number"
-              value={variationSize}
-              onChange={e => setVariationSize(e.target.value)}
-              min="0"
+            <span className="text-xs text-gray-500">Size</span>
+            <NumberInput
+              value={variationSize ? parseInt(variationSize) : 0}
+              onChange={value => setVariationSize(value.toString())}
+              min={0}
+              className="w-24"
               placeholder="Size"
-              className="h-8"
             />
             <Button onClick={handleAddVariation} className="h-8">
               Add
@@ -218,12 +219,11 @@ export function TeamConfiguration({
                   <div className="flex items-center space-x-2">
                     <span className="font-medium w-16">{team}</span>
                     <span className="text-gray-500">W{week}:</span>
-                    <Input
-                      type="number"
+                    <NumberInput
                       value={size}
-                      onChange={e => handleVariationEdit(team, week, e.target.value)}
-                      min="0"
-                      className="h-6 w-16 px-1"
+                      onChange={value => handleVariationEdit(team, week, value)}
+                      min={0}
+                      className="w-16"
                     />
                   </div>
                   <Button

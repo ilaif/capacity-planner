@@ -1,4 +1,4 @@
-import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
 
@@ -31,13 +31,13 @@ export function PlanningConfiguration({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <Input
-          type="number"
+        <NumberInput
           value={overheadFactor}
-          onChange={e => onOverheadFactorChange(parseFloat(e.target.value) || 1)}
-          min="1"
-          step="0.1"
-          className="h-8"
+          onChange={onOverheadFactorChange}
+          min={1}
+          step={0.1}
+          className="w-full"
+          inputClassName="w-full"
         />
       </div>
     </div>

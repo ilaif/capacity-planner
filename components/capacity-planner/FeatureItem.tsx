@@ -7,6 +7,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
+import { NumberInput } from '@/components/ui/number-input';
 
 interface SortableHandleProps {
   listeners: SyntheticListenerMap | undefined;
@@ -73,27 +74,27 @@ export function FeatureItem({
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {Object.entries(feature.requirements).map(([team, requirement]) => (
           <React.Fragment key={team}>
             <div className="flex items-center gap-2">
               <label className="text-xs whitespace-nowrap">{team} weeks</label>
-              <Input
-                type="number"
+              <NumberInput
                 value={requirement.weeks}
-                onChange={e => onRequirementChange(feature.id, team, 'weeks', e.target.value)}
-                min="0"
-                className="h-7 max-w-16"
+                onChange={value => onRequirementChange(feature.id, team, 'weeks', value.toString())}
+                min={0}
+                className="w-16"
               />
             </div>
             <div className="flex items-center gap-2">
               <label className="text-xs whitespace-nowrap">{team} parallel</label>
-              <Input
-                type="number"
+              <NumberInput
                 value={requirement.parallel}
-                onChange={e => onRequirementChange(feature.id, team, 'parallel', e.target.value)}
-                min="1"
-                className="h-7 max-w-16"
+                onChange={value =>
+                  onRequirementChange(feature.id, team, 'parallel', value.toString())
+                }
+                min={1}
+                className="w-16"
               />
             </div>
           </React.Fragment>

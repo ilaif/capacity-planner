@@ -56,7 +56,7 @@ export function ConfigurationSheet({
         <SheetHeader>
           <SheetTitle>Configuration</SheetTitle>
         </SheetHeader>
-        <div className="pl-1 pr-6 space-y-4 mt-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
+        <div className="pr-6 space-y-4 mt-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
           <h3 className="text-lg font-medium">Planning</h3>
           <PlanningConfiguration
             overheadFactor={overheadFactor}
