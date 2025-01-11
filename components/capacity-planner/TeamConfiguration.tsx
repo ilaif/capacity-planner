@@ -2,6 +2,7 @@ import { Input } from '@/components/ui/input';
 import { Teams, TeamSizeVariation } from '@/types/capacity-planner';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { TeamAvatar } from '@/components/ui/team-avatar';
 import {
   Select,
   SelectContent,
@@ -134,7 +135,10 @@ export function TeamConfiguration({
               <>
                 <div className="flex-1 flex items-center gap-1">
                   <div className="flex-1">
-                    <label className="text-xs font-medium">{team}</label>
+                    <div className="flex items-center gap-2">
+                      <TeamAvatar teamName={team} size={24} />
+                      <label className="text-xs font-medium">{team}</label>
+                    </div>
                     <div className="flex gap-1 items-center">
                       <span className="text-xs text-gray-500">Size</span>
                       <NumberInput
@@ -179,8 +183,11 @@ export function TeamConfiguration({
               </SelectTrigger>
               <SelectContent>
                 {Object.keys(teams).map(team => (
-                  <SelectItem key={team} value={team}>
-                    {team}
+                  <SelectItem key={team} value={team} className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <TeamAvatar teamName={team} size={16} />
+                      {team}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -210,14 +217,14 @@ export function TeamConfiguration({
 
         <div className="mt-1">
           {getVariations().length > 0 ? (
-            <div className="grid grid-cols-4 gap-1 max-h-[200px] overflow-y-auto">
+            <div className="grid grid-cols-4 gap-1">
               {getVariations().map(({ team, week, size }) => (
                 <div
                   key={`${team}-${week}`}
-                  className="flex items-center justify-between bg-gray-50 px-2 py-1 rounded text-sm"
+                  className="flex items-center bg-gray-50 px-2 py-1 rounded text-sm"
                 >
                   <div className="flex items-center space-x-2">
-                    <span className="font-medium w-16">{team}</span>
+                    <TeamAvatar teamName={team} size={16} />
                     <span className="text-gray-500">W{week}:</span>
                     <NumberInput
                       value={size}

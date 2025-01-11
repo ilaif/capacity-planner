@@ -84,6 +84,7 @@ export function TeamSizeChart({ teams }: TeamSizeChartProps) {
                 strokeWidth={1.5}
                 dot={false}
                 name={team}
+                animationDuration={200}
               />
             ))}
           </LineChart>

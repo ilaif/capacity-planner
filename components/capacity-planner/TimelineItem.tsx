@@ -1,6 +1,7 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { TimelineItem as TimelineItemType } from '@/types/capacity-planner';
 import { format, addWeeks } from 'date-fns';
+import { TeamAvatar } from '@/components/ui/team-avatar';
 
 interface TimelineItemProps {
   allocation: TimelineItemType;
@@ -37,21 +38,31 @@ export function TimelineItem({
         <Tooltip>
           <TooltipTrigger className="w-full text-left">
             <div className="text-sm font-medium truncate">{allocation.feature}</div>
-            {Object.entries(allocation.assignments).map(([team, requirement]) => (
-              <div key={team} className="text-xs truncate">
-                {team}: {Math.round(requirement.weeks * overheadFactor)} ({requirement.parallel}{' '}
-                parallel)
-              </div>
-            ))}
+            <div className="flex flex-wrap gap-2 mt-1">
+              {Object.entries(allocation.assignments).map(([team, requirement]) => (
+                <div key={team} className="flex items-center gap-1">
+                  <TeamAvatar teamName={team} size={16} />
+                  <span className="text-xs">
+                    {Math.round(requirement.weeks * overheadFactor)} ({requirement.parallel}{' '}
+                    parallel)
+                  </span>
+                </div>
+              ))}
+            </div>
           </TooltipTrigger>
           <TooltipContent>
             <div className="font-medium">{allocation.feature}</div>
-            {Object.entries(allocation.assignments).map(([team, requirement]) => (
-              <div key={team}>
-                {team}: {requirement.weeks} ({requirement.parallel} parallel)
-              </div>
-            ))}
-            <div className="mt-1 text-sm">
+            <div className="space-y-1 mt-1">
+              {Object.entries(allocation.assignments).map(([team, requirement]) => (
+                <div key={team} className="flex items-center gap-2">
+                  <TeamAvatar teamName={team} size={20} />
+                  <span>
+                    {team}: {requirement.weeks} ({requirement.parallel} parallel)
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 text-sm">
               {getDateLabel(allocation.startWeek)} - {getDateLabel(allocation.endWeek || 0)}
             </div>
           </TooltipContent>

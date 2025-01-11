@@ -8,6 +8,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { NumberInput } from '@/components/ui/number-input';
+import { TeamAvatar } from '@/components/ui/team-avatar';
 
 interface SortableHandleProps {
   listeners: SyntheticListenerMap | undefined;
@@ -74,11 +75,12 @@ export function FeatureItem({
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         {Object.entries(feature.requirements).map(([team, requirement]) => (
           <React.Fragment key={team}>
             <div className="flex items-center gap-2">
-              <label className="text-xs whitespace-nowrap">{team} weeks</label>
+              <TeamAvatar teamName={team} size={16} />
+              <label className="text-xs whitespace-nowrap">weeks</label>
               <NumberInput
                 value={requirement.weeks}
                 onChange={value => onRequirementChange(feature.id, team, 'weeks', value.toString())}
@@ -87,7 +89,8 @@ export function FeatureItem({
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-xs whitespace-nowrap">{team} parallel</label>
+              <TeamAvatar teamName={team} size={16} />
+              <label className="text-xs whitespace-nowrap">parallel</label>
               <NumberInput
                 value={requirement.parallel}
                 onChange={value =>
