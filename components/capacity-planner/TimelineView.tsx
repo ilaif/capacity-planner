@@ -100,10 +100,7 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
       <div className="flex justify-between items-center p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500">Start:</span>
-          <DatePicker
-            date={startDate}
-            onSelect={date => setStartDate(date ? startOfWeek(date) : new Date())}
-          />
+          <DatePicker date={startDate} onSelect={date => setStartDate(date ? date : new Date())} />
         </div>
         <Button onClick={handleExport}>Export PNG</Button>
       </div>
