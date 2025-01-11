@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import type { TimelineItem as TimelineItemType, Feature, Teams } from '@/types/capacity-planner';
 import { RefObject, useState, useCallback, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
 import { format, addWeeks, startOfWeek } from 'date-fns';
 import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
 import { TimelineItem, TimelineGrid } from './TimelineItem';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface TimelineViewProps {
   features: Feature[];
@@ -98,20 +98,14 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
   return (
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="flex gap-2 items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Start:</span>
-            <Input
-              type="date"
-              value={startDate ? format(startDate, 'yyyy-MM-dd') : ''}
-              onChange={e =>
-                setStartDate(e.target.value ? startOfWeek(new Date(e.target.value)) : new Date())
-              }
-              className="w-[140px]"
-            />
-          </div>
-          <Button onClick={handleExport}>Export PNG</Button>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">Start:</span>
+          <DatePicker
+            date={startDate}
+            onSelect={date => setStartDate(date ? startOfWeek(date) : new Date())}
+          />
         </div>
+        <Button onClick={handleExport}>Export PNG</Button>
       </div>
       <div ref={timelineRef} className="flex-1 overflow-auto relative min-h-0">
         <div className="sticky top-0 z-10 bg-background">
