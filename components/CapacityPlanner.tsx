@@ -2,13 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
 import { getInitialState, updateURL, DEFAULT_STATE } from '@/services/stateService';
 import { logger } from '@/services/loggerService';
-import { TeamConfiguration } from './capacity-planner/TeamConfiguration';
-import { Features } from './capacity-planner/Features';
 import { TimelineView } from './capacity-planner/TimelineView';
-import { PlanningConfiguration } from './capacity-planner/PlanningConfiguration';
-import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ConfigurationSheet } from './capacity-planner/ConfigurationSheet';
 
 const CapacityPlanner = () => {
   const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
@@ -224,7 +219,6 @@ const CapacityPlanner = () => {
 
   return (
     <div className="fixed inset-0 flex flex-col h-screen">
-      {/* Timeline View */}
       <div className="flex-1 overflow-hidden relative">
         <h2 className="text-2xl font-medium p-4 border-b">Capacity Planner</h2>
 
@@ -235,48 +229,25 @@ const CapacityPlanner = () => {
           overheadFactor={overheadFactor}
         />
 
-        {/* Controls Toggle Button */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="absolute top-4 right-4 z-50">
-              <Menu className="h-4 w-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="pr-1">
-            <SheetHeader>
-              <SheetTitle>Configuration</SheetTitle>
-            </SheetHeader>
-            <div className="pl-1 pr-6 space-y-4 mt-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
-              <h3 className="text-lg font-medium">Planning</h3>
-              <PlanningConfiguration
-                overheadFactor={overheadFactor}
-                onOverheadFactorChange={setOverheadFactor}
-              />
-
-              <h3 className="text-lg font-medium">Teams</h3>
-              <TeamConfiguration
-                teams={teams}
-                onTeamAdd={handleTeamAdd}
-                onTeamRemove={handleTeamRemove}
-                onTeamRename={handleTeamRename}
-                onTeamSizeChange={handleTeamSizeChange}
-                onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
-                onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
-              />
-
-              <h3 className="text-lg font-medium">Features</h3>
-              <Features
-                features={features}
-                teams={Object.keys(teams)}
-                onFeatureAdd={handleFeatureAdd}
-                onFeatureNameChange={handleFeatureNameChange}
-                onRequirementChange={handleRequirementChange}
-                onFeaturesUploaded={setFeatures}
-                onFeatureRemove={handleFeatureRemove}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
+        <ConfigurationSheet
+          open={open}
+          onOpenChange={setOpen}
+          features={features}
+          teams={teams}
+          overheadFactor={overheadFactor}
+          onOverheadFactorChange={setOverheadFactor}
+          onTeamAdd={handleTeamAdd}
+          onTeamRemove={handleTeamRemove}
+          onTeamRename={handleTeamRename}
+          onTeamSizeChange={handleTeamSizeChange}
+          onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
+          onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
+          onFeatureAdd={handleFeatureAdd}
+          onFeatureNameChange={handleFeatureNameChange}
+          onRequirementChange={handleRequirementChange}
+          onFeaturesUploaded={setFeatures}
+          onFeatureRemove={handleFeatureRemove}
+        />
       </div>
     </div>
   );
