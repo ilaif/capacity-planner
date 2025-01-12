@@ -136,17 +136,19 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
             getQuarterLabel={getQuarterLabel}
           />
         </div>
-        {timeline.map((allocation, index) => (
-          <TimelineItem
-            key={index}
-            allocation={allocation}
-            index={allocation.row}
-            overheadFactor={overheadFactor}
-            getColumnPosition={getColumnPosition}
-            getColumnWidth={getColumnWidth}
-            startDate={startDate}
-          />
-        ))}
+        <div className="relative">
+          {timeline.map((allocation, index) => (
+            <TimelineItem
+              key={index}
+              allocation={allocation}
+              index={allocation.row}
+              overheadFactor={overheadFactor}
+              getColumnPosition={getColumnPosition}
+              getColumnWidth={getColumnWidth}
+              startDate={startDate}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
