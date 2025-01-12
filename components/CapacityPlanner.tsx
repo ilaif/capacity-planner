@@ -17,7 +17,11 @@ const CapacityPlanner = () => {
   useEffect(() => {
     logger.info('Initializing CapacityPlanner state');
     const initialState = getInitialState();
-    logger.debug('Got initial state', initialState);
+    logger.debug('Got initial state', {
+      features: initialState.features,
+      teams: initialState.teams,
+      overheadFactor: initialState.overheadFactor,
+    });
     setFeatures(initialState.features);
     setTeams(initialState.teams);
     setOverheadFactor(initialState.overheadFactor);
@@ -30,7 +34,11 @@ const CapacityPlanner = () => {
     if (!isInitialized) return;
 
     const state = { features, teams, overheadFactor };
-    logger.debug('Updating state in URL and localStorage', state);
+    logger.debug('Updating state in URL and localStorage', {
+      features,
+      teams,
+      overheadFactor,
+    });
     updateURL(state);
     logger.debug('State updated successfully');
   }, [features, teams, overheadFactor, isInitialized]);
@@ -38,7 +46,10 @@ const CapacityPlanner = () => {
   const handleTeamAdd = (teamName: string) => {
     logger.info(`Adding new team: ${teamName}`);
     if (!teams[teamName]) {
-      setTeams(prev => ({ ...prev, [teamName]: 0 }));
+      setTeams(prev => ({
+        ...prev,
+        [teamName]: { size: [1], wipLimit: 1 },
+      }));
       // Update all existing features to include the new team
       setFeatures(prev =>
         prev.map(feature => ({
@@ -97,6 +108,90 @@ const CapacityPlanner = () => {
     }
   };
 
+  const handleTeamSizeChange = (team: string, value: string) => {
+    const size = parseInt(value) || 0;
+    setTeams(prevTeams => {
+      const currentTeam = prevTeams[team];
+      const currentSize = currentTeam.size;
+
+      const newSizes = [...currentSize];
+      newSizes[0] = size;
+
+      return {
+        ...prevTeams,
+        [team]: {
+          ...currentTeam,
+          size: newSizes,
+        },
+      };
+    });
+  };
+
+  const handleTeamSizeVariationAdd = (variation: TeamSizeVariation) => {
+    setTeams(prevTeams => {
+      const currentTeam = prevTeams[variation.team];
+      const currentSize = currentTeam.size;
+      const newSizes = [...currentSize];
+
+      // Only set the specific week that has a variation
+      newSizes[variation.week] = variation.size;
+
+      return {
+        ...prevTeams,
+        [variation.team]: {
+          ...currentTeam,
+          size: newSizes,
+        },
+      };
+    });
+  };
+
+  const handleTeamSizeVariationRemove = (team: string, week: number) => {
+    setTeams(prevTeams => {
+      const currentTeam = prevTeams[team];
+      const currentSize = currentTeam.size;
+
+      const newSizes = [...currentSize];
+      const baseSize = newSizes[0];
+
+      // Only remove the specific variation
+      if (week === 0) {
+        // If removing variation from week 0, update all existing variations to use the new base size
+        newSizes.forEach((size, i) => {
+          if (size !== undefined && i !== 0) {
+            newSizes[i] = size;
+          }
+        });
+        newSizes[0] = baseSize;
+      } else {
+        // For other weeks, just remove that specific variation
+        delete newSizes[week];
+      }
+
+      // If no variations left, convert back to simple number
+      const hasVariations = newSizes.some(
+        (size, i) => i > 0 && size !== undefined && size !== baseSize
+      );
+      return {
+        ...prevTeams,
+        [team]: {
+          ...currentTeam,
+          size: hasVariations ? newSizes : [baseSize],
+        },
+      };
+    });
+  };
+
+  const handleWipLimitChange = (team: string, value: number) => {
+    setTeams(prevTeams => ({
+      ...prevTeams,
+      [team]: {
+        ...prevTeams[team],
+        wipLimit: value,
+      },
+    }));
+  };
+
   const handleFeatureAdd = () => {
     logger.info('Adding new feature');
     const newFeature = {
@@ -147,76 +242,6 @@ const CapacityPlanner = () => {
     );
   };
 
-  const handleTeamSizeChange = (team: string, value: string) => {
-    const size = parseInt(value) || 0;
-    setTeams(prevTeams => {
-      const currentSize = prevTeams[team];
-      // If it's already an array, update the base size while preserving variations
-      if (Array.isArray(currentSize)) {
-        const newSizes = [...currentSize];
-        newSizes[0] = size;
-        return {
-          ...prevTeams,
-          [team]: newSizes,
-        };
-      }
-      // Otherwise, just set the new size
-      return {
-        ...prevTeams,
-        [team]: size,
-      };
-    });
-  };
-
-  const handleTeamSizeVariationAdd = (variation: TeamSizeVariation) => {
-    setTeams(prevTeams => {
-      const currentSize = prevTeams[variation.team];
-      const baseSize = Array.isArray(currentSize) ? currentSize[0] : currentSize;
-      const newSizes = Array.isArray(currentSize) ? [...currentSize] : [baseSize];
-
-      // Only set the specific week that has a variation
-      newSizes[variation.week] = variation.size;
-
-      return {
-        ...prevTeams,
-        [variation.team]: newSizes,
-      };
-    });
-  };
-
-  const handleTeamSizeVariationRemove = (team: string, week: number) => {
-    setTeams(prevTeams => {
-      const currentSize = prevTeams[team];
-      if (!Array.isArray(currentSize)) return prevTeams;
-
-      const newSizes = [...currentSize];
-      const baseSize = newSizes[0];
-
-      // Only remove the specific variation
-      if (week === 0) {
-        // If removing variation from week 0, update all existing variations to use the new base size
-        newSizes.forEach((size, i) => {
-          if (size !== undefined && i !== 0) {
-            newSizes[i] = size;
-          }
-        });
-        newSizes[0] = baseSize;
-      } else {
-        // For other weeks, just remove that specific variation
-        delete newSizes[week];
-      }
-
-      // If no variations left, convert back to simple number
-      const hasVariations = newSizes.some(
-        (size, i) => i > 0 && size !== undefined && size !== baseSize
-      );
-      return {
-        ...prevTeams,
-        [team]: hasVariations ? newSizes : baseSize,
-      };
-    });
-  };
-
   return (
     <div className="fixed inset-0 flex flex-col h-screen">
       <div className="flex-1 overflow-hidden relative">
@@ -240,6 +265,7 @@ const CapacityPlanner = () => {
           onTeamRemove={handleTeamRemove}
           onTeamRename={handleTeamRename}
           onTeamSizeChange={handleTeamSizeChange}
+          onWipLimitChange={handleWipLimitChange}
           onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
           onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
           onFeatureAdd={handleFeatureAdd}

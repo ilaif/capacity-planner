@@ -19,8 +19,13 @@ export interface TeamAvailability {
   [team: string]: number[];
 }
 
+export interface TeamConfig {
+  size: number[];
+  wipLimit: number;
+}
+
 export interface Teams {
-  [key: string]: number | number[];
+  [key: string]: TeamConfig;
 }
 
 export interface TeamSizeVariation {

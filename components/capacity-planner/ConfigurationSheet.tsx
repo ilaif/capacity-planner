@@ -17,6 +17,7 @@ interface ConfigurationSheetProps {
   onTeamRemove: (teamName: string) => void;
   onTeamRename: (oldName: string, newName: string) => void;
   onTeamSizeChange: (team: string, value: string) => void;
+  onWipLimitChange: (team: string, value: number) => void;
   onTeamSizeVariationAdd: (variation: TeamSizeVariation) => void;
   onTeamSizeVariationRemove: (team: string, week: number) => void;
   onFeatureAdd: () => void;
@@ -37,6 +38,7 @@ export function ConfigurationSheet({
   onTeamRemove,
   onTeamRename,
   onTeamSizeChange,
+  onWipLimitChange,
   onTeamSizeVariationAdd,
   onTeamSizeVariationRemove,
   onFeatureAdd,
@@ -70,6 +72,7 @@ export function ConfigurationSheet({
             onTeamRemove={onTeamRemove}
             onTeamRename={onTeamRename}
             onTeamSizeChange={onTeamSizeChange}
+            onWipLimitChange={onWipLimitChange}
             onTeamSizeVariationAdd={onTeamSizeVariationAdd}
             onTeamSizeVariationRemove={onTeamSizeVariationRemove}
           />

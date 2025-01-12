@@ -23,7 +23,7 @@ const formatMessage = (level: LogLevel, message: string) => {
 };
 
 // Define a type for loggable data
-type LoggableData = Record<string, unknown> | { [key: string]: any };
+type LoggableData = Record<string, unknown>;
 
 // Main logger functions
 export const logger = {

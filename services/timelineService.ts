@@ -21,21 +21,30 @@ export function calculateTimeline(
 
   const newTimeline: TimelineItem[] = [];
   const teamAvailability: TeamAvailability = {};
+  const teamWipCount: { [team: string]: number[] } = {};
   const maxWeeks = 1000; // Large enough number to handle multi-year planning
 
-  // Initialize team availability with varying team sizes
-  Object.entries(teams).forEach(([team, sizes]) => {
-    teamAvailability[team] = Array.isArray(sizes)
-      ? [...sizes, ...Array(maxWeeks - sizes.length).fill(sizes[sizes.length - 1])] // Extend with last known size
-      : Array(maxWeeks).fill(sizes);
+  // Initialize team availability and WIP counters with varying team sizes
+  Object.entries(teams).forEach(([team, config]) => {
+    const sizes = Array.isArray(config.size) ? config.size : Array(maxWeeks).fill(config.size);
+    teamAvailability[team] = [
+      ...sizes,
+      ...Array(maxWeeks - sizes.length).fill(sizes[sizes.length - 1]),
+    ];
+    teamWipCount[team] = Array(maxWeeks).fill(0);
     logger.debug(`Initialized availability for team ${team}`, {
-      isVariable: Array.isArray(sizes),
-      baseSize: Array.isArray(sizes) ? sizes[0] : sizes,
+      isVariable: Array.isArray(config.size),
+      baseSize: Array.isArray(config.size) ? config.size[0] : config.size,
+      wipLimit: config.wipLimit,
     });
   });
 
   features.forEach(feature => {
-    logger.debug(`Processing feature: ${feature.name}`, feature);
+    logger.debug(`Processing feature: ${feature.name}`, {
+      id: feature.id,
+      name: feature.name,
+      requirements: feature.requirements,
+    });
     const featureAllocation: TimelineItem = {
       feature: feature.name,
       startWeek: 0,
@@ -54,15 +63,21 @@ export function calculateTimeline(
         const weeksNeeded = Math.ceil((weeks * overheadFactor) / parallel);
         resourceNeeds[team] = { weeks: weeksNeeded, parallel };
 
-        // Check if we have enough resources for each week of the feature
+        // Check if we have enough resources and WIP capacity for each week of the feature
         for (let w = 0; w < weeksNeeded; w++) {
           const weekIndex = startWeek + w;
-          if (weekIndex >= maxWeeks || teamAvailability[team][weekIndex] < parallel) {
+          if (
+            weekIndex >= maxWeeks ||
+            teamAvailability[team][weekIndex] < parallel ||
+            teamWipCount[team][weekIndex] >= teams[team].wipLimit
+          ) {
             logger.debug(`Cannot schedule ${feature.name} at week ${startWeek}`, {
               team,
               weekIndex,
               required: parallel,
               available: weekIndex < maxWeeks ? teamAvailability[team][weekIndex] : 0,
+              currentWip: weekIndex < maxWeeks ? teamWipCount[team][weekIndex] : 0,
+              wipLimit: teams[team].wipLimit,
             });
             canSchedule = false;
             break;
@@ -78,6 +93,7 @@ export function calculateTimeline(
           const weeksNeeded = resourceNeeds[team].weeks;
           for (let w = 0; w < weeksNeeded; w++) {
             teamAvailability[team][startWeek + w] -= parallel;
+            teamWipCount[team][startWeek + w]++;
           }
         });
 

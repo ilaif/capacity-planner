@@ -21,7 +21,7 @@ export const DEFAULT_STATE: PlannerState = {
   overheadFactor: 1.2,
 };
 
-const encodeState = (state: Partial<PlannerState>): string => {
+export const encodeState = (state: Partial<PlannerState>): string => {
   try {
     const encoded = btoa(JSON.stringify(state));
     logger.debug('State encoded successfully', { stateSize: encoded.length });
@@ -32,7 +32,7 @@ const encodeState = (state: Partial<PlannerState>): string => {
   }
 };
 
-const decodeState = (encoded: string): Partial<PlannerState> | null => {
+export const decodeState = (encoded: string): Partial<PlannerState> | null => {
   try {
     const decoded = JSON.parse(atob(encoded));
     logger.debug('State decoded successfully');

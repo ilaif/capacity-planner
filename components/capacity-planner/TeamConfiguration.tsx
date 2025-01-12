@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input';
-import { Teams, TeamSizeVariation } from '@/types/capacity-planner';
+import { Teams, TeamSizeVariation, TeamConfig } from '@/types/capacity-planner';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TeamAvatar } from '@/components/ui/team-avatar';
@@ -14,10 +14,12 @@ import { X, Plus, Edit2, HelpCircle } from 'lucide-react';
 import { TeamSizeChart } from './TeamSizeChart';
 import { NumberInput } from '@/components/ui/number-input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { logger } from '@/services/loggerService';
 
 interface TeamConfigurationProps {
   teams: Teams;
   onTeamSizeChange: (team: string, value: string) => void;
+  onWipLimitChange: (team: string, value: number) => void;
   onTeamSizeVariationAdd: (variation: TeamSizeVariation) => void;
   onTeamSizeVariationRemove: (team: string, week: number) => void;
   onTeamAdd: (teamName: string) => void;
@@ -28,6 +30,7 @@ interface TeamConfigurationProps {
 export function TeamConfiguration({
   teams,
   onTeamSizeChange,
+  onWipLimitChange,
   onTeamSizeVariationAdd,
   onTeamSizeVariationRemove,
   onTeamAdd,
@@ -83,23 +86,24 @@ export function TeamConfiguration({
 
   const getVariations = () => {
     const variations: { team: string; week: number; size: number }[] = [];
-    Object.entries(teams).forEach(([team, sizes]) => {
-      if (Array.isArray(sizes)) {
-        const baseSize = sizes[0];
-        // Only check indices where we have explicit variations
-        for (let i = 0; i < sizes.length; i++) {
-          if (sizes[i] !== undefined && sizes[i] !== baseSize) {
-            variations.push({ team, week: i, size: sizes[i] });
-          }
+    Object.entries(teams).forEach(([team, config]) => {
+      const size = config.size;
+      const baseSize = size[0];
+      // Only check indices where we have explicit variations
+      for (let i = 0; i < size.length; i++) {
+        if (size[i] !== undefined && size[i] !== baseSize) {
+          variations.push({ team, week: i, size: size[i] });
         }
       }
     });
     return variations.sort((a, b) => a.week - b.week);
   };
 
-  const getBaseTeamSize = (size: number | number[]): number => {
-    return Array.isArray(size) ? size[0] : size;
+  const getBaseTeamSize = (config: TeamConfig): number => {
+    return config.size[0];
   };
+
+  logger.info('TeamConfiguration', { teams });
 
   return (
     <div className="space-y-2">
@@ -118,7 +122,7 @@ export function TeamConfiguration({
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        {Object.entries(teams).map(([team, size]) => (
+        {Object.entries(teams).map(([team, config]) => (
           <div key={team} className="col-span-1 flex items-center gap-1">
             {editingTeam === team ? (
               <>
@@ -140,27 +144,57 @@ export function TeamConfiguration({
                       <TeamAvatar teamName={team} size={24} />
                       <label className="text-xs font-medium">{team}</label>
                     </div>
-                    <div className="flex gap-1 items-center">
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-gray-500">Size</span>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="max-w-xs">Base number of engineers in the team</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <div className="flex gap-1 items-center">
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-500">Size</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-xs">Base number of engineers in the team</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <NumberInput
+                            value={getBaseTeamSize(config)}
+                            onChange={value => onTeamSizeChange(team, value.toString())}
+                            min={0}
+                            className="w-full"
+                            inputClassName="w-full"
+                          />
+                        </div>
                       </div>
-                      <NumberInput
-                        value={getBaseTeamSize(size)}
-                        onChange={value => onTeamSizeChange(team, value.toString())}
-                        min={0}
-                        className="w-full"
-                        inputClassName="w-full"
-                      />
+                      <div className="flex-1">
+                        <div className="flex gap-1 items-center">
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-500">WIP Limit</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-xs">
+                                    Maximum number of features the team can work on simultaneously
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <NumberInput
+                            value={config.wipLimit}
+                            onChange={value => onWipLimitChange(team, value)}
+                            min={1}
+                            className="w-full"
+                            inputClassName="w-full"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <Button

@@ -12,19 +12,16 @@ export function TeamSizeChart({ teams }: TeamSizeChartProps) {
     .fill(0)
     .map((_, week) => {
       const weekData: { [key: string]: number } = { week };
-      Object.entries(teams).forEach(([team, size]) => {
-        if (Array.isArray(size)) {
-          // Find the last variation that applies to this week
-          let appliedSize = size[0]; // Start with base size
-          for (let w = 0; w <= week; w++) {
-            if (size[w] !== undefined) {
-              appliedSize = size[w];
-            }
+      Object.entries(teams).forEach(([team, config]) => {
+        const size = config.size;
+        // Find the last variation that applies to this week
+        let appliedSize = size[0]; // Start with base size
+        for (let w = 0; w <= week; w++) {
+          if (size[w] !== undefined) {
+            appliedSize = size[w];
           }
-          weekData[team] = appliedSize;
-        } else {
-          weekData[team] = size;
         }
+        weekData[team] = appliedSize;
       });
       return weekData;
     });
