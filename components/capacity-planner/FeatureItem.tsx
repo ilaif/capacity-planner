@@ -90,8 +90,8 @@ export function FeatureItem({
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">
-                        Number of team member weeks needed by {team} team to complete their part of
-                        the feature
+                        Number of engineer weeks needed by {team} team to complete their part of the
+                        feature
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -115,7 +115,7 @@ export function FeatureItem({
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">
-                        Maximum number of team members that can work on this feature simultaneously
+                        Maximum number of engineers that can work on this feature simultaneously
                       </p>
                     </TooltipContent>
                   </Tooltip>

@@ -36,8 +36,7 @@ export function PlanningConfiguration({
           onChange={onOverheadFactorChange}
           min={1}
           step={0.1}
-          className="w-full"
-          inputClassName="w-full"
+          inputClassName="max-w-12"
         />
       </div>
     </div>

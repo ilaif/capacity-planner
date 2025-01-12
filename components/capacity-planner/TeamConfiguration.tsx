@@ -164,8 +164,7 @@ export function TeamConfiguration({
                             value={getBaseTeamSize(config)}
                             onChange={value => onTeamSizeChange(team, value.toString())}
                             min={0}
-                            className="w-full"
-                            inputClassName="w-full"
+                            inputClassName="max-w-12"
                           />
                         </div>
                       </div>
@@ -190,8 +189,7 @@ export function TeamConfiguration({
                             value={config.wipLimit}
                             onChange={value => onWipLimitChange(team, value)}
                             min={1}
-                            className="w-full"
-                            inputClassName="w-full"
+                            inputClassName="max-w-12"
                           />
                         </div>
                       </div>
