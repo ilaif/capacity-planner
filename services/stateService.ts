@@ -39,7 +39,7 @@ export const encodeState = (state: Partial<PlannerState>): string => {
 export const decodeState = (encoded: string): Partial<PlannerState> | null => {
   try {
     const decoded = JSON.parse(atob(encoded));
-    decoded.startDate = new Date(decoded.startDate);
+    decoded.startDate = decoded.startDate ? new Date(decoded.startDate) : DEFAULT_STATE.startDate;
     logger.debug('State decoded successfully');
     return decoded;
   } catch (error) {
