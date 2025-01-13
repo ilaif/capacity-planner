@@ -19,8 +19,13 @@ export interface TeamAvailability {
   [team: string]: number[];
 }
 
+export interface SizeVariation {
+  week: number;
+  size: number;
+}
+
 export interface TeamConfig {
-  size: number[];
+  sizes: SizeVariation[];
   wipLimit: number;
 }
 

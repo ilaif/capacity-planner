@@ -14,7 +14,7 @@ describe('timelineService', () => {
     ];
 
     const teams: Teams = {
-      'Team A': { size: [3], wipLimit: 1 }, // Team of 3 people
+      'Team A': { sizes: [{ week: 0, size: 3 }], wipLimit: 1 }, // Team of 3 people
     };
 
     const timeline = calculateTimeline(features, teams, 1);
@@ -48,7 +48,7 @@ describe('timelineService', () => {
     ];
 
     const teams: Teams = {
-      'Team A': { size: [2], wipLimit: 2 },
+      'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 2 },
     };
 
     const timeline = calculateTimeline(features, teams, 1);
@@ -69,7 +69,7 @@ describe('timelineService', () => {
     ];
 
     const teams: Teams = {
-      'Team A': { size: [2], wipLimit: 1 },
+      'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 },
     };
 
     const timeline = calculateTimeline(features, teams, 1.5);
@@ -89,7 +89,15 @@ describe('timelineService', () => {
     ];
 
     const teams: Teams = {
-      'Team A': { size: [2, 3, 4, 4], wipLimit: 1 }, // Variable team size over weeks
+      'Team A': {
+        sizes: [
+          { week: 0, size: 2 },
+          { week: 1, size: 3 },
+          { week: 2, size: 4 },
+          { week: 3, size: 4 },
+        ],
+        wipLimit: 1,
+      },
     };
 
     const timeline = calculateTimeline(features, teams, 1);
@@ -111,8 +119,8 @@ describe('timelineService', () => {
     ];
 
     const teams: Teams = {
-      'Team A': { size: [3], wipLimit: 1 },
-      'Team B': { size: [2], wipLimit: 1 },
+      'Team A': { sizes: [{ week: 0, size: 3 }], wipLimit: 1 },
+      'Team B': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 },
     };
 
     const timeline = calculateTimeline(features, teams, 1);
@@ -132,7 +140,7 @@ describe('timelineService', () => {
     ];
 
     const teams: Teams = {
-      'Team A': { size: [2], wipLimit: 1 }, // Only 2 people available, but need 3
+      'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 }, // Only 2 people available, but need 3
     };
 
     const timeline = calculateTimeline(features, teams, 1);
@@ -158,7 +166,7 @@ describe('timelineService', () => {
     ];
 
     const teams: Teams = {
-      'Team A': { size: [2], wipLimit: 1 }, // Can only work on one feature at a time
+      'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 }, // Can only work on one feature at a time
     };
 
     const timeline = calculateTimeline(features, teams, 1);

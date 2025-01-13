@@ -18,7 +18,7 @@ import { logger } from '@/services/loggerService';
 
 interface TeamConfigurationProps {
   teams: Teams;
-  onTeamSizeChange: (team: string, value: string) => void;
+  onTeamSizeChange: (team: string, value: number) => void;
   onWipLimitChange: (team: string, value: number) => void;
   onTeamSizeVariationAdd: (variation: TeamSizeVariation) => void;
   onTeamSizeVariationRemove: (team: string, week: number) => void;
@@ -76,7 +76,7 @@ export function TeamConfiguration({
     }
   };
 
-  const handleVariationEdit = (team: string, week: number, newSize: number) => {
+  const handleEditVariation = (team: string, week: number, newSize: number) => {
     onTeamSizeVariationAdd({
       team,
       week,
@@ -87,20 +87,18 @@ export function TeamConfiguration({
   const getVariations = () => {
     const variations: { team: string; week: number; size: number }[] = [];
     Object.entries(teams).forEach(([team, config]) => {
-      const size = config.size;
-      const baseSize = size[0];
-      // Only check indices where we have explicit variations
-      for (let i = 0; i < size.length; i++) {
-        if (size[i] !== undefined && size[i] !== baseSize) {
-          variations.push({ team, week: i, size: size[i] });
-        }
+      const sizes = config.sizes;
+      // Only check indices where we have explicit variations (after index 0)
+      for (let i = 1; i < sizes.length; i++) {
+        const size = sizes[i];
+        variations.push({ team, week: size.week, size: size.size });
       }
     });
     return variations.sort((a, b) => a.week - b.week);
   };
 
   const getBaseTeamSize = (config: TeamConfig): number => {
-    return config.size[0];
+    return config.sizes?.[0]?.size || 0;
   };
 
   logger.info('TeamConfiguration', { teams });
@@ -162,7 +160,7 @@ export function TeamConfiguration({
                           </div>
                           <NumberInput
                             value={getBaseTeamSize(config)}
-                            onChange={value => onTeamSizeChange(team, value.toString())}
+                            onChange={value => onTeamSizeChange(team, value)}
                             min={0}
                             inputClassName="max-w-12"
                           />
@@ -297,7 +295,7 @@ export function TeamConfiguration({
                     <span className="text-gray-500">W{week}:</span>
                     <NumberInput
                       value={size}
-                      onChange={value => handleVariationEdit(team, week, value)}
+                      onChange={value => handleEditVariation(team, week, value)}
                       min={0}
                       className="w-16"
                     />

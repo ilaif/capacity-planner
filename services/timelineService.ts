@@ -22,19 +22,23 @@ export function calculateTimeline(
   const newTimeline: TimelineItem[] = [];
   const teamAvailability: TeamAvailability = {};
   const teamWipCount: { [team: string]: number[] } = {};
-  const maxWeeks = 1000; // Large enough number to handle multi-year planning
+  const maxWeek = 104; // Large enough number to handle multi-year planning
 
   // Initialize team availability and WIP counters with varying team sizes
   Object.entries(teams).forEach(([team, config]) => {
-    const sizes = Array.isArray(config.size) ? config.size : Array(maxWeeks).fill(config.size);
-    teamAvailability[team] = [
-      ...sizes,
-      ...Array(maxWeeks - sizes.length).fill(sizes[sizes.length - 1]),
-    ];
-    teamWipCount[team] = Array(maxWeeks).fill(0);
+    const sizes = config.sizes;
+    teamAvailability[team] = Array(maxWeek).fill(0);
+    for (let week = 0; week < maxWeek; week++) {
+      for (const size of sizes) {
+        if (size.week <= week) {
+          teamAvailability[team][week] = size.size;
+        }
+      }
+    }
+
+    teamWipCount[team] = Array(maxWeek).fill(0);
     logger.debug(`Initialized availability for team ${team}`, {
-      isVariable: Array.isArray(config.size),
-      baseSize: Array.isArray(config.size) ? config.size[0] : config.size,
+      baseSize: config.sizes[0],
       wipLimit: config.wipLimit,
     });
   });
@@ -54,7 +58,7 @@ export function calculateTimeline(
     let startWeek = 0;
     let canSchedule = false;
 
-    while (!canSchedule && startWeek < maxWeeks) {
+    while (!canSchedule && startWeek < maxWeek) {
       canSchedule = true;
       const resourceNeeds: ResourceNeeds = {};
 
@@ -67,7 +71,7 @@ export function calculateTimeline(
         for (let w = 0; w < weeksNeeded; w++) {
           const weekIndex = startWeek + w;
           if (
-            weekIndex >= maxWeeks ||
+            weekIndex >= maxWeek ||
             teamAvailability[team][weekIndex] < parallel ||
             teamWipCount[team][weekIndex] >= teams[team].wipLimit
           ) {
@@ -75,8 +79,8 @@ export function calculateTimeline(
               team,
               weekIndex,
               required: parallel,
-              available: weekIndex < maxWeeks ? teamAvailability[team][weekIndex] : 0,
-              currentWip: weekIndex < maxWeeks ? teamWipCount[team][weekIndex] : 0,
+              available: weekIndex < maxWeek ? teamAvailability[team][weekIndex] : 0,
+              currentWip: weekIndex < maxWeek ? teamWipCount[team][weekIndex] : 0,
               wipLimit: teams[team].wipLimit,
             });
             canSchedule = false;

@@ -7,21 +7,23 @@ interface TeamSizeChartProps {
 }
 
 export function TeamSizeChart({ teams }: TeamSizeChartProps) {
-  // Convert team data into a format suitable for the chart
-  const chartData = Array(52)
+  const maxWeek = Object.values(teams).reduce((max, team) => {
+    const teamMaxWeek = team.sizes.reduce((max, size) => {
+      return Math.max(max, size.week);
+    }, 0);
+    return Math.max(max, teamMaxWeek);
+  }, 0);
+
+  const chartData = Array(maxWeek + 1)
     .fill(0)
     .map((_, week) => {
       const weekData: { [key: string]: number } = { week };
       Object.entries(teams).forEach(([team, config]) => {
-        const size = config.size;
-        // Find the last variation that applies to this week
-        let appliedSize = size[0]; // Start with base size
-        for (let w = 0; w <= week; w++) {
-          if (size[w] !== undefined) {
-            appliedSize = size[w];
-          }
+        const sizes = config.sizes;
+        const teamSizes = sizes.filter(size => size.week <= week);
+        if (teamSizes.length > 0) {
+          weekData[team] = teamSizes[teamSizes.length - 1].size;
         }
-        weekData[team] = appliedSize;
       });
       return weekData;
     });

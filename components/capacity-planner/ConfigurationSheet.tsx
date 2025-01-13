@@ -18,7 +18,7 @@ interface ConfigurationSheetProps {
   onTeamAdd: (teamName: string) => void;
   onTeamRemove: (teamName: string) => void;
   onTeamRename: (oldName: string, newName: string) => void;
-  onTeamSizeChange: (team: string, value: string) => void;
+  onTeamSizeChange: (team: string, value: number) => void;
   onWipLimitChange: (team: string, value: number) => void;
   onTeamSizeVariationAdd: (variation: TeamSizeVariation) => void;
   onTeamSizeVariationRemove: (team: string, week: number) => void;

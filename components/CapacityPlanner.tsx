@@ -15,7 +15,7 @@ const CapacityPlanner = () => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize state from URL or localStorage
+  // Initialize state from URL
   useEffect(() => {
     logger.info('Initializing CapacityPlanner state');
     const initialState = getInitialState();
@@ -31,7 +31,7 @@ const CapacityPlanner = () => {
     logger.info('CapacityPlanner state initialized successfully');
   }, []);
 
-  // Save to localStorage and update URL whenever state changes
+  // Update URL whenever state changes
   useEffect(() => {
     if (!isInitialized) return;
 
@@ -45,6 +45,7 @@ const CapacityPlanner = () => {
     logger.debug('State updated successfully');
   }, [features, teams, overheadFactor, isInitialized]);
 
+  // Activate keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       // Only trigger if no input/textarea is focused
@@ -66,7 +67,7 @@ const CapacityPlanner = () => {
     if (!teams[teamName]) {
       setTeams(prev => ({
         ...prev,
-        [teamName]: { size: [1], wipLimit: 1 },
+        [teamName]: { sizes: [{ week: 0, size: 1 }], wipLimit: 1 },
       }));
       // Update all existing features to include the new team
       setFeatures(prev =>
@@ -126,20 +127,17 @@ const CapacityPlanner = () => {
     }
   };
 
-  const handleTeamSizeChange = (team: string, value: string) => {
-    const size = parseInt(value) || 0;
+  const handleTeamSizeChange = (team: string, value: number) => {
     setTeams(prevTeams => {
       const currentTeam = prevTeams[team];
-      const currentSize = currentTeam.size;
-
+      const currentSize = currentTeam.sizes;
       const newSizes = [...currentSize];
-      newSizes[0] = size;
-
+      newSizes[0] = { week: 0, size: value };
       return {
         ...prevTeams,
         [team]: {
           ...currentTeam,
-          size: newSizes,
+          sizes: newSizes,
         },
       };
     });
@@ -147,18 +145,20 @@ const CapacityPlanner = () => {
 
   const handleTeamSizeVariationAdd = (variation: TeamSizeVariation) => {
     setTeams(prevTeams => {
+      logger.info(
+        `Adding size variation for team ${variation.team} at week ${variation.week} with size ${variation.size}`
+      );
       const currentTeam = prevTeams[variation.team];
-      const currentSize = currentTeam.size;
-      const newSizes = [...currentSize];
-
-      // Only set the specific week that has a variation
-      newSizes[variation.week] = variation.size;
-
+      const currentSizes = currentTeam.sizes;
+      let newSizes = [...currentSizes];
+      newSizes = newSizes.filter(size => size.week !== variation.week);
+      newSizes.push({ week: variation.week, size: variation.size });
+      newSizes.sort((a, b) => a.week - b.week);
       return {
         ...prevTeams,
         [variation.team]: {
           ...currentTeam,
-          size: newSizes,
+          sizes: newSizes,
         },
       };
     });
@@ -167,34 +167,13 @@ const CapacityPlanner = () => {
   const handleTeamSizeVariationRemove = (team: string, week: number) => {
     setTeams(prevTeams => {
       const currentTeam = prevTeams[team];
-      const currentSize = currentTeam.size;
-
-      const newSizes = [...currentSize];
-      const baseSize = newSizes[0];
-
-      // Only remove the specific variation
-      if (week === 0) {
-        // If removing variation from week 0, update all existing variations to use the new base size
-        newSizes.forEach((size, i) => {
-          if (size !== undefined && i !== 0) {
-            newSizes[i] = size;
-          }
-        });
-        newSizes[0] = baseSize;
-      } else {
-        // For other weeks, just remove that specific variation
-        delete newSizes[week];
-      }
-
-      // If no variations left, convert back to simple number
-      const hasVariations = newSizes.some(
-        (size, i) => i > 0 && size !== undefined && size !== baseSize
-      );
+      const currentSizes = currentTeam.sizes;
+      const newSizes = currentSizes.filter(size => size.week !== week);
       return {
         ...prevTeams,
         [team]: {
           ...currentTeam,
-          size: hasVariations ? newSizes : [baseSize],
+          sizes: newSizes,
         },
       };
     });
@@ -264,6 +243,7 @@ const CapacityPlanner = () => {
     <div className="fixed inset-0 flex flex-col h-screen">
       <div className="flex-1 overflow-hidden relative">
         <h2 className="text-2xl font-medium p-4">Capacity Planner</h2>
+
         <p className="px-4 py-2 text-sm text-muted-foreground border-b">
           A visual planning tool that helps you estimate project timelines by mapping team capacity
           against feature requirements. Adjust team sizes, WIP limits, and feature specifications to
