@@ -24,6 +24,7 @@ describe('stateService', () => {
       ],
       teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 } },
       overheadFactor: 1.2,
+      startDate: new Date(),
     };
 
     const encoded = encodeState(state);
@@ -36,6 +37,7 @@ describe('stateService', () => {
       features: [],
       teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 } },
       overheadFactor: 1,
+      startDate: new Date(),
     };
 
     const encoded = encodeState(state);
@@ -56,6 +58,7 @@ describe('stateService', () => {
       ],
       teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 } },
       overheadFactor: 1.5,
+      startDate: new Date(),
     };
 
     const encoded = encodeState(state);
@@ -83,6 +86,7 @@ describe('stateService', () => {
       ],
       teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 } },
       overheadFactor: 1.2,
+      startDate: new Date(),
     };
 
     const encoded = encodeState(state);
@@ -112,6 +116,7 @@ describe('stateService', () => {
         },
       },
       overheadFactor: 1.2,
+      startDate: new Date(),
     };
 
     const encoded = encodeState(state);
@@ -137,6 +142,7 @@ describe('stateService', () => {
         },
       },
       overheadFactor: 1.2,
+      startDate: new Date(),
     };
 
     const encoded = encodeState(state);
