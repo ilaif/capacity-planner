@@ -62,7 +62,7 @@ export function TimelineItem({
                   >
                     <TeamAvatar teamName={team} size={14} />
                     <span className="text-[11px] font-medium text-slate-800">
-                      {Math.round(requirement.weeks * overheadFactor)}w
+                      {Math.ceil(requirement.weeks * overheadFactor)}w
                       {requirement.parallel > 1 && (
                         <span className="text-slate-600 ml-0.5">({requirement.parallel}x)</span>
                       )}
@@ -83,7 +83,11 @@ export function TimelineItem({
                   <div key={team} className="flex items-center gap-2">
                     <TeamAvatar teamName={team} size={18} />
                     <span className="text-sm text-slate-800">
-                      {team}: <span className="font-medium">{requirement.weeks}w</span>
+                      {team}:{' '}
+                      <span className="font-medium">
+                        {requirement.weeks}w ({Math.ceil(requirement.weeks * overheadFactor)}w with
+                        overhead)
+                      </span>
                       {requirement.parallel > 1 && (
                         <span className="text-slate-600"> ({requirement.parallel} parallel)</span>
                       )}

@@ -24,7 +24,7 @@ export function TimelineView({
   overheadFactor,
   startDate,
 }: TimelineViewProps) {
-  const [columnWidth, setColumnWidth] = useState(90);
+  const [columnWidth, setColumnWidth] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
   const [timeline, setTimeline] = useState<TimelineItemWithRow[]>([]);
 

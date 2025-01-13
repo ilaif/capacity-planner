@@ -304,7 +304,7 @@ export function TeamConfiguration({
                     variant="ghost"
                     size="icon"
                     onClick={() => onTeamSizeVariationRemove(team, week)}
-                    className="h-6 w-6 ml-1"
+                    className="h-6 w-6 ml-5"
                   >
                     <X className="h-3 w-3" />
                   </Button>

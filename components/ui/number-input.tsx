@@ -45,7 +45,7 @@ export function NumberInput({
       <Button
         variant="outline"
         size="icon"
-        className="h-8 w-8 rounded-r-none"
+        className="h-8 min-w-6 max-w-6 rounded-r-none"
         onClick={decrement}
         disabled={disabled || value <= min}
         type="button"
@@ -69,7 +69,7 @@ export function NumberInput({
       <Button
         variant="outline"
         size="icon"
-        className="h-8 w-8 rounded-l-none"
+        className="h-8 min-w-6 max-w-6 rounded-l-none"
         onClick={increment}
         disabled={disabled || value >= max}
         type="button"
