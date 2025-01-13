@@ -4,12 +4,14 @@ import { getInitialState, updateURL, DEFAULT_STATE } from '@/services/stateServi
 import { logger } from '@/services/loggerService';
 import { TimelineView } from './capacity-planner/TimelineView';
 import { ConfigurationSheet } from './capacity-planner/ConfigurationSheet';
+import { startOfWeek } from 'date-fns';
 
 const CapacityPlanner = () => {
   const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
   const [teams, setTeams] = useState<Teams>(DEFAULT_STATE.teams);
   const [overheadFactor, setOverheadFactor] = useState(DEFAULT_STATE.overheadFactor);
-  const [open, setOpen] = useState(false);
+  const [startDate, setStartDate] = useState<Date>(startOfWeek(new Date()));
+  const [openConfigurationSheet, setOpenConfigurationSheet] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -42,6 +44,22 @@ const CapacityPlanner = () => {
     updateURL(state);
     logger.debug('State updated successfully');
   }, [features, teams, overheadFactor, isInitialized]);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only trigger if no input/textarea is focused
+      if (
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA' &&
+        event.key.toLowerCase() === 's'
+      ) {
+        setOpenConfigurationSheet(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   const handleTeamAdd = (teamName: string) => {
     logger.info(`Adding new team: ${teamName}`);
@@ -245,21 +263,29 @@ const CapacityPlanner = () => {
   return (
     <div className="fixed inset-0 flex flex-col h-screen">
       <div className="flex-1 overflow-hidden relative">
-        <h2 className="text-2xl font-medium p-4 border-b">Capacity Planner</h2>
+        <h2 className="text-2xl font-medium p-4">Capacity Planner</h2>
+        <p className="px-4 py-2 text-sm text-muted-foreground border-b">
+          A visual planning tool that helps you estimate project timelines by mapping team capacity
+          against feature requirements. Adjust team sizes, WIP limits, and feature specifications to
+          optimize your delivery schedule.
+        </p>
 
         <TimelineView
           features={features}
           teams={teams}
           timelineRef={timelineRef}
           overheadFactor={overheadFactor}
+          startDate={startDate}
         />
 
         <ConfigurationSheet
-          open={open}
-          onOpenChange={setOpen}
+          open={openConfigurationSheet}
+          onOpenChange={setOpenConfigurationSheet}
           features={features}
           teams={teams}
           overheadFactor={overheadFactor}
+          startDate={startDate}
+          onStartDateChange={setStartDate}
           onOverheadFactorChange={setOverheadFactor}
           onTeamAdd={handleTeamAdd}
           onTeamRemove={handleTeamRemove}

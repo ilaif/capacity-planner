@@ -1,10 +1,9 @@
 import { Button } from '@/components/ui/button';
 import type { TimelineItem as TimelineItemType, Feature, Teams } from '@/types/capacity-planner';
 import { RefObject, useState, useCallback, useEffect } from 'react';
-import { format, addWeeks, startOfWeek } from 'date-fns';
+import { format, addWeeks } from 'date-fns';
 import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
 import { TimelineItem, TimelineGrid } from './TimelineItem';
-import { DatePicker } from '@/components/ui/date-picker';
 
 interface TimelineItemWithRow extends TimelineItemType {
   row: number;
@@ -15,12 +14,18 @@ interface TimelineViewProps {
   teams: Teams;
   timelineRef: RefObject<HTMLDivElement | null>;
   overheadFactor: number;
+  startDate: Date;
 }
 
-export function TimelineView({ features, teams, timelineRef, overheadFactor }: TimelineViewProps) {
+export function TimelineView({
+  features,
+  teams,
+  timelineRef,
+  overheadFactor,
+  startDate,
+}: TimelineViewProps) {
   const [columnWidth, setColumnWidth] = useState(90);
   const [isDragging, setIsDragging] = useState(false);
-  const [startDate, setStartDate] = useState<Date>(startOfWeek(new Date()));
   const [timeline, setTimeline] = useState<TimelineItemWithRow[]>([]);
 
   // Calculate optimal row positions for timeline items
@@ -119,11 +124,7 @@ export function TimelineView({ features, teams, timelineRef, overheadFactor }: T
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex justify-between items-center p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">Start:</span>
-          <DatePicker date={startDate} onSelect={date => setStartDate(date ? date : new Date())} />
-        </div>
+      <div className="flex justify-end items-center p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <Button onClick={handleExport}>Export PNG</Button>
       </div>
       <div ref={timelineRef} className="flex-1 overflow-auto relative min-h-0">

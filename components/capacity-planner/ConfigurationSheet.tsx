@@ -12,6 +12,8 @@ interface ConfigurationSheetProps {
   features: Feature[];
   teams: Teams;
   overheadFactor: number;
+  startDate: Date;
+  onStartDateChange: (date: Date) => void;
   onOverheadFactorChange: (value: number) => void;
   onTeamAdd: (teamName: string) => void;
   onTeamRemove: (teamName: string) => void;
@@ -33,6 +35,8 @@ export function ConfigurationSheet({
   features,
   teams,
   overheadFactor,
+  startDate,
+  onStartDateChange,
   onOverheadFactorChange,
   onTeamAdd,
   onTeamRemove,
@@ -63,6 +67,8 @@ export function ConfigurationSheet({
           <PlanningConfiguration
             overheadFactor={overheadFactor}
             onOverheadFactorChange={onOverheadFactorChange}
+            startDate={startDate}
+            onStartDateChange={onStartDateChange}
           />
 
           <h3 className="text-lg font-medium">Teams</h3>
