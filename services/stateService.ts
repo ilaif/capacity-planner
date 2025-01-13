@@ -1,10 +1,12 @@
 import { Feature, Teams } from '@/types/capacity-planner';
 import { logger } from '@/services/loggerService';
+import { startOfWeek } from 'date-fns';
 
 const STORAGE_KEYS = {
   FEATURES: 'capacity-planner-features',
   TEAMS: 'capacity-planner-teams',
   OVERHEAD: 'capacity-planner-overhead',
+  START_DATE: 'capacity-planner-start-date',
 };
 
 export const QUERY_PARAM_KEY = 's';
@@ -13,12 +15,14 @@ export interface PlannerState {
   features: Feature[];
   teams: Teams;
   overheadFactor: number;
+  startDate: Date;
 }
 
 export const DEFAULT_STATE: PlannerState = {
   features: [{ id: 1, name: 'Feature 1', requirements: {} }],
   teams: {},
   overheadFactor: 1.2,
+  startDate: startOfWeek(new Date()),
 };
 
 export const encodeState = (state: Partial<PlannerState>): string => {
@@ -55,17 +59,20 @@ export const loadFromLocalStorage = (): PlannerState => {
     const features = JSON.parse(localStorage.getItem(STORAGE_KEYS.FEATURES) || 'null');
     const teams = JSON.parse(localStorage.getItem(STORAGE_KEYS.TEAMS) || 'null');
     const overheadFactor = parseFloat(localStorage.getItem(STORAGE_KEYS.OVERHEAD) || 'null');
+    const startDate = new Date(localStorage.getItem(STORAGE_KEYS.START_DATE) || 'null');
 
     const state = {
       features: features || DEFAULT_STATE.features,
       teams: teams || DEFAULT_STATE.teams,
       overheadFactor: overheadFactor || DEFAULT_STATE.overheadFactor,
+      startDate: startDate || DEFAULT_STATE.startDate,
     };
 
     logger.info('State loaded from localStorage', {
       featuresCount: state.features.length,
       teamsCount: Object.keys(state.teams).length,
       overheadFactor: state.overheadFactor,
+      startDate: state.startDate,
     });
 
     return state;
@@ -87,11 +94,13 @@ export const saveToLocalStorage = (state: PlannerState): void => {
     localStorage.setItem(STORAGE_KEYS.FEATURES, JSON.stringify(state.features));
     localStorage.setItem(STORAGE_KEYS.TEAMS, JSON.stringify(state.teams));
     localStorage.setItem(STORAGE_KEYS.OVERHEAD, state.overheadFactor.toString());
+    localStorage.setItem(STORAGE_KEYS.START_DATE, state.startDate.toISOString());
 
     logger.info('State saved to localStorage successfully', {
       featuresCount: state.features.length,
       teamsCount: Object.keys(state.teams).length,
       overheadFactor: state.overheadFactor,
+      startDate: state.startDate,
     });
   } catch (error) {
     logger.error('Failed to save state to localStorage', error as Error, { state });
@@ -131,6 +140,7 @@ export const loadFromURL = (): PlannerState | null => {
       featuresCount: mergedState.features.length,
       teamsCount: Object.keys(mergedState.teams).length,
       overheadFactor: mergedState.overheadFactor,
+      startDate: mergedState.startDate,
     });
 
     return mergedState;

@@ -23,10 +23,12 @@ const CapacityPlanner = () => {
       features: initialState.features,
       teams: initialState.teams,
       overheadFactor: initialState.overheadFactor,
+      startDate: initialState.startDate,
     });
     setFeatures(initialState.features);
     setTeams(initialState.teams);
     setOverheadFactor(initialState.overheadFactor);
+    setStartDate(initialState.startDate);
     setIsInitialized(true);
     logger.info('CapacityPlanner state initialized successfully');
   }, []);
@@ -35,15 +37,16 @@ const CapacityPlanner = () => {
   useEffect(() => {
     if (!isInitialized) return;
 
-    const state = { features, teams, overheadFactor };
+    const state = { features, teams, overheadFactor, startDate };
     logger.debug('Updating state in URL and localStorage', {
       features,
       teams,
       overheadFactor,
+      startDate,
     });
     updateURL(state);
     logger.debug('State updated successfully');
-  }, [features, teams, overheadFactor, isInitialized]);
+  }, [features, teams, overheadFactor, startDate, isInitialized]);
 
   // Activate keyboard shortcuts
   useEffect(() => {
