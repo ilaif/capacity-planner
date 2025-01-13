@@ -5,6 +5,9 @@ import { logger } from '@/services/loggerService';
 import { TimelineView } from './capacity-planner/TimelineView';
 import { ConfigurationSheet } from './capacity-planner/ConfigurationSheet';
 import { startOfWeek } from 'date-fns';
+import { HistoryManager } from '@/services/historyService';
+import { Button } from '@/components/ui/button';
+import { Undo2, Redo2 } from 'lucide-react';
 
 const CapacityPlanner = () => {
   const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
@@ -14,11 +17,13 @@ const CapacityPlanner = () => {
   const [openConfigurationSheet, setOpenConfigurationSheet] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const historyManagerRef = useRef<HistoryManager | null>(null);
 
-  // Initialize state from URL
+  // Initialize state and history manager
   useEffect(() => {
     logger.info('Initializing CapacityPlanner state');
     const initialState = getInitialState();
+    historyManagerRef.current = new HistoryManager(initialState);
     logger.debug('Got initial state', {
       features: initialState.features,
       teams: initialState.teams,
@@ -33,37 +38,68 @@ const CapacityPlanner = () => {
     logger.info('CapacityPlanner state initialized successfully');
   }, []);
 
-  // Update URL whenever state changes
+  // Update URL and history whenever state changes
   useEffect(() => {
-    if (!isInitialized) return;
+    if (!isInitialized || !historyManagerRef.current) return;
 
     const state = { features, teams, overheadFactor, startDate };
-    logger.debug('Updating state in URL and localStorage', {
-      features,
-      teams,
-      overheadFactor,
-      startDate,
-    });
+    logger.debug('Updating state in URL and history', state);
     updateURL(state);
+    historyManagerRef.current.pushState(state);
     logger.debug('State updated successfully');
   }, [features, teams, overheadFactor, startDate, isInitialized]);
 
-  // Activate keyboard shortcuts
+  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       // Only trigger if no input/textarea is focused
       if (
         document.activeElement?.tagName !== 'INPUT' &&
-        document.activeElement?.tagName !== 'TEXTAREA' &&
-        event.key.toLowerCase() === 's'
+        document.activeElement?.tagName !== 'TEXTAREA'
       ) {
-        setOpenConfigurationSheet(prev => !prev);
+        if (event.key.toLowerCase() === 's') {
+          setOpenConfigurationSheet(prev => !prev);
+        } else if ((event.metaKey || event.ctrlKey) && event.key === 'z') {
+          if (event.shiftKey) {
+            handleRedo();
+          } else {
+            handleUndo();
+          }
+          event.preventDefault();
+        } else if ((event.metaKey || event.ctrlKey) && event.key === 'y') {
+          handleRedo();
+          event.preventDefault();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
+
+  const handleUndo = () => {
+    if (!historyManagerRef.current?.canUndo()) return;
+
+    const previousState = historyManagerRef.current.undo();
+    if (previousState) {
+      setFeatures(previousState.features);
+      setTeams(previousState.teams);
+      setOverheadFactor(previousState.overheadFactor);
+      setStartDate(previousState.startDate);
+    }
+  };
+
+  const handleRedo = () => {
+    if (!historyManagerRef.current?.canRedo()) return;
+
+    const nextState = historyManagerRef.current.redo();
+    if (nextState) {
+      setFeatures(nextState.features);
+      setTeams(nextState.teams);
+      setOverheadFactor(nextState.overheadFactor);
+      setStartDate(nextState.startDate);
+    }
+  };
 
   const handleTeamAdd = (teamName: string) => {
     logger.info(`Adding new team: ${teamName}`);
@@ -244,9 +280,30 @@ const CapacityPlanner = () => {
 
   return (
     <div className="fixed inset-0 flex flex-col h-screen">
-      <div className="flex-1 overflow-hidden relative">
-        <h2 className="text-2xl font-medium p-4">Capacity Planner</h2>
-
+      <div className="flex items-center justify-between p-4 relative">
+        <h2 className="text-2xl font-medium">Capacity Planner</h2>
+        <div className="flex gap-2 mr-11">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleUndo}
+            disabled={!historyManagerRef.current?.canUndo()}
+            title="Undo (Ctrl/⌘+Z)"
+          >
+            <Undo2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleRedo}
+            disabled={!historyManagerRef.current?.canRedo()}
+            title="Redo (Ctrl/⌘+Y or Ctrl/⌘+Shift+Z)"
+          >
+            <Redo2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      <div className="flex-1 overflow-hidden">
         <p className="px-4 py-2 text-sm text-muted-foreground border-b">
           A visual planning tool that helps you estimate project timelines by mapping team capacity
           against feature requirements. Adjust team sizes, WIP limits, and feature specifications to
