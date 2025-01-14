@@ -3,6 +3,7 @@ import type { TimelineItem as TimelineItemType } from '@/types/capacity-planner'
 import { format, addWeeks } from 'date-fns';
 import { TeamAvatar } from '@/components/ui/team-avatar';
 import { cn } from '@/lib/utils';
+import { Users } from 'lucide-react';
 
 interface TimelineItemProps {
   allocation: TimelineItemType;
@@ -54,7 +55,7 @@ export function TimelineItem({
                   <div
                     key={team}
                     className={cn(
-                      'flex items-center gap-1.5 px-1.5 py-0.5 rounded-full',
+                      'flex items-center gap-0.5 px-1.5 py-0.5 rounded-full',
                       'bg-white/70 border border-slate-300/50',
                       'transition-colors duration-200',
                       'group-hover:bg-white/90'
@@ -63,10 +64,22 @@ export function TimelineItem({
                     <TeamAvatar teamName={team} size={14} />
                     <span className="text-[11px] font-medium text-slate-800">
                       {Math.ceil(requirement.weeks * overheadFactor)}w
-                      {requirement.parallel > 1 && (
-                        <span className="text-slate-600 ml-0.5">({requirement.parallel}x)</span>
-                      )}
                     </span>
+                    {requirement.parallel > 1 && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <span className="text-[11px] text-slate-600 ml-0.5 flex items-center">
+                              <Users className="h-3.5 w-3.5 mr-1" />
+                              {requirement.parallel}x
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{requirement.parallel} team members working in parallel</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
                 ))}
             </div>
@@ -88,10 +101,22 @@ export function TimelineItem({
                         {requirement.weeks}w ({Math.ceil(requirement.weeks * overheadFactor)}w with
                         overhead)
                       </span>
-                      {requirement.parallel > 1 && (
-                        <span className="text-slate-600"> ({requirement.parallel} parallel)</span>
-                      )}
                     </span>
+                    {requirement.parallel > 1 && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <span className="text-slate-600 flex items-center">
+                              <Users className="h-3 w-3 mr-1" />
+                              {requirement.parallel}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{requirement.parallel} team members working in parallel</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
                 ))}
             </div>

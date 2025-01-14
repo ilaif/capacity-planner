@@ -5,6 +5,7 @@ import { PlanningConfiguration } from './PlanningConfiguration';
 import { TeamConfiguration } from './TeamConfiguration';
 import { Features } from './Features';
 import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ConfigurationSheetProps {
   open: boolean;
@@ -53,10 +54,19 @@ export function ConfigurationSheet({
 }: ConfigurationSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="absolute top-4 right-4 z-50">
-          <Menu className="h-4 w-4" />
-        </Button>
+      <SheetTrigger>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" className="absolute top-4 right-4 z-50">
+                <Menu className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Open Configuration (⌘K)</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </SheetTrigger>
       <SheetContent className="pr-1">
         <SheetHeader>

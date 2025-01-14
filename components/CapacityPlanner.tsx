@@ -58,7 +58,7 @@ const CapacityPlanner = () => {
         document.activeElement?.tagName !== 'INPUT' &&
         document.activeElement?.tagName !== 'TEXTAREA'
       ) {
-        if (event.key.toLowerCase() === 's') {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
           setOpenConfigurationSheet(prev => !prev);
         } else if ((event.metaKey || event.ctrlKey) && event.key === 'z') {
           if (event.shiftKey) {
@@ -327,7 +327,7 @@ const CapacityPlanner = () => {
           </TooltipProvider>
         </div>
       </div>
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1">
         <p className="px-4 py-2 text-sm text-muted-foreground border-b">
           A visual planning tool that helps you estimate project timelines by mapping team capacity
           against feature requirements. Adjust team sizes, WIP limits, and feature specifications to

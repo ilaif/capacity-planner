@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Feature } from '@/types/capacity-planner';
 import { Button } from '@/components/ui/button';
-import { X, GripVertical, HelpCircle } from 'lucide-react';
+import { X, GripVertical, HelpCircle, Users } from 'lucide-react';
 import React, { lazy, Suspense } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -76,58 +76,49 @@ export function FeatureItem({
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="flex flex-wrap gap-2">
         {Object.entries(feature.requirements).map(([team, requirement]) => (
           <React.Fragment key={team}>
             <div className="flex items-center gap-2">
               <TeamAvatar teamName={team} size={16} />
-              <div className="flex items-center gap-1">
-                <label className="text-xs whitespace-nowrap">weeks</label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">
-                        Number of engineer weeks needed by {team} team to complete their part of the
-                        feature
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <label className="text-xs whitespace-nowrap"># Weeks</label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">
+                      Number of engineer weeks needed by {team} team to complete their part of the
+                      feature
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <NumberInput
                 value={requirement.weeks}
                 onChange={value => onRequirementChange(feature.id, team, 'weeks', value.toString())}
                 min={0}
-                className="w-16"
+                className="max-w-20"
               />
-            </div>
-            <div className="flex items-center gap-2">
-              <TeamAvatar teamName={team} size={16} />
-              <div className="flex items-center gap-1">
-                <label className="text-xs whitespace-nowrap">parallel</label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">
-                        Maximum number of engineers that can work on this feature simultaneously
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <label className="text-xs whitespace-nowrap">
+                      <Users className="h-3.5 w-3.5" />
+                    </label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Number of team members that can work in parallel</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <NumberInput
                 value={requirement.parallel}
+                min={1}
                 onChange={value =>
                   onRequirementChange(feature.id, team, 'parallel', value.toString())
                 }
-                min={1}
-                className="w-16"
+                className="max-w-20"
               />
             </div>
           </React.Fragment>
