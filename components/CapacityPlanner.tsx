@@ -8,6 +8,7 @@ import { startOfWeek } from 'date-fns';
 import { HistoryManager } from '@/services/historyService';
 import { Button } from '@/components/ui/button';
 import { Undo2, Redo2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const CapacityPlanner = () => {
   const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
@@ -66,7 +67,10 @@ const CapacityPlanner = () => {
             handleUndo();
           }
           event.preventDefault();
-        } else if ((event.metaKey || event.ctrlKey) && event.key === 'y') {
+        } else if (
+          (event.metaKey || event.ctrlKey) &&
+          (event.key === 'y' || (event.shiftKey && event.key === 'z'))
+        ) {
           handleRedo();
           event.preventDefault();
         }
@@ -283,24 +287,44 @@ const CapacityPlanner = () => {
       <div className="flex items-center justify-between p-4 relative">
         <h2 className="text-2xl font-medium">Capacity Planner</h2>
         <div className="flex gap-2 mr-11">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleUndo}
-            disabled={!historyManagerRef.current?.canUndo()}
-            title="Undo (Ctrl/⌘+Z)"
-          >
-            <Undo2 className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleRedo}
-            disabled={!historyManagerRef.current?.canRedo()}
-            title="Redo (Ctrl/⌘+Y or Ctrl/⌘+Shift+Z)"
-          >
-            <Redo2 className="h-4 w-4" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleUndo}
+                    disabled={!historyManagerRef.current?.canUndo()}
+                  >
+                    <Undo2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Undo (⌘Z)</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleRedo}
+                    disabled={!historyManagerRef.current?.canRedo()}
+                  >
+                    <Redo2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Redo (⌘⇧Z / ⌘Y)</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
       <div className="flex-1 overflow-hidden">
