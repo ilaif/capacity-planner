@@ -28,7 +28,7 @@ export function ImportButton({ currentTeams, handlers }: ImportButtonProps) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="h-full">
             <label className="flex items-center cursor-pointer">
               <Upload className="h-4 w-4 mr-2" />
               Import JSON

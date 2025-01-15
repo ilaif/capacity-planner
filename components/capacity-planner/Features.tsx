@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { useRef, useImperativeHandle, forwardRef } from 'react';
 
-interface FeatureListProps {
+interface FeaturesProps {
   features: Feature[];
   teams: string[];
   onFeatureAdd: () => void;
@@ -33,7 +33,7 @@ export interface FeaturesHandle {
   focusFeature: (featureName: string) => void;
 }
 
-export const Features = forwardRef<FeaturesHandle, FeatureListProps>(
+export const Features = forwardRef<FeaturesHandle, FeaturesProps>(
   (
     {
       features,

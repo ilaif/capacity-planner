@@ -20,7 +20,7 @@ export function ExportButton({ state }: ExportButtonProps) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="sm" onClick={handleExport}>
+          <Button variant="outline" size="sm" onClick={handleExport} className="h-full">
             <Download className="h-4 w-4 mr-2" />
             Export JSON
           </Button>

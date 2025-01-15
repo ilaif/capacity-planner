@@ -1,14 +1,18 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
-import { PlanningConfiguration } from './PlanningConfiguration';
-import { TeamConfiguration } from './TeamConfiguration';
 import { Features, FeaturesHandle } from './Features';
+import { TeamConfiguration } from './TeamConfiguration';
 import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useRef, useImperativeHandle, forwardRef } from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { ExportButton } from './ExportButton';
 import { ImportButton } from './ImportButton';
+import { ConfigurationManager } from './ConfigurationManager';
+import { PlannerState } from '@/services/stateService';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { logger } from '@/services/loggerService';
 
 interface ConfigurationSheetProps {
   open: boolean;
@@ -71,6 +75,39 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       },
     }));
 
+    const currentState: PlannerState = {
+      features,
+      teams,
+      overheadFactor,
+      startDate,
+    };
+
+    const handleConfigurationLoad = (state: PlannerState) => {
+      logger.info('Loading configuration state', { state });
+      onFeaturesUploaded(state.features);
+      Object.keys(teams).forEach(team => {
+        if (!state.teams[team]) {
+          onTeamRemove(team);
+        }
+      });
+      Object.entries(state.teams).forEach(([team, config]) => {
+        if (!teams[team]) {
+          onTeamAdd(team);
+        }
+        onTeamSizeChange(team, config.sizes[0].size);
+        onWipLimitChange(team, config.wipLimit);
+        config.sizes.slice(1).forEach(variation => {
+          onTeamSizeVariationAdd({
+            team,
+            week: variation.week,
+            size: variation.size,
+          });
+        });
+      });
+      onOverheadFactorChange(state.overheadFactor);
+      onStartDateChange(state.startDate);
+    };
+
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetTrigger>
@@ -90,62 +127,91 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
         <SheetContent className="pr-1">
           <SheetHeader>
             <SheetTitle>Configuration</SheetTitle>
-            <div className="flex gap-2 mt-2">
-              <ExportButton
-                state={{
-                  features,
-                  teams,
-                  overheadFactor,
-                  startDate,
-                }}
-              />
-              <ImportButton
-                currentTeams={teams}
-                handlers={{
-                  onFeaturesUploaded,
-                  onTeamAdd,
-                  onTeamRemove,
-                  onTeamSizeChange,
-                  onWipLimitChange,
-                  onTeamSizeVariationAdd,
-                  onOverheadFactorChange,
-                  onStartDateChange,
-                }}
-              />
+            <div className="flex gap-2 mt-2 mr-6">
+              <div className="flex-1">
+                <ConfigurationManager
+                  currentState={currentState}
+                  onConfigurationLoad={handleConfigurationLoad}
+                />
+              </div>
+              <div className="flex gap-2">
+                <ExportButton state={currentState} />
+                <ImportButton
+                  currentTeams={teams}
+                  handlers={{
+                    onFeaturesUploaded,
+                    onTeamAdd,
+                    onTeamRemove,
+                    onTeamSizeChange,
+                    onWipLimitChange,
+                    onTeamSizeVariationAdd,
+                    onOverheadFactorChange,
+                    onStartDateChange,
+                  }}
+                />
+              </div>
             </div>
           </SheetHeader>
+
           <div className="pr-6 space-y-4 mt-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
-            <h3 className="text-lg font-medium">Planning</h3>
-            <PlanningConfiguration
-              overheadFactor={overheadFactor}
-              onOverheadFactorChange={onOverheadFactorChange}
-              startDate={startDate}
-              onStartDateChange={onStartDateChange}
-            />
+            <div>
+              <h3 className="text-lg font-medium">Planning</h3>
+              <div className="mt-2 space-y-4">
+                <div>
+                  <Label htmlFor="startDate">Start Date</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={startDate.toISOString().split('T')[0]}
+                    onChange={e => onStartDateChange(new Date(e.target.value))}
+                  />
+                </div>
 
-            <h3 className="text-lg font-medium">Teams</h3>
-            <TeamConfiguration
-              teams={teams}
-              onTeamAdd={onTeamAdd}
-              onTeamRemove={onTeamRemove}
-              onTeamRename={onTeamRename}
-              onTeamSizeChange={onTeamSizeChange}
-              onWipLimitChange={onWipLimitChange}
-              onTeamSizeVariationAdd={onTeamSizeVariationAdd}
-              onTeamSizeVariationRemove={onTeamSizeVariationRemove}
-            />
+                <div>
+                  <Label htmlFor="overhead">Overhead Factor</Label>
+                  <Input
+                    id="overhead"
+                    type="number"
+                    min="1"
+                    step="0.1"
+                    value={overheadFactor}
+                    onChange={e => onOverheadFactorChange(parseFloat(e.target.value))}
+                  />
+                </div>
+              </div>
+            </div>
 
-            <h3 className="text-lg font-medium">Features</h3>
-            <Features
-              ref={featuresRef}
-              features={features}
-              teams={Object.keys(teams)}
-              onFeatureAdd={onFeatureAdd}
-              onFeatureNameChange={onFeatureNameChange}
-              onRequirementChange={onRequirementChange}
-              onFeaturesUploaded={onFeaturesUploaded}
-              onFeatureRemove={onFeatureRemove}
-            />
+            <div>
+              <h3 className="text-lg font-medium">Teams</h3>
+              <div className="mt-2">
+                <TeamConfiguration
+                  teams={teams}
+                  onTeamAdd={onTeamAdd}
+                  onTeamRemove={onTeamRemove}
+                  onTeamRename={onTeamRename}
+                  onTeamSizeChange={onTeamSizeChange}
+                  onWipLimitChange={onWipLimitChange}
+                  onTeamSizeVariationAdd={onTeamSizeVariationAdd}
+                  onTeamSizeVariationRemove={onTeamSizeVariationRemove}
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-medium">Features</h3>
+              <div className="mt-2">
+                <Features
+                  ref={featuresRef}
+                  features={features}
+                  teams={Object.keys(teams)}
+                  onFeatureAdd={onFeatureAdd}
+                  onFeatureNameChange={onFeatureNameChange}
+                  onRequirementChange={onRequirementChange}
+                  onFeaturesUploaded={onFeaturesUploaded}
+                  onFeatureRemove={onFeatureRemove}
+                />
+              </div>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
