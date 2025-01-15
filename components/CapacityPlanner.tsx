@@ -12,6 +12,7 @@ import { HistoryManager } from '@/services/historyService';
 import { Button } from '@/components/ui/button';
 import { Undo2, Redo2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 const CapacityPlanner = () => {
   const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
@@ -54,37 +55,6 @@ const CapacityPlanner = () => {
     logger.debug('State updated successfully');
   }, [features, teams, overheadFactor, startDate, isInitialized]);
 
-  // Handle keyboard shortcuts
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      // Only trigger if no input/textarea is focused
-      if (
-        document.activeElement?.tagName !== 'INPUT' &&
-        document.activeElement?.tagName !== 'TEXTAREA'
-      ) {
-        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-          setOpenConfigurationSheet(prev => !prev);
-        } else if ((event.metaKey || event.ctrlKey) && event.key === 'z') {
-          if (event.shiftKey) {
-            handleRedo();
-          } else {
-            handleUndo();
-          }
-          event.preventDefault();
-        } else if (
-          (event.metaKey || event.ctrlKey) &&
-          (event.key === 'y' || (event.shiftKey && event.key === 'z'))
-        ) {
-          handleRedo();
-          event.preventDefault();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
-
   const handleUndo = () => {
     if (!historyManagerRef.current?.canUndo()) return;
 
@@ -108,6 +78,12 @@ const CapacityPlanner = () => {
       setStartDate(nextState.startDate);
     }
   };
+
+  useKeyboardShortcuts({
+    onConfigurationSheetToggle: () => setOpenConfigurationSheet(prev => !prev),
+    onUndo: handleUndo,
+    onRedo: handleRedo,
+  });
 
   const handleTeamAdd = (teamName: string) => {
     logger.info(`Adding new team: ${teamName}`);
