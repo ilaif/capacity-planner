@@ -58,3 +58,14 @@ export interface Feature {
   name: string;
   requirements: Requirements;
 }
+
+export interface ImportHandlers {
+  onFeaturesUploaded: (features: Feature[]) => void;
+  onTeamAdd: (teamName: string) => void;
+  onTeamRemove: (teamName: string) => void;
+  onTeamSizeChange: (team: string, value: number) => void;
+  onWipLimitChange: (team: string, value: number) => void;
+  onTeamSizeVariationAdd: (variation: { team: string; week: number; size: number }) => void;
+  onOverheadFactorChange: (value: number) => void;
+  onStartDateChange: (date: Date) => void;
+}

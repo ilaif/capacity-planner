@@ -7,6 +7,8 @@ import { Features, FeaturesHandle } from './Features';
 import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useRef, useImperativeHandle, forwardRef } from 'react';
+import { ExportButton } from './ExportButton';
+import { ImportButton } from './ImportButton';
 
 interface ConfigurationSheetProps {
   open: boolean;
@@ -88,6 +90,29 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
         <SheetContent className="pr-1">
           <SheetHeader>
             <SheetTitle>Configuration</SheetTitle>
+            <div className="flex gap-2 mt-2">
+              <ExportButton
+                state={{
+                  features,
+                  teams,
+                  overheadFactor,
+                  startDate,
+                }}
+              />
+              <ImportButton
+                currentTeams={teams}
+                handlers={{
+                  onFeaturesUploaded,
+                  onTeamAdd,
+                  onTeamRemove,
+                  onTeamSizeChange,
+                  onWipLimitChange,
+                  onTeamSizeVariationAdd,
+                  onOverheadFactorChange,
+                  onStartDateChange,
+                }}
+              />
+            </div>
           </SheetHeader>
           <div className="pr-6 space-y-4 mt-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
             <h3 className="text-lg font-medium">Planning</h3>
