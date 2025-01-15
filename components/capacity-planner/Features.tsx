@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Feature } from '@/types/capacity-planner';
-import { FeatureItem } from './FeatureItem';
+import { FeatureItem, FeatureItemHandle } from './FeatureItem';
 import { FeatureUpload } from './FeatureUpload';
 import {
   DndContext,
@@ -17,6 +17,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useRef, useImperativeHandle, forwardRef } from 'react';
 
 interface FeatureListProps {
   features: Feature[];
@@ -28,56 +29,86 @@ interface FeatureListProps {
   onFeatureRemove: (featureId: number) => void;
 }
 
-export function Features({
-  features,
-  teams,
-  onFeatureAdd,
-  onFeatureNameChange,
-  onRequirementChange,
-  onFeaturesUploaded,
-  onFeatureRemove,
-}: FeatureListProps) {
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      const oldIndex = features.findIndex(f => f.id.toString() === active.id);
-      const newIndex = features.findIndex(f => f.id.toString() === over.id);
-
-      const newFeatures = arrayMove(features, oldIndex, newIndex);
-      onFeaturesUploaded(newFeatures);
-    }
-  };
-
-  return (
-    <div className="space-y-2">
-      <FeatureUpload onFeaturesUploaded={onFeaturesUploaded} teams={teams} />
-      <Button onClick={onFeatureAdd}>Add Feature</Button>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="space-y-4 p-1">
-          <SortableContext
-            items={features.map(f => f.id.toString())}
-            strategy={verticalListSortingStrategy}
-          >
-            {features.map(feature => (
-              <FeatureItem
-                key={feature.id}
-                feature={feature}
-                onFeatureNameChange={onFeatureNameChange}
-                onRequirementChange={onRequirementChange}
-                onFeatureRemove={onFeatureRemove}
-              />
-            ))}
-          </SortableContext>
-        </div>
-      </DndContext>
-    </div>
-  );
+export interface FeaturesHandle {
+  focusFeature: (featureName: string) => void;
 }
+
+export const Features = forwardRef<FeaturesHandle, FeatureListProps>(
+  (
+    {
+      features,
+      teams,
+      onFeatureAdd,
+      onFeatureNameChange,
+      onRequirementChange,
+      onFeaturesUploaded,
+      onFeatureRemove,
+    },
+    ref
+  ) => {
+    const featureRefs = useRef<Map<number, FeatureItemHandle>>(new Map());
+
+    useImperativeHandle(ref, () => ({
+      focusFeature: (featureName: string) => {
+        const feature = features.find(f => f.name === featureName);
+        if (feature) {
+          const featureRef = featureRefs.current.get(feature.id);
+          featureRef?.focus();
+        }
+      },
+    }));
+
+    const sensors = useSensors(
+      useSensor(PointerSensor),
+      useSensor(KeyboardSensor, {
+        coordinateGetter: sortableKeyboardCoordinates,
+      })
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+      const { active, over } = event;
+
+      if (over && active.id !== over.id) {
+        const oldIndex = features.findIndex(f => f.id.toString() === active.id);
+        const newIndex = features.findIndex(f => f.id.toString() === over.id);
+
+        const newFeatures = arrayMove(features, oldIndex, newIndex);
+        onFeaturesUploaded(newFeatures);
+      }
+    };
+
+    return (
+      <div className="space-y-2">
+        <FeatureUpload onFeaturesUploaded={onFeaturesUploaded} teams={teams} />
+        <Button onClick={onFeatureAdd}>Add Feature</Button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <div className="space-y-4 p-1">
+            <SortableContext
+              items={features.map(f => f.id.toString())}
+              strategy={verticalListSortingStrategy}
+            >
+              {features.map(feature => (
+                <FeatureItem
+                  key={feature.id}
+                  ref={ref => {
+                    if (ref) {
+                      featureRefs.current.set(feature.id, ref);
+                    } else {
+                      featureRefs.current.delete(feature.id);
+                    }
+                  }}
+                  feature={feature}
+                  onFeatureNameChange={onFeatureNameChange}
+                  onRequirementChange={onRequirementChange}
+                  onFeatureRemove={onFeatureRemove}
+                />
+              ))}
+            </SortableContext>
+          </div>
+        </DndContext>
+      </div>
+    );
+  }
+);
+
+Features.displayName = 'Features';

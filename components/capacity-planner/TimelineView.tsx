@@ -15,6 +15,7 @@ interface TimelineViewProps {
   timelineRef: RefObject<HTMLDivElement | null>;
   overheadFactor: number;
   startDate: Date;
+  onFeatureClick?: (featureName: string) => void;
 }
 
 export function TimelineView({
@@ -23,6 +24,7 @@ export function TimelineView({
   timelineRef,
   overheadFactor,
   startDate,
+  onFeatureClick,
 }: TimelineViewProps) {
   const [columnWidth, setColumnWidth] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
@@ -147,6 +149,7 @@ export function TimelineView({
               getColumnPosition={getColumnPosition}
               getColumnWidth={getColumnWidth}
               startDate={startDate}
+              onFeatureClick={onFeatureClick}
             />
           ))}
         </div>

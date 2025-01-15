@@ -3,7 +3,10 @@ import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
 import { getInitialState, updateURL, DEFAULT_STATE } from '@/services/stateService';
 import { logger } from '@/services/loggerService';
 import { TimelineView } from './capacity-planner/TimelineView';
-import { ConfigurationSheet } from './capacity-planner/ConfigurationSheet';
+import {
+  ConfigurationSheet,
+  ConfigurationSheetHandle,
+} from './capacity-planner/ConfigurationSheet';
 import { startOfWeek } from 'date-fns';
 import { HistoryManager } from '@/services/historyService';
 import { Button } from '@/components/ui/button';
@@ -19,6 +22,7 @@ const CapacityPlanner = () => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const historyManagerRef = useRef<HistoryManager | null>(null);
+  const configSheetRef = useRef<ConfigurationSheetHandle>(null);
 
   // Initialize state and history manager
   useEffect(() => {
@@ -282,6 +286,14 @@ const CapacityPlanner = () => {
     );
   };
 
+  const handleFeatureClick = (featureName: string) => {
+    setOpenConfigurationSheet(true);
+    // Use the ref to focus the feature
+    setTimeout(() => {
+      configSheetRef.current?.focusFeature(featureName);
+    }, 100); // Small delay to ensure the sheet is open
+  };
+
   return (
     <div className="fixed inset-0 flex flex-col h-screen">
       <div className="flex items-center justify-between p-4 relative">
@@ -340,9 +352,11 @@ const CapacityPlanner = () => {
           timelineRef={timelineRef}
           overheadFactor={overheadFactor}
           startDate={startDate}
+          onFeatureClick={handleFeatureClick}
         />
 
         <ConfigurationSheet
+          ref={configSheetRef}
           open={openConfigurationSheet}
           onOpenChange={setOpenConfigurationSheet}
           features={features}

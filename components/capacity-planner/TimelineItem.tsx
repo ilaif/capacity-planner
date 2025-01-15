@@ -12,6 +12,7 @@ interface TimelineItemProps {
   getColumnPosition: (week: number) => number;
   getColumnWidth: (startWeek: number, endWeek: number) => number;
   startDate: Date;
+  onFeatureClick?: (featureName: string) => void;
 }
 
 export function TimelineItem({
@@ -21,9 +22,14 @@ export function TimelineItem({
   getColumnPosition,
   getColumnWidth,
   startDate,
+  onFeatureClick,
 }: TimelineItemProps) {
   const getDateLabel = (weekOffset: number) => {
     return format(addWeeks(startDate, weekOffset), 'MMM d, yyyy');
+  };
+
+  const handleClick = () => {
+    onFeatureClick?.(allocation.feature);
   };
 
   return (
@@ -35,8 +41,10 @@ export function TimelineItem({
         'border border-slate-300/50',
         'rounded-md transition-all duration-200',
         'hover:from-slate-200/95 hover:to-purple-200/95',
-        'hover:shadow-md hover:-translate-y-[1px]'
+        'hover:shadow-md hover:-translate-y-[1px]',
+        'cursor-pointer'
       )}
+      onClick={handleClick}
       style={{
         left: `${getColumnPosition(allocation.startWeek)}px`,
         width: `${getColumnWidth(allocation.startWeek, allocation.endWeek || 0)}px`,
