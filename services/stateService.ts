@@ -1,4 +1,4 @@
-import { Feature, Teams, TeamConfig, SizeVariation } from '@/types/capacity-planner';
+import { Feature, Teams } from '@/types/capacity-planner';
 import { logger } from '@/services/loggerService';
 import { startOfWeek } from 'date-fns';
 
