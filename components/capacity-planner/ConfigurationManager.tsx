@@ -16,7 +16,7 @@ import {
   updateConfiguration,
 } from '@/services/configurationService';
 import { PlannerState } from '@/services/stateService';
-import { Save, Trash2 } from 'lucide-react';
+import { Save, Trash2, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -42,6 +42,7 @@ export function ConfigurationManager({
   const [selectedConfigId, setSelectedConfigId] = useState<string>('');
   const [newConfigName, setNewConfigName] = useState('');
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -118,6 +119,23 @@ export function ConfigurationManager({
     }
   };
 
+  const handleSaveAsCopy = () => {
+    if (!newConfigName.trim()) return;
+
+    try {
+      logger.info('Saving configuration as copy', { name: newConfigName });
+      const newConfig = saveConfiguration(newConfigName.trim(), currentState);
+      setConfigurations(prev => [...prev, newConfig]);
+      setNewConfigName('');
+      setSaveAsDialogOpen(false);
+      setSelectedConfigId(newConfig.id);
+      logger.info('Configuration copy saved successfully', { configId: newConfig.id });
+    } catch (error) {
+      logger.error('Failed to save configuration copy', error as Error, { name: newConfigName });
+      alert(error instanceof Error ? error.message : 'Failed to save configuration copy');
+    }
+  };
+
   const selectedConfig = configurations.find(c => c.id === selectedConfigId);
 
   return (
@@ -143,16 +161,40 @@ export function ConfigurationManager({
       {selectedConfigId ? (
         <>
           <Button variant="outline" onClick={handleUpdateConfiguration}>
-            Update Current
+            Save
           </Button>
+          <Dialog open={saveAsDialogOpen} onOpenChange={setSaveAsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Copy className="h-4 w-4 mr-2" />
+                Copy
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Save Configuration as Copy</DialogTitle>
+                <DialogDescription>Enter a name for the new configuration</DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-2 items-center">
+                <Input
+                  placeholder="Configuration name"
+                  value={newConfigName}
+                  onChange={e => setNewConfigName(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleSaveAsCopy} disabled={!newConfigName.trim()}>
+                  Save
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
           <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <DialogTrigger asChild>
               <Button
                 variant="outline"
                 className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
+                <Trash2 className="h-4 w-4" />
               </Button>
             </DialogTrigger>
             <DialogContent>

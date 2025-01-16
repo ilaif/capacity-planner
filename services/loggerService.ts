@@ -29,19 +29,22 @@ type LoggableData = Record<string, unknown>;
 export const logger = {
   debug: (message: string, data?: LoggableData) => {
     if (config.minLevel === LogLevel.DEBUG) {
-      console.debug(formatMessage(LogLevel.DEBUG, message), data);
+      const optionalParams = data ? [data] : [];
+      console.debug(formatMessage(LogLevel.DEBUG, message), ...optionalParams);
     }
   },
 
   info: (message: string, data?: LoggableData) => {
     if (config.minLevel <= LogLevel.INFO) {
-      console.info(formatMessage(LogLevel.INFO, message), data);
+      const optionalParams = data ? [data] : [];
+      console.info(formatMessage(LogLevel.INFO, message), ...optionalParams);
     }
   },
 
   warn: (message: string, data?: LoggableData) => {
     if (config.minLevel <= LogLevel.WARN) {
-      console.warn(formatMessage(LogLevel.WARN, message), data);
+      const optionalParams = data ? [data] : [];
+      console.warn(formatMessage(LogLevel.WARN, message), ...optionalParams);
     }
   },
 
@@ -54,7 +57,8 @@ export const logger = {
             ...(data || {}),
           }
         : data;
-      console.error(formatMessage(LogLevel.ERROR, message), errorData);
+      const optionalParams = errorData ? [errorData] : [];
+      console.error(formatMessage(LogLevel.ERROR, message), ...optionalParams);
     }
   },
 };
