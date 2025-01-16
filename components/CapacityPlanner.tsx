@@ -351,8 +351,9 @@ const CapacityPlanner = () => {
           onFeatureAdd={handleFeatureAdd}
           onFeatureNameChange={handleFeatureNameChange}
           onRequirementChange={handleRequirementChange}
-          onFeaturesUploaded={setFeatures}
+          onFeaturesChange={setFeatures}
           onFeatureRemove={handleFeatureRemove}
+          onTeamsChange={setTeams}
         />
       </div>
     </div>

@@ -33,8 +33,9 @@ interface ConfigurationSheetProps {
   onFeatureAdd: () => void;
   onFeatureNameChange: (featureId: number, name: string) => void;
   onRequirementChange: (featureId: number, team: string, field: string, value: string) => void;
-  onFeaturesUploaded: (features: Feature[]) => void;
+  onFeaturesChange: (features: Feature[]) => void;
   onFeatureRemove: (featureId: number) => void;
+  onTeamsChange: (teams: Teams) => void;
 }
 
 export interface ConfigurationSheetHandle {
@@ -62,8 +63,9 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       onFeatureAdd,
       onFeatureNameChange,
       onRequirementChange,
-      onFeaturesUploaded,
+      onFeaturesChange,
       onFeatureRemove,
+      onTeamsChange,
     },
     ref
   ) => {
@@ -84,28 +86,10 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
 
     const handleConfigurationLoad = (state: PlannerState) => {
       logger.info('Loading configuration state', { state });
-      onFeaturesUploaded(state.features);
-      Object.keys(teams).forEach(team => {
-        if (!state.teams[team]) {
-          onTeamRemove(team);
-        }
-      });
-      Object.entries(state.teams).forEach(([team, config]) => {
-        if (!teams[team]) {
-          onTeamAdd(team);
-        }
-        onTeamSizeChange(team, config.sizes[0].size);
-        onWipLimitChange(team, config.wipLimit);
-        config.sizes.slice(1).forEach(variation => {
-          onTeamSizeVariationAdd({
-            team,
-            week: variation.week,
-            size: variation.size,
-          });
-        });
-      });
-      onOverheadFactorChange(state.overheadFactor);
       onStartDateChange(state.startDate);
+      onOverheadFactorChange(state.overheadFactor);
+      onTeamsChange(state.teams);
+      onFeaturesChange(state.features);
     };
 
     return (
@@ -137,16 +121,11 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
               <div className="flex gap-2">
                 <ExportButton state={currentState} />
                 <ImportButton
-                  currentTeams={teams}
                   handlers={{
-                    onFeaturesUploaded,
-                    onTeamAdd,
-                    onTeamRemove,
-                    onTeamSizeChange,
-                    onWipLimitChange,
-                    onTeamSizeVariationAdd,
-                    onOverheadFactorChange,
-                    onStartDateChange,
+                    setFeatures: onFeaturesChange,
+                    setTeams: onTeamsChange,
+                    setOverheadFactor: onOverheadFactorChange,
+                    setStartDate: onStartDateChange,
                   }}
                 />
               </div>
@@ -207,7 +186,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
                   onFeatureAdd={onFeatureAdd}
                   onFeatureNameChange={onFeatureNameChange}
                   onRequirementChange={onRequirementChange}
-                  onFeaturesUploaded={onFeaturesUploaded}
+                  onFeaturesUploaded={onFeaturesChange}
                   onFeatureRemove={onFeatureRemove}
                 />
               </div>

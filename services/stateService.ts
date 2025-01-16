@@ -188,61 +188,35 @@ export const getInitialState = (): PlannerState => {
   return DEFAULT_STATE;
 };
 
-interface ImportHandlers {
-  onFeaturesUploaded: (features: Feature[]) => void;
-  onTeamAdd: (teamName: string) => void;
-  onTeamRemove: (teamName: string) => void;
-  onTeamSizeChange: (team: string, value: number) => void;
-  onWipLimitChange: (team: string, value: number) => void;
-  onTeamSizeVariationAdd: (variation: { team: string; week: number; size: number }) => void;
-  onOverheadFactorChange: (value: number) => void;
-  onStartDateChange: (date: Date) => void;
+export interface ImportHandlers {
+  setFeatures: (features: Feature[]) => void;
+  setTeams: (teams: Teams) => void;
+  setOverheadFactor: (value: number) => void;
+  setStartDate: (date: Date) => void;
 }
 
-export const importStateFromJSON = async (
-  file: File,
-  currentTeams: Teams,
-  handlers: ImportHandlers
-): Promise<void> => {
+export const importStateFromJSON = async (file: File, handlers: ImportHandlers): Promise<void> => {
   logger.info('Importing state from JSON file');
 
   try {
     const fileContent = await file.text();
     const importedState = JSON.parse(fileContent);
 
-    // Convert date string back to Date object
-    importedState.startDate = new Date(importedState.startDate);
+    // Convert date string back to Date object if needed
+    if (typeof importedState.startDate === 'string') {
+      importedState.startDate = new Date(importedState.startDate);
+    }
 
-    // Update all state
-    handlers.onFeaturesUploaded(importedState.features);
+    // Validate the imported state structure
+    if (!importedState.features || !importedState.teams || !importedState.overheadFactor) {
+      throw new Error('Invalid state structure in imported file');
+    }
 
-    // Update teams
-    Object.entries(importedState.teams as Teams).forEach(([teamName, config]) => {
-      if (!currentTeams[teamName]) {
-        handlers.onTeamAdd(teamName);
-      }
-      handlers.onTeamSizeChange(teamName, (config as TeamConfig).sizes[0].size);
-      handlers.onWipLimitChange(teamName, (config as TeamConfig).wipLimit);
-
-      // Add size variations
-      (config as TeamConfig).sizes.slice(1).forEach((variation: SizeVariation) => {
-        handlers.onTeamSizeVariationAdd({
-          team: teamName,
-          week: variation.week,
-          size: variation.size,
-        });
-      });
-    });
-
-    // Remove teams that are not in the imported state
-    Object.keys(currentTeams).forEach(teamName => {
-      if (!importedState.teams[teamName]) {
-        handlers.onTeamRemove(teamName);
-      }
-    });
-
-    handlers.onOverheadFactorChange(importedState.overheadFactor);
-    handlers.onStartDateChange(importedState.startDate);
+    // Update all state at once using direct setters
+    handlers.setFeatures(importedState.features);
+    handlers.setTeams(importedState.teams);
+    handlers.setOverheadFactor(importedState.overheadFactor);
+    handlers.setStartDate(importedState.startDate);
 
     logger.info('State imported successfully');
   } catch (error) {

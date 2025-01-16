@@ -1,27 +1,26 @@
 import { Button } from '@/components/ui/button';
+import { ImportHandlers, importStateFromJSON } from '@/services/stateService';
 import { Upload } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { importStateFromJSON } from '@/services/stateService';
-import { ImportHandlers, Teams } from '@/types/capacity-planner';
 
 interface ImportButtonProps {
-  currentTeams: Teams;
   handlers: ImportHandlers;
 }
 
-export function ImportButton({ currentTeams, handlers }: ImportButtonProps) {
+export function ImportButton({ handlers }: ImportButtonProps) {
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
-      await importStateFromJSON(file, currentTeams, handlers);
+      await importStateFromJSON(file, handlers);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to import file');
+      console.error('Failed to import configuration:', error);
+      alert(error instanceof Error ? error.message : 'Failed to import configuration');
+    } finally {
+      // Reset the input
+      event.target.value = '';
     }
-
-    // Reset the input
-    event.target.value = '';
   };
 
   return (
