@@ -50,45 +50,36 @@ export function ConfigurationManager({
     setConfigurations(getSavedConfigurations());
   }, []);
 
-  const handleSaveNewConfiguration = () => {
-    if (!newConfigName.trim()) return;
-
-    try {
-      logger.info('Saving new configuration', { name: newConfigName });
-      const newConfig = saveConfiguration(newConfigName.trim(), currentState);
-      setConfigurations(prev => [...prev, newConfig]);
-      setNewConfigName('');
-      setSaveDialogOpen(false);
-      setSelectedConfigId(newConfig.id);
-      logger.info('New configuration saved successfully', { configId: newConfig.id });
-    } catch (error) {
-      logger.error('Failed to save configuration', error as Error, { name: newConfigName });
-      alert(error instanceof Error ? error.message : 'Failed to save configuration');
+  useEffect(() => {
+    if (saveDialogOpen || saveAsDialogOpen) {
+      setNewConfigName(currentState.configurationName || '');
     }
+  }, [saveDialogOpen, saveAsDialogOpen, currentState.configurationName]);
+
+  const handleSaveNewConfiguration = () => {
+    if (!newConfigName) return;
+    logger.info(`Saving new configuration: ${newConfigName}`);
+    const configToSave = {
+      ...currentState,
+      configurationName: newConfigName,
+    };
+    saveConfiguration(newConfigName, configToSave);
+    setConfigurations(getSavedConfigurations());
+    setNewConfigName('');
+    setSaveDialogOpen(false);
+    onConfigurationLoad(configToSave);
   };
 
   const handleUpdateConfiguration = () => {
-    try {
-      logger.info('Updating configuration', { configId: selectedConfigId });
-      updateConfiguration(selectedConfigId, currentState);
-      setConfigurations(prev =>
-        prev.map(config =>
-          config.id === selectedConfigId
-            ? {
-                ...config,
-                state: currentState,
-                updatedAt: new Date().toISOString(),
-              }
-            : config
-        )
-      );
-      logger.info('Configuration updated successfully', { configId: selectedConfigId });
-    } catch (error) {
-      logger.error('Failed to update configuration', error as Error, {
-        configId: selectedConfigId,
-      });
-      alert(error instanceof Error ? error.message : 'Failed to update configuration');
-    }
+    if (!selectedConfigId) return;
+    logger.info(`Updating configuration: ${selectedConfigId}`);
+    const configToSave = {
+      ...currentState,
+      configurationName: selectedConfigId,
+    };
+    updateConfiguration(selectedConfigId, configToSave);
+    setConfigurations(getSavedConfigurations());
+    onConfigurationLoad(configToSave);
   };
 
   const handleDeleteConfiguration = () => {
@@ -108,32 +99,29 @@ export function ConfigurationManager({
   };
 
   const handleConfigurationSelect = (id: string) => {
-    logger.info('Loading configuration', { configId: id });
+    logger.info(`Loading configuration: ${id}`);
+    setSelectedConfigId(id);
     const config = configurations.find(c => c.id === id);
     if (config) {
-      setSelectedConfigId(id);
-      onConfigurationLoad(config.state);
-      logger.info('Configuration loaded successfully', { config });
-    } else {
-      logger.warn('Configuration not found', { configId: id });
+      onConfigurationLoad({
+        ...config.state,
+        configurationName: config.name,
+      });
     }
   };
 
   const handleSaveAsCopy = () => {
-    if (!newConfigName.trim()) return;
-
-    try {
-      logger.info('Saving configuration as copy', { name: newConfigName });
-      const newConfig = saveConfiguration(newConfigName.trim(), currentState);
-      setConfigurations(prev => [...prev, newConfig]);
-      setNewConfigName('');
-      setSaveAsDialogOpen(false);
-      setSelectedConfigId(newConfig.id);
-      logger.info('Configuration copy saved successfully', { configId: newConfig.id });
-    } catch (error) {
-      logger.error('Failed to save configuration copy', error as Error, { name: newConfigName });
-      alert(error instanceof Error ? error.message : 'Failed to save configuration copy');
-    }
+    if (!newConfigName) return;
+    logger.info(`Saving configuration as copy: ${newConfigName}`);
+    const configToSave = {
+      ...currentState,
+      configurationName: newConfigName,
+    };
+    saveConfiguration(newConfigName, configToSave);
+    setConfigurations(getSavedConfigurations());
+    setNewConfigName('');
+    setSaveAsDialogOpen(false);
+    onConfigurationLoad(configToSave);
   };
 
   const selectedConfig = configurations.find(c => c.id === selectedConfigId);
@@ -141,7 +129,7 @@ export function ConfigurationManager({
   return (
     <div className="flex gap-2 items-center">
       <Select value={selectedConfigId} onValueChange={handleConfigurationSelect}>
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="max-w-[200px]">
           <SelectValue placeholder="Select configuration" />
         </SelectTrigger>
         <SelectContent>
@@ -221,7 +209,7 @@ export function ConfigurationManager({
           <DialogTrigger asChild>
             <Button variant="outline">
               <Save className="h-4 w-4 mr-2" />
-              Save As...
+              Save New
             </Button>
           </DialogTrigger>
           <DialogContent>

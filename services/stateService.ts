@@ -16,6 +16,7 @@ export interface PlannerState {
   teams: Teams;
   overheadFactor: number;
   startDate: Date;
+  configurationName?: string;
 }
 
 export const DEFAULT_STATE: PlannerState = {
@@ -23,6 +24,7 @@ export const DEFAULT_STATE: PlannerState = {
   teams: {},
   overheadFactor: 1.2,
   startDate: startOfWeek(new Date()),
+  configurationName: undefined,
 };
 
 export const encodeState = (state: Partial<PlannerState>): string => {

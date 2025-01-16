@@ -21,6 +21,8 @@ interface ConfigurationSheetProps {
   teams: Teams;
   overheadFactor: number;
   startDate: Date;
+  configurationName?: string;
+  onConfigurationNameChange: (name: string | undefined) => void;
   onStartDateChange: (date: Date) => void;
   onOverheadFactorChange: (value: number) => void;
   onTeamAdd: (teamName: string) => void;
@@ -51,6 +53,8 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       teams,
       overheadFactor,
       startDate,
+      configurationName,
+      onConfigurationNameChange,
       onStartDateChange,
       onOverheadFactorChange,
       onTeamAdd,
@@ -82,6 +86,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       teams,
       overheadFactor,
       startDate,
+      configurationName,
     };
 
     const handleConfigurationLoad = (state: PlannerState) => {
@@ -90,6 +95,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       onOverheadFactorChange(state.overheadFactor);
       onTeamsChange(state.teams);
       onFeaturesChange(state.features);
+      onConfigurationNameChange(state.configurationName);
     };
 
     return (

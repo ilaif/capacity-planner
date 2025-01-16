@@ -19,6 +19,7 @@ const CapacityPlanner = () => {
   const [teams, setTeams] = useState<Teams>(DEFAULT_STATE.teams);
   const [overheadFactor, setOverheadFactor] = useState(DEFAULT_STATE.overheadFactor);
   const [startDate, setStartDate] = useState<Date>(startOfWeek(new Date()));
+  const [configurationName, setConfigurationName] = useState<string | undefined>(undefined);
   const [openConfigurationSheet, setOpenConfigurationSheet] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -40,6 +41,7 @@ const CapacityPlanner = () => {
     setTeams(initialState.teams);
     setOverheadFactor(initialState.overheadFactor);
     setStartDate(initialState.startDate);
+    setConfigurationName(initialState.configurationName);
     setIsInitialized(true);
     logger.info('CapacityPlanner state initialized successfully');
   }, []);
@@ -48,12 +50,12 @@ const CapacityPlanner = () => {
   useEffect(() => {
     if (!isInitialized || !historyManagerRef.current) return;
 
-    const state = { features, teams, overheadFactor, startDate };
+    const state = { features, teams, overheadFactor, startDate, configurationName };
     logger.debug('Updating state in URL and history', state);
     updateURL(state);
     historyManagerRef.current.pushState(state);
     logger.debug('State updated successfully');
-  }, [features, teams, overheadFactor, startDate, isInitialized]);
+  }, [features, teams, overheadFactor, startDate, configurationName, isInitialized]);
 
   const handleUndo = () => {
     if (!historyManagerRef.current?.canUndo()) return;
@@ -64,6 +66,7 @@ const CapacityPlanner = () => {
       setTeams(previousState.teams);
       setOverheadFactor(previousState.overheadFactor);
       setStartDate(previousState.startDate);
+      setConfigurationName(previousState.configurationName);
     }
   };
 
@@ -76,6 +79,7 @@ const CapacityPlanner = () => {
       setTeams(nextState.teams);
       setOverheadFactor(nextState.overheadFactor);
       setStartDate(nextState.startDate);
+      setConfigurationName(nextState.configurationName);
     }
   };
 
@@ -273,7 +277,12 @@ const CapacityPlanner = () => {
   return (
     <div className="fixed inset-0 flex flex-col h-screen">
       <div className="flex items-center justify-between p-4 relative">
-        <h2 className="text-2xl font-medium">Capacity Planner</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-medium">Capacity Planner</h2>
+          {configurationName && (
+            <div className="text-sm text-muted-foreground">Configuration: {configurationName}</div>
+          )}
+        </div>
         <div className="flex gap-2 mr-11">
           <TooltipProvider>
             <Tooltip>
@@ -339,6 +348,8 @@ const CapacityPlanner = () => {
           teams={teams}
           overheadFactor={overheadFactor}
           startDate={startDate}
+          configurationName={configurationName}
+          onConfigurationNameChange={setConfigurationName}
           onStartDateChange={setStartDate}
           onOverheadFactorChange={setOverheadFactor}
           onTeamAdd={handleTeamAdd}

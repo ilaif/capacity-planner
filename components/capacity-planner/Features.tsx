@@ -80,7 +80,6 @@ export const Features = forwardRef<FeaturesHandle, FeaturesProps>(
     return (
       <div className="space-y-2">
         <FeatureUpload onFeaturesUploaded={onFeaturesUploaded} teams={teams} />
-        <Button onClick={onFeatureAdd}>Add Feature</Button>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="space-y-4 p-1">
             <SortableContext
@@ -106,6 +105,7 @@ export const Features = forwardRef<FeaturesHandle, FeaturesProps>(
             </SortableContext>
           </div>
         </DndContext>
+        <Button onClick={onFeatureAdd}>Add Feature</Button>
       </div>
     );
   }
