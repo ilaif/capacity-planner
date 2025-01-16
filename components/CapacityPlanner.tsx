@@ -275,13 +275,10 @@ const CapacityPlanner = () => {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col h-screen">
+    <div className="inset-0 flex flex-col h-screen">
       <div className="flex items-center justify-between p-4 relative">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-medium">Capacity Planner</h2>
-          {configurationName && (
-            <div className="text-sm text-muted-foreground">Configuration: {configurationName}</div>
-          )}
         </div>
         <div className="flex gap-2 mr-11">
           <TooltipProvider>
@@ -337,6 +334,7 @@ const CapacityPlanner = () => {
           timelineRef={timelineRef}
           overheadFactor={overheadFactor}
           startDate={startDate}
+          configurationName={configurationName || ''}
           onFeatureClick={handleFeatureClick}
         />
 

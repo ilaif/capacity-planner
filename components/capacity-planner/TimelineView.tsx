@@ -4,6 +4,7 @@ import { RefObject, useState, useCallback, useEffect } from 'react';
 import { format, addWeeks } from 'date-fns';
 import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
 import { TimelineItem, TimelineGrid } from './TimelineItem';
+import { TimelineStats } from './TimelineStats';
 
 interface TimelineItemWithRow extends TimelineItemType {
   row: number;
@@ -15,6 +16,7 @@ interface TimelineViewProps {
   timelineRef: RefObject<HTMLDivElement | null>;
   overheadFactor: number;
   startDate: Date;
+  configurationName: string;
   onFeatureClick?: (featureName: string) => void;
 }
 
@@ -24,6 +26,7 @@ export function TimelineView({
   timelineRef,
   overheadFactor,
   startDate,
+  configurationName,
   onFeatureClick,
 }: TimelineViewProps) {
   const [columnWidth, setColumnWidth] = useState(60);
@@ -125,35 +128,42 @@ export function TimelineView({
   if (timeline.length === 0) return null;
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex justify-end items-center p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+    <>
+      <div className="flex justify-between items-center p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <TimelineStats
+          timeline={timeline}
+          startDate={startDate}
+          configurationName={configurationName}
+        />
         <Button onClick={handleExport}>Export PNG</Button>
       </div>
-      <div ref={timelineRef} className="flex-1 overflow-auto relative min-h-0">
-        <div className="sticky top-0 z-10 bg-background">
-          <TimelineGrid
-            gridCount={getTimelineGridCount()}
-            columnWidth={columnWidth}
-            onResizeStart={handleMouseDown}
-            getTimelineLabel={getTimelineLabel}
-            getQuarterLabel={getQuarterLabel}
-          />
-        </div>
-        <div className="relative">
-          {timeline.map((allocation, index) => (
-            <TimelineItem
-              key={index}
-              allocation={allocation}
-              index={allocation.row}
-              overheadFactor={overheadFactor}
-              getColumnPosition={getColumnPosition}
-              getColumnWidth={getColumnWidth}
-              startDate={startDate}
-              onFeatureClick={onFeatureClick}
+      <div className="flex flex-col h-[calc(100vh-200px)]">
+        <div ref={timelineRef} className="flex-1 overflow-auto relative min-h-0">
+          <div className="sticky top-0 z-10 bg-background">
+            <TimelineGrid
+              gridCount={getTimelineGridCount()}
+              columnWidth={columnWidth}
+              onResizeStart={handleMouseDown}
+              getTimelineLabel={getTimelineLabel}
+              getQuarterLabel={getQuarterLabel}
             />
-          ))}
+          </div>
+          <div className="relative">
+            {timeline.map((allocation, index) => (
+              <TimelineItem
+                key={index}
+                allocation={allocation}
+                index={allocation.row}
+                overheadFactor={overheadFactor}
+                getColumnPosition={getColumnPosition}
+                getColumnWidth={getColumnWidth}
+                startDate={startDate}
+                onFeatureClick={onFeatureClick}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
