@@ -39,7 +39,7 @@ export function ConfigurationManager({
   onConfigurationLoad,
 }: ConfigurationManagerProps) {
   const [configurations, setConfigurations] = useState<SavedConfiguration[]>([]);
-  const [selectedConfigId, setSelectedConfigId] = useState<string>('');
+  const [selectedConfigName, setSelectedConfigName] = useState<string>('');
   const [newConfigName, setNewConfigName] = useState('');
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
@@ -71,37 +71,37 @@ export function ConfigurationManager({
   };
 
   const handleUpdateConfiguration = () => {
-    if (!selectedConfigId) return;
-    logger.info(`Updating configuration: ${selectedConfigId}`);
+    if (!selectedConfigName) return;
+    logger.info(`Updating configuration: ${selectedConfigName}`);
     const configToSave = {
       ...currentState,
-      configurationName: selectedConfigId,
+      configurationName: selectedConfigName,
     };
-    updateConfiguration(selectedConfigId, configToSave);
+    updateConfiguration(selectedConfigName, configToSave);
     setConfigurations(getSavedConfigurations());
     onConfigurationLoad(configToSave);
   };
 
   const handleDeleteConfiguration = () => {
     try {
-      logger.info('Deleting configuration', { configId: selectedConfigId });
-      deleteConfiguration(selectedConfigId);
-      setConfigurations(prev => prev.filter(c => c.id !== selectedConfigId));
-      setSelectedConfigId('');
+      logger.info('Deleting configuration', { configName: selectedConfigName });
+      deleteConfiguration(selectedConfigName);
+      setConfigurations(prev => prev.filter(c => c.name !== selectedConfigName));
+      setSelectedConfigName('');
       setDeleteDialogOpen(false);
-      logger.info('Configuration deleted successfully', { configId: selectedConfigId });
+      logger.info('Configuration deleted successfully', { configName: selectedConfigName });
     } catch (error) {
       logger.error('Failed to delete configuration', error as Error, {
-        configId: selectedConfigId,
+        configName: selectedConfigName,
       });
       alert(error instanceof Error ? error.message : 'Failed to delete configuration');
     }
   };
 
-  const handleConfigurationSelect = (id: string) => {
-    logger.info(`Loading configuration: ${id}`);
-    setSelectedConfigId(id);
-    const config = configurations.find(c => c.id === id);
+  const handleConfigurationSelect = (name: string) => {
+    logger.info(`Loading configuration: ${name}`);
+    setSelectedConfigName(name);
+    const config = configurations.find(c => c.name === name);
     if (config) {
       onConfigurationLoad({
         ...config.state,
@@ -124,17 +124,17 @@ export function ConfigurationManager({
     onConfigurationLoad(configToSave);
   };
 
-  const selectedConfig = configurations.find(c => c.id === selectedConfigId);
+  const selectedConfig = configurations.find(c => c.name === selectedConfigName);
 
   return (
     <div className="flex gap-2 items-center">
-      <Select value={selectedConfigId} onValueChange={handleConfigurationSelect}>
+      <Select value={selectedConfigName} onValueChange={handleConfigurationSelect}>
         <SelectTrigger className="max-w-[200px]">
           <SelectValue placeholder="Select configuration" />
         </SelectTrigger>
         <SelectContent>
           {configurations.map(config => (
-            <SelectItem key={config.id} value={config.id}>
+            <SelectItem key={config.name} value={config.name}>
               <div className="flex-1">
                 <div className="font-medium">{config.name}</div>
                 <div className="text-xs text-muted-foreground">
@@ -146,7 +146,7 @@ export function ConfigurationManager({
         </SelectContent>
       </Select>
 
-      {selectedConfigId ? (
+      {selectedConfigName ? (
         <>
           <Button variant="outline" onClick={handleUpdateConfiguration}>
             Save

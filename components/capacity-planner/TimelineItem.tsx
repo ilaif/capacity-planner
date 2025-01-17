@@ -191,12 +191,12 @@ export function TimelineGrid({
           <div key={i} className="border-l border-gray-200 relative">
             <div className="text-xs text-gray-500 mt-1 text-center truncate px-1">
               {getTimelineLabel(i)}
-              {i === 0 && (
+              {
                 <div
-                  className="absolute w-2 cursor-ew-resize hover:bg-gray-200 transition-colors"
+                  className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-gray-200 transition-colors"
                   onMouseDown={onResizeStart}
                 />
-              )}
+              }
             </div>
           </div>
         ))}

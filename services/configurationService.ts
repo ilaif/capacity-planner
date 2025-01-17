@@ -4,7 +4,6 @@ import { logger } from './loggerService';
 const STORAGE_KEY = 'capacity-planner-saved-configs';
 
 export interface SavedConfiguration {
-  id: string;
   name: string;
   state: PlannerState;
   createdAt: string;
@@ -34,7 +33,6 @@ export const saveConfiguration = (name: string, state: PlannerState): SavedConfi
     const now = new Date().toISOString();
 
     const newConfig: SavedConfiguration = {
-      id: crypto.randomUUID(),
       name,
       state,
       createdAt: now,
@@ -50,10 +48,10 @@ export const saveConfiguration = (name: string, state: PlannerState): SavedConfi
   }
 };
 
-export const updateConfiguration = (id: string, state: PlannerState): void => {
+export const updateConfiguration = (name: string, state: PlannerState): void => {
   try {
     const configs = getSavedConfigurations();
-    const configIndex = configs.findIndex(c => c.id === id);
+    const configIndex = configs.findIndex(c => c.name === name);
 
     if (configIndex === -1) {
       throw new Error('Configuration not found');
@@ -66,19 +64,19 @@ export const updateConfiguration = (id: string, state: PlannerState): void => {
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(configs));
-    logger.info('Configuration updated successfully', { id });
+    logger.info('Configuration updated successfully', { name });
   } catch (error) {
     logger.error('Failed to update configuration', error as Error);
     throw new Error('Failed to update configuration');
   }
 };
 
-export const deleteConfiguration = (id: string): void => {
+export const deleteConfiguration = (name: string): void => {
   try {
     const configs = getSavedConfigurations();
-    const newConfigs = configs.filter(c => c.id !== id);
+    const newConfigs = configs.filter(c => c.name !== name);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfigs));
-    logger.info('Configuration deleted successfully', { id });
+    logger.info('Configuration deleted successfully', { name });
   } catch (error) {
     logger.error('Failed to delete configuration', error as Error);
     throw new Error('Failed to delete configuration');
