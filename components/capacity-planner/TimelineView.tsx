@@ -137,18 +137,21 @@ export function TimelineView({
         />
         <Button onClick={handleExport}>Export PNG</Button>
       </div>
-      <div className="flex flex-col h-[calc(100vh-200px)]">
-        <div ref={timelineRef} className="flex-1 overflow-auto relative min-h-0">
-          <div className="sticky top-0 z-10 bg-background">
-            <TimelineGrid
-              gridCount={getTimelineGridCount()}
-              columnWidth={columnWidth}
-              onResizeStart={handleMouseDown}
-              getTimelineLabel={getTimelineLabel}
-              getQuarterLabel={getQuarterLabel}
-            />
-          </div>
-          <div className="relative">
+      <div className="flex flex-col h-[calc(100vh-200px)] overflow-x-auto">
+        <div ref={timelineRef} className="grid grid-rows-[auto_1fr]">
+          <TimelineGrid
+            gridCount={getTimelineGridCount()}
+            columnWidth={columnWidth}
+            onResizeStart={handleMouseDown}
+            getTimelineLabel={getTimelineLabel}
+            getQuarterLabel={getQuarterLabel}
+          />
+          <div
+            className="grid auto-rows-[77px]"
+            style={{
+              gridTemplateColumns: `repeat(${getTimelineGridCount()}, ${columnWidth}px)`,
+            }}
+          >
             {timeline.map((allocation, index) => (
               <TimelineItem
                 key={index}

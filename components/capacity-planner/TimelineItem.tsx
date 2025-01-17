@@ -5,8 +5,12 @@ import { TeamAvatar } from '@/components/ui/team-avatar';
 import { cn } from '@/lib/utils';
 import { Users } from 'lucide-react';
 
+interface TimelineItemWithRow extends TimelineItemType {
+  row: number;
+}
+
 interface TimelineItemProps {
-  allocation: TimelineItemType;
+  allocation: TimelineItemWithRow;
   index: number;
   overheadFactor: number;
   getColumnPosition: (week: number) => number;
@@ -17,10 +21,7 @@ interface TimelineItemProps {
 
 export function TimelineItem({
   allocation,
-  index,
   overheadFactor,
-  getColumnPosition,
-  getColumnWidth,
   startDate,
   onFeatureClick,
 }: TimelineItemProps) {
@@ -35,7 +36,7 @@ export function TimelineItem({
   return (
     <div
       className={cn(
-        'group mb-4 absolute',
+        'group',
         'bg-gradient-to-r from-slate-100/95 to-purple-100/95',
         'backdrop-blur-[2px] shadow-sm',
         'border border-slate-300/50',
@@ -46,10 +47,10 @@ export function TimelineItem({
       )}
       onClick={handleClick}
       style={{
-        left: `${getColumnPosition(allocation.startWeek)}px`,
-        width: `${getColumnWidth(allocation.startWeek, allocation.endWeek || 0)}px`,
-        top: `${index * 72 + 8}px`,
+        gridColumn: `${allocation.startWeek + 1} / span ${(allocation.endWeek || 0) - allocation.startWeek}`,
+        gridRow: `${allocation.row + 1}`,
         minWidth: '30px',
+        margin: '4px',
       }}
     >
       <TooltipProvider>
@@ -158,11 +159,9 @@ export function TimelineGrid({
     return [...Array(quarters)].map((_, i) => (
       <div
         key={`q-${i}`}
-        className="absolute top-0 bottom-0"
+        className="col-span-13 border-l border-gray-200 first:border-l-0"
         style={{
-          left: `${i * columnWidth * 13}px`,
-          width: `${columnWidth * 13}px`,
-          borderLeft: i > 0 ? '2px solid #e5e7eb' : 'none',
+          gridColumn: `${i * 13 + 1} / span 13`,
         }}
       >
         <div className="text-xs text-gray-500 mt-1 text-center font-medium truncate px-1">
@@ -173,24 +172,28 @@ export function TimelineGrid({
   };
 
   return (
-    <div className="top-0 left-0 right-0 bg-white">
-      <div className="h-6 relative border-b border-gray-200">{renderQuarterMarkers()}</div>
-      <div className="h-6 relative">
+    <div className="bg-white border-b border-gray-200">
+      <div
+        className="h-6 grid border-b border-gray-200"
+        style={{
+          gridTemplateColumns: `repeat(${gridCount}, ${columnWidth}px)`,
+        }}
+      >
+        {renderQuarterMarkers()}
+      </div>
+      <div
+        className="h-6 grid"
+        style={{
+          gridTemplateColumns: `repeat(${gridCount}, ${columnWidth}px)`,
+        }}
+      >
         {[...Array(gridCount)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute top-0 bottom-0"
-            style={{
-              left: `${i * columnWidth}px`,
-              width: `${columnWidth}px`,
-              borderLeft: '1px solid #e5e7eb',
-            }}
-          >
+          <div key={i} className="border-l border-gray-200 relative">
             <div className="text-xs text-gray-500 mt-1 text-center truncate px-1">
               {getTimelineLabel(i)}
               {i === 0 && (
                 <div
-                  className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-gray-200"
+                  className="absolute w-2 cursor-ew-resize hover:bg-gray-200 transition-colors"
                   onMouseDown={onResizeStart}
                 />
               )}
