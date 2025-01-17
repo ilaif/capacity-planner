@@ -141,7 +141,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
           <div className="pr-6 space-y-4 mt-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
             <div>
               <h3 className="text-lg font-medium">Planning</h3>
-              <div className="mt-2 space-y-4">
+              <div className="flex gap-2 mt-2">
                 <div>
                   <Label htmlFor="startDate">Start Date</Label>
                   <Input
@@ -151,7 +151,6 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
                     onChange={e => onStartDateChange(new Date(e.target.value))}
                   />
                 </div>
-
                 <div>
                   <Label htmlFor="overhead">Overhead Factor</Label>
                   <Input
