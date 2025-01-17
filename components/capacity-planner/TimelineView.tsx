@@ -145,6 +145,10 @@ export function TimelineView({
             onResizeStart={handleMouseDown}
             getTimelineLabel={getTimelineLabel}
             getQuarterLabel={getQuarterLabel}
+            timeline={timeline}
+            startDate={startDate}
+            overheadFactor={overheadFactor}
+            teams={teams}
           />
           <div
             className="grid auto-rows-[77px]"
