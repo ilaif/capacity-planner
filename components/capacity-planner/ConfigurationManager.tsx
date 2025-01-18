@@ -39,11 +39,14 @@ export function ConfigurationManager({
   onConfigurationLoad,
 }: ConfigurationManagerProps) {
   const [configurations, setConfigurations] = useState<SavedConfiguration[]>([]);
-  const [selectedConfigName, setSelectedConfigName] = useState<string>('');
+  const [selectedConfigName, setSelectedConfigName] = useState<string>(
+    currentState.configurationName || ''
+  );
   const [newConfigName, setNewConfigName] = useState('');
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     logger.info('Loading saved configurations');
@@ -55,6 +58,29 @@ export function ConfigurationManager({
       setNewConfigName(currentState.configurationName || '');
     }
   }, [saveDialogOpen, saveAsDialogOpen, currentState.configurationName]);
+
+  useEffect(() => {
+    if (!selectedConfigName) {
+      setHasUnsavedChanges(false);
+      return;
+    }
+
+    const savedConfig = configurations.find(c => c.name === selectedConfigName);
+    if (!savedConfig) {
+      setHasUnsavedChanges(false);
+      return;
+    }
+
+    // Compare current state with saved state
+    const hasChanges =
+      JSON.stringify(savedConfig.state) !==
+      JSON.stringify({
+        ...currentState,
+        configurationName: selectedConfigName,
+      });
+
+    setHasUnsavedChanges(hasChanges);
+  }, [currentState, selectedConfigName, configurations]);
 
   const handleSaveNewConfiguration = () => {
     if (!newConfigName) return;
@@ -148,9 +174,14 @@ export function ConfigurationManager({
 
       {selectedConfigName ? (
         <>
-          <Button variant="outline" onClick={handleUpdateConfiguration}>
-            Save
-          </Button>
+          <div className="relative">
+            <Button variant="outline" onClick={handleUpdateConfiguration}>
+              Save
+            </Button>
+            {hasUnsavedChanges && (
+              <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-orange-500" />
+            )}
+          </div>
           <Dialog open={saveAsDialogOpen} onOpenChange={setSaveAsDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">

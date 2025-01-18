@@ -13,7 +13,6 @@ interface TimelineItemWithRow extends TimelineItemType {
 interface TimelineViewProps {
   features: Feature[];
   teams: Teams;
-  timelineRef: RefObject<HTMLDivElement | null>;
   overheadFactor: number;
   startDate: Date;
   configurationName: string;
@@ -23,7 +22,6 @@ interface TimelineViewProps {
 export function TimelineView({
   features,
   teams,
-  timelineRef,
   overheadFactor,
   startDate,
   configurationName,
@@ -138,7 +136,7 @@ export function TimelineView({
         <Button onClick={handleExport}>Export PNG</Button>
       </div>
       <div className="flex flex-col h-[calc(100vh-200px)] overflow-x-auto">
-        <div ref={timelineRef} className="grid grid-rows-[auto_1fr]">
+        <div className="grid grid-rows-[auto_1fr]">
           <TimelineGrid
             gridCount={getTimelineGridCount()}
             columnWidth={columnWidth}

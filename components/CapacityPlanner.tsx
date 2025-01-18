@@ -21,7 +21,6 @@ const CapacityPlanner = () => {
   const [startDate, setStartDate] = useState<Date>(startOfWeek(new Date()));
   const [configurationName, setConfigurationName] = useState<string | undefined>(undefined);
   const [openConfigurationSheet, setOpenConfigurationSheet] = useState(false);
-  const timelineRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const historyManagerRef = useRef<HistoryManager | null>(null);
   const configSheetRef = useRef<ConfigurationSheetHandle>(null);
@@ -331,7 +330,6 @@ const CapacityPlanner = () => {
         <TimelineView
           features={features}
           teams={teams}
-          timelineRef={timelineRef}
           overheadFactor={overheadFactor}
           startDate={startDate}
           configurationName={configurationName || ''}
