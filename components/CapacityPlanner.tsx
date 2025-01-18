@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
-import { getInitialState, updateURL, DEFAULT_STATE } from '@/services/stateService';
+import { getInitialState, updateURL, DEFAULT_STATE, PlannerState } from '@/services/stateService';
 import { logger } from '@/services/loggerService';
 import { TimelineView } from './capacity-planner/TimelineView';
 import {
@@ -25,6 +25,14 @@ const CapacityPlanner = () => {
   const historyManagerRef = useRef<HistoryManager | null>(null);
   const configSheetRef = useRef<ConfigurationSheetHandle>(null);
 
+  function setPlannerState(state: PlannerState) {
+    setFeatures(state.features);
+    setTeams(state.teams);
+    setOverheadFactor(state.overheadFactor);
+    setStartDate(state.startDate);
+    setConfigurationName(state.configurationName);
+  }
+
   // Initialize state and history manager
   useEffect(() => {
     logger.info('Initializing CapacityPlanner state');
@@ -35,12 +43,10 @@ const CapacityPlanner = () => {
       teams: initialState.teams,
       overheadFactor: initialState.overheadFactor,
       startDate: initialState.startDate,
+      configurationName: initialState.configurationName,
     });
-    setFeatures(initialState.features);
-    setTeams(initialState.teams);
-    setOverheadFactor(initialState.overheadFactor);
-    setStartDate(initialState.startDate);
-    setConfigurationName(initialState.configurationName);
+
+    setPlannerState(initialState);
     setIsInitialized(true);
     logger.info('CapacityPlanner state initialized successfully');
   }, []);
@@ -61,11 +67,7 @@ const CapacityPlanner = () => {
 
     const previousState = historyManagerRef.current.undo();
     if (previousState) {
-      setFeatures(previousState.features);
-      setTeams(previousState.teams);
-      setOverheadFactor(previousState.overheadFactor);
-      setStartDate(previousState.startDate);
-      setConfigurationName(previousState.configurationName);
+      setPlannerState(previousState);
     }
   };
 
@@ -74,11 +76,7 @@ const CapacityPlanner = () => {
 
     const nextState = historyManagerRef.current.redo();
     if (nextState) {
-      setFeatures(nextState.features);
-      setTeams(nextState.teams);
-      setOverheadFactor(nextState.overheadFactor);
-      setStartDate(nextState.startDate);
-      setConfigurationName(nextState.configurationName);
+      setPlannerState(nextState);
     }
   };
 
@@ -345,9 +343,10 @@ const CapacityPlanner = () => {
           overheadFactor={overheadFactor}
           startDate={startDate}
           configurationName={configurationName}
-          onConfigurationNameChange={setConfigurationName}
+          onPlannerStateChange={setPlannerState}
           onStartDateChange={setStartDate}
           onOverheadFactorChange={setOverheadFactor}
+          onFeaturesChange={setFeatures}
           onTeamAdd={handleTeamAdd}
           onTeamRemove={handleTeamRemove}
           onTeamRename={handleTeamRename}
@@ -358,9 +357,7 @@ const CapacityPlanner = () => {
           onFeatureAdd={handleFeatureAdd}
           onFeatureNameChange={handleFeatureNameChange}
           onRequirementChange={handleRequirementChange}
-          onFeaturesChange={setFeatures}
           onFeatureRemove={handleFeatureRemove}
-          onTeamsChange={setTeams}
         />
       </div>
     </div>

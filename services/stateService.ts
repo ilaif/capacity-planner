@@ -190,14 +190,10 @@ export const getInitialState = (): PlannerState => {
   return DEFAULT_STATE;
 };
 
-export interface ImportHandlers {
-  setFeatures: (features: Feature[]) => void;
-  setTeams: (teams: Teams) => void;
-  setOverheadFactor: (value: number) => void;
-  setStartDate: (date: Date) => void;
-}
-
-export const importStateFromJSON = async (file: File, handlers: ImportHandlers): Promise<void> => {
+export const importStateFromJSON = async (
+  file: File,
+  setPlannerState: (state: PlannerState) => void
+): Promise<void> => {
   logger.info('Importing state from JSON file');
 
   try {
@@ -215,10 +211,7 @@ export const importStateFromJSON = async (file: File, handlers: ImportHandlers):
     }
 
     // Update all state at once using direct setters
-    handlers.setFeatures(importedState.features);
-    handlers.setTeams(importedState.teams);
-    handlers.setOverheadFactor(importedState.overheadFactor);
-    handlers.setStartDate(importedState.startDate);
+    setPlannerState(importedState);
 
     logger.info('State imported successfully');
   } catch (error) {

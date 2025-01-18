@@ -22,7 +22,7 @@ interface ConfigurationSheetProps {
   overheadFactor: number;
   startDate: Date;
   configurationName?: string;
-  onConfigurationNameChange: (name: string | undefined) => void;
+  onPlannerStateChange: (state: PlannerState) => void;
   onStartDateChange: (date: Date) => void;
   onOverheadFactorChange: (value: number) => void;
   onTeamAdd: (teamName: string) => void;
@@ -37,7 +37,6 @@ interface ConfigurationSheetProps {
   onRequirementChange: (featureId: number, team: string, field: string, value: string) => void;
   onFeaturesChange: (features: Feature[]) => void;
   onFeatureRemove: (featureId: number) => void;
-  onTeamsChange: (teams: Teams) => void;
 }
 
 export interface ConfigurationSheetHandle {
@@ -54,9 +53,10 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       overheadFactor,
       startDate,
       configurationName,
-      onConfigurationNameChange,
+      onPlannerStateChange,
       onStartDateChange,
       onOverheadFactorChange,
+      onFeaturesChange,
       onTeamAdd,
       onTeamRemove,
       onTeamRename,
@@ -67,9 +67,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       onFeatureAdd,
       onFeatureNameChange,
       onRequirementChange,
-      onFeaturesChange,
       onFeatureRemove,
-      onTeamsChange,
     },
     ref
   ) => {
@@ -91,11 +89,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
 
     const handleConfigurationLoad = (state: PlannerState) => {
       logger.info('Loading configuration state', { state });
-      onStartDateChange(state.startDate);
-      onOverheadFactorChange(state.overheadFactor);
-      onTeamsChange(state.teams);
-      onFeaturesChange(state.features);
-      onConfigurationNameChange(state.configurationName);
+      onPlannerStateChange(state);
     };
 
     return (
@@ -126,14 +120,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
               </div>
               <div className="flex gap-2">
                 <ExportButton state={currentState} />
-                <ImportButton
-                  handlers={{
-                    setFeatures: onFeaturesChange,
-                    setTeams: onTeamsChange,
-                    setOverheadFactor: onOverheadFactorChange,
-                    setStartDate: onStartDateChange,
-                  }}
-                />
+                <ImportButton setPlannerState={onPlannerStateChange} />
               </div>
             </div>
           </SheetHeader>

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import type { TimelineItem as TimelineItemType, Feature, Teams } from '@/types/capacity-planner';
-import { RefObject, useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { format, addWeeks } from 'date-fns';
 import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
 import { TimelineItem, TimelineGrid } from './TimelineItem';
