@@ -91,7 +91,7 @@ const CapacityPlanner = () => {
     if (!teams[teamName]) {
       setTeams(prev => ({
         ...prev,
-        [teamName]: { sizes: [{ week: 0, size: 1 }], wipLimit: 1 },
+        [teamName]: { sizes: [{ week: 0, size: 1 }], teamLoad: 1 },
       }));
       // Update all existing features to include the new team
       setFeatures(prev =>
@@ -208,7 +208,7 @@ const CapacityPlanner = () => {
       ...prevTeams,
       [team]: {
         ...prevTeams[team],
-        wipLimit: value,
+        teamLoad: value,
       },
     }));
   };

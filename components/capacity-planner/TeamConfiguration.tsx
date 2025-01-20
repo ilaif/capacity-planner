@@ -169,7 +169,7 @@ export function TeamConfiguration({
                       <div className="flex-1">
                         <div className="flex gap-1 items-center">
                           <div className="flex items-center gap-1">
-                            <span className="text-xs text-gray-500">WIP Limit</span>
+                            <span className="text-xs text-gray-500">Team load</span>
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger>
@@ -177,16 +177,18 @@ export function TeamConfiguration({
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="max-w-xs">
-                                    Maximum number of features the team can work on simultaneously
+                                    Current team size divided by this number determines how many
+                                    features the team can work on simultaneously.
                                   </p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           </div>
                           <NumberInput
-                            value={config.wipLimit}
+                            value={config.teamLoad}
                             onChange={value => onWipLimitChange(team, value)}
-                            min={1}
+                            min={0.5}
+                            step={0.5}
                             inputClassName="max-w-12"
                           />
                         </div>

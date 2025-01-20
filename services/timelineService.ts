@@ -39,7 +39,7 @@ export function calculateTimeline(
     teamWipCount[team] = Array(maxWeek).fill(0);
     logger.debug(`Initialized availability for team ${team}`, {
       baseSize: config.sizes[0],
-      wipLimit: config.wipLimit,
+      teamLoad: config.teamLoad,
     });
   });
 
@@ -70,10 +70,13 @@ export function calculateTimeline(
         // Check if we have enough resources and WIP capacity for each week of the feature
         for (let w = 0; w < weeksNeeded; w++) {
           const weekIndex = startWeek + w;
+          const teamLoad = teams[team].teamLoad;
+          const teamSize = teams[team].sizes[0].size;
+          const wipLimit = Math.floor(teamSize / teamLoad);
           if (
             weekIndex >= maxWeek ||
             teamAvailability[team][weekIndex] < parallel ||
-            teamWipCount[team][weekIndex] >= teams[team].wipLimit
+            teamWipCount[team][weekIndex] >= wipLimit
           ) {
             logger.debug(`Cannot schedule ${feature.name} at week ${startWeek}`, {
               team,
@@ -81,7 +84,9 @@ export function calculateTimeline(
               required: parallel,
               available: weekIndex < maxWeek ? teamAvailability[team][weekIndex] : 0,
               currentWip: weekIndex < maxWeek ? teamWipCount[team][weekIndex] : 0,
-              wipLimit: teams[team].wipLimit,
+              wipLimit,
+              teamSize,
+              teamLoad,
             });
             canSchedule = false;
             break;

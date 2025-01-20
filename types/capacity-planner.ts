@@ -26,7 +26,7 @@ export interface SizeVariation {
 
 export interface TeamConfig {
   sizes: SizeVariation[];
-  wipLimit: number;
+  teamLoad: number;
 }
 
 export interface Teams {

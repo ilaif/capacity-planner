@@ -22,7 +22,7 @@ describe('stateService', () => {
           },
         },
       ],
-      teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 } },
+      teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], teamLoad: 1 } },
       overheadFactor: 1.2,
       startDate: new Date(),
     };
@@ -35,7 +35,7 @@ describe('stateService', () => {
   it('should handle empty state', () => {
     const state: PlannerState = {
       features: [],
-      teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 } },
+      teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], teamLoad: 1 } },
       overheadFactor: 1,
       startDate: new Date(),
     };
@@ -56,7 +56,7 @@ describe('stateService', () => {
           },
         },
       ],
-      teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 } },
+      teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], teamLoad: 1 } },
       overheadFactor: 1.5,
       startDate: new Date(),
     };
@@ -84,7 +84,7 @@ describe('stateService', () => {
           },
         },
       ],
-      teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], wipLimit: 1 } },
+      teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], teamLoad: 1 } },
       overheadFactor: 1.2,
       startDate: new Date(),
     };
@@ -112,7 +112,7 @@ describe('stateService', () => {
             { week: 1, size: 3 },
             { week: 2, size: 4 },
           ],
-          wipLimit: 1,
+          teamLoad: 1,
         },
       },
       overheadFactor: 1.2,
@@ -138,7 +138,7 @@ describe('stateService', () => {
       teams: {
         'Team B': {
           sizes: [{ week: 0, size: 3 }],
-          wipLimit: 1,
+          teamLoad: 1,
         },
       },
       overheadFactor: 1.2,

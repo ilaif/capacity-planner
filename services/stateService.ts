@@ -20,10 +20,26 @@ export interface PlannerState {
 }
 
 export const DEFAULT_STATE: PlannerState = {
-  features: [{ id: 1, name: 'Feature 1', requirements: {} }],
-  teams: {},
-  overheadFactor: 1.2,
   startDate: startOfWeek(new Date()),
+  overheadFactor: 1.2,
+  teams: {
+    'Team 1': {
+      sizes: [{ week: 0, size: 5 }],
+      teamLoad: 2,
+    },
+  },
+  features: [
+    {
+      id: 1,
+      name: 'Feature 1',
+      requirements: {
+        'Team 1': {
+          weeks: 2,
+          parallel: 1,
+        },
+      },
+    },
+  ],
   configurationName: undefined,
 };
 
@@ -40,8 +56,9 @@ export const encodeState = (state: Partial<PlannerState>): string => {
 
 export const decodeState = (encoded: string): Partial<PlannerState> | null => {
   try {
-    const decoded = JSON.parse(atob(encoded));
+    let decoded = JSON.parse(atob(encoded));
     decoded.startDate = decoded.startDate ? new Date(decoded.startDate) : DEFAULT_STATE.startDate;
+    decoded = migrateOldStateToNewState(decoded);
     logger.debug('State decoded successfully');
     return decoded;
   } catch (error) {
@@ -144,6 +161,7 @@ export const loadFromURL = (): PlannerState | null => {
       teamsCount: Object.keys(mergedState.teams).length,
       overheadFactor: mergedState.overheadFactor,
       startDate: mergedState.startDate,
+      configurationName: mergedState.configurationName,
     });
 
     return mergedState;
@@ -243,3 +261,24 @@ export const exportStateToJSON = (state: PlannerState): void => {
     throw new Error('Failed to export state to JSON file');
   }
 };
+
+interface MigrationTeam {
+  sizes: { week: number; size: number }[];
+  teamLoad?: number;
+  wipLimit?: number;
+}
+
+interface MigrationState {
+  teams: Record<string, MigrationTeam>;
+}
+
+function migrateOldStateToNewState(state: MigrationState): MigrationState {
+  // migrate wipLimit to teamLoad
+  for (const team in state.teams) {
+    if (state.teams[team].wipLimit) {
+      state.teams[team].teamLoad = state.teams[team].wipLimit;
+      delete state.teams[team].wipLimit;
+    }
+  }
+  return state;
+}

@@ -25,19 +25,31 @@ export function NumberInput({
   disabled,
   ...props
 }: NumberInputProps) {
+  const getDecimalPlaces = (step: number): number => {
+    const stepString = step.toString();
+    const decimalIndex = stepString.indexOf('.');
+    return decimalIndex === -1 ? 0 : stepString.length - decimalIndex - 1;
+  };
+
+  const roundToStep = (num: number): number => {
+    const decimalPlaces = getDecimalPlaces(step);
+    const multiplier = Math.pow(10, decimalPlaces);
+    return Math.round(num * multiplier) / multiplier;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value === '' ? min : parseFloat(e.target.value);
     if (!isNaN(newValue)) {
-      onChange(Math.min(Math.max(newValue, min), max));
+      onChange(Math.min(Math.max(roundToStep(newValue), min), max));
     }
   };
 
   const increment = () => {
-    onChange(Math.min(value + step, max));
+    onChange(Math.min(roundToStep(value + step), max));
   };
 
   const decrement = () => {
-    onChange(Math.max(value - step, min));
+    onChange(Math.max(roundToStep(value - step), min));
   };
 
   return (

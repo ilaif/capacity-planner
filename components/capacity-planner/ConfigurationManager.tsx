@@ -39,9 +39,7 @@ export function ConfigurationManager({
   onConfigurationLoad,
 }: ConfigurationManagerProps) {
   const [configurations, setConfigurations] = useState<SavedConfiguration[]>([]);
-  const [selectedConfigName, setSelectedConfigName] = useState<string>(
-    currentState.configurationName || ''
-  );
+  const [selectedConfigName, setSelectedConfigName] = useState<string>('');
   const [newConfigName, setNewConfigName] = useState('');
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
@@ -52,6 +50,15 @@ export function ConfigurationManager({
     logger.info('Loading saved configurations');
     setConfigurations(getSavedConfigurations());
   }, []);
+
+  useEffect(() => {
+    if (
+      currentState.configurationName &&
+      configurations.find(c => c.name === currentState.configurationName)
+    ) {
+      setSelectedConfigName(currentState.configurationName);
+    }
+  }, [currentState.configurationName, configurations]);
 
   useEffect(() => {
     if (saveDialogOpen || saveAsDialogOpen) {
@@ -175,7 +182,11 @@ export function ConfigurationManager({
       {selectedConfigName ? (
         <>
           <div className="relative">
-            <Button variant="outline" onClick={handleUpdateConfiguration}>
+            <Button
+              variant="outline"
+              onClick={handleUpdateConfiguration}
+              disabled={!hasUnsavedChanges}
+            >
               Save
             </Button>
             {hasUnsavedChanges && (
