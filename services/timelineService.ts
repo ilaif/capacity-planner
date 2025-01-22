@@ -175,7 +175,7 @@ export function exportTimelineAsPng(
     drawTimelineGrid(ctx, gridCount, columnWidth, startDate, height);
 
     // Draw features
-    drawTimelineFeatures(ctx, timeline, overheadFactor, columnWidth, startDate);
+    drawTimelineFeatures(ctx, timeline, overheadFactor, columnWidth);
 
     // Trigger download
     downloadCanvas(canvas);
@@ -192,9 +192,19 @@ function drawTimelineGrid(
   startDate: Date,
   height: number
 ): void {
-  ctx.strokeStyle = '#e5e7eb';
-  ctx.fillStyle = '#6b7280';
-  ctx.font = '10px sans-serif';
+  // Draw background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, gridCount * columnWidth, height);
+
+  // Draw header background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, gridCount * columnWidth, 50);
+  ctx.strokeStyle = '#e2e8f0'; // slate-200
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, 50);
+  ctx.lineTo(gridCount * columnWidth, 50);
+  ctx.stroke();
 
   // Draw quarter markers
   const quarters = Math.ceil(gridCount / 13);
@@ -202,38 +212,40 @@ function drawTimelineGrid(
     const x = q * columnWidth * 13;
     const weekIndex = q * 13;
     const date = addWeeks(startDate, weekIndex);
-    const year = Math.floor(weekIndex / 52) + 1;
     const weekInYear = weekIndex % 52;
     const quarter = Math.floor(weekInYear / 13) + 1;
-    const quarterLabel =
-      columnWidth * 13 < 100
-        ? `Y${year}Q${quarter}`
-        : `Year ${year} Q${quarter} (${format(date, 'MMM yyyy')})`;
 
+    // Draw quarter separator
+    ctx.strokeStyle = '#e2e8f0'; // slate-200
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, height);
-    if (q > 0) ctx.strokeStyle = '#d1d5db'; // Thicker border for quarters
     ctx.stroke();
-    ctx.strokeStyle = '#e5e7eb'; // Reset to normal border
 
-    ctx.font = 'bold 10px sans-serif';
-    ctx.fillText(quarterLabel, x + 5, 15);
+    // Draw quarter label
+    ctx.fillStyle = '#64748b'; // slate-500
+    ctx.font = '500 12px sans-serif';
+    const quarterLabel = `Q${quarter} ${format(date, 'yyyy')}`;
+    ctx.fillText(quarterLabel, x + 5, 20);
   }
 
-  // Draw week markers if in weeks mode
-  ctx.font = '10px sans-serif';
+  // Draw week markers
+  ctx.font = '400 11px sans-serif';
   for (let w = 0; w < gridCount; w++) {
     const x = w * columnWidth;
     const date = addWeeks(startDate, w);
-    const weekLabel = columnWidth < 50 ? format(date, 'M/d') : `W${w} (${format(date, 'MMM d')})`;
+    const weekLabel = columnWidth < 90 ? format(date, 'M/d') : `W${w} (${format(date, 'MMM d')})`;
 
+    // Draw week separator
+    ctx.strokeStyle = '#e2e8f0'; // slate-200
     ctx.beginPath();
-    ctx.moveTo(x, 24); // Start below quarter markers
+    ctx.moveTo(x, 0);
     ctx.lineTo(x, height);
     ctx.stroke();
 
-    ctx.fillText(weekLabel, x + 5, 35);
+    // Draw week label
+    ctx.fillStyle = '#64748b'; // slate-500
+    ctx.fillText(weekLabel, x + 5, 40);
   }
 }
 
@@ -242,43 +254,110 @@ function drawTimelineFeatures(
   timeline: TimelineItem[],
   overheadFactor: number,
   columnWidth: number,
-  startDate: Date
 ): void {
   timeline.forEach((allocation, index) => {
+    const y = index * 80 + 50;
     const x = allocation.startWeek * columnWidth;
-
     const width = ((allocation.endWeek || 0) - allocation.startWeek) * columnWidth;
+    const height = 70;
 
-    // Draw feature box
-    ctx.fillStyle = '#dbeafe';
-    ctx.fillRect(x, index * 80 + 40, width, 60);
+    // Draw feature background with gradient
+    const gradient = ctx.createLinearGradient(x, y, x + width, y);
+    gradient.addColorStop(0, 'rgba(241, 245, 249, 0.95)'); // slate-100
+    gradient.addColorStop(1, 'rgba(243, 232, 255, 0.95)'); // purple-100
 
-    // Draw feature text
-    ctx.fillStyle = '#000000';
-    ctx.font = '12px sans-serif';
-    const featureText = allocation.feature;
-    ctx.fillText(featureText, x + 5, index * 80 + 55);
+    ctx.fillStyle = gradient;
+    ctx.strokeStyle = 'rgba(203, 213, 225, 0.5)'; // slate-300/50
+    ctx.lineWidth = 1;
 
-    // Draw requirements
-    Object.entries(allocation.assignments).forEach(([team, requirement], teamIndex) => {
-      ctx.font = '10px sans-serif';
-      const reqText = `${team}: ${Math.round(requirement.weeks * overheadFactor)} (${
-        requirement.parallel
-      } parallel)`;
-      ctx.fillText(reqText, x + 5, index * 80 + 70 + teamIndex * 12);
-    });
+    // Draw rounded rectangle
+    const radius = 6;
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
 
-    // Draw dates
-    const startDateText = format(addWeeks(startDate, allocation.startWeek), 'MMM d, yyyy');
-    const endDateText = format(addWeeks(startDate, allocation.endWeek || 0), 'MMM d, yyyy');
-    ctx.font = '10px sans-serif';
-    ctx.fillText(`${startDateText} - ${endDateText}`, x + 5, index * 80 + 95);
+    // Draw feature name
+    ctx.fillStyle = '#0f172a'; // slate-900
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText(allocation.feature, x + 10, y + 25);
+
+    // Draw team assignments
+    let assignmentX = x + 10;
+    let assignmentY = y + 45;
+
+    Object.entries(allocation.assignments)
+      .filter(([_, requirement]) => requirement.weeks > 0)
+      .forEach(([team, requirement]) => {
+        // Draw team pill background
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.strokeStyle = 'rgba(203, 213, 225, 0.5)';
+
+        const pillWidth = 100;
+        const pillHeight = 22;
+        const pillRadius = 11;
+
+        ctx.beginPath();
+        ctx.moveTo(assignmentX + pillRadius, assignmentY);
+        ctx.lineTo(assignmentX + pillWidth - pillRadius, assignmentY);
+        ctx.quadraticCurveTo(
+          assignmentX + pillWidth,
+          assignmentY,
+          assignmentX + pillWidth,
+          assignmentY + pillRadius
+        );
+        ctx.lineTo(assignmentX + pillWidth, assignmentY + pillHeight - pillRadius);
+        ctx.quadraticCurveTo(
+          assignmentX + pillWidth,
+          assignmentY + pillHeight,
+          assignmentX + pillWidth - pillRadius,
+          assignmentY + pillHeight
+        );
+        ctx.lineTo(assignmentX + pillRadius, assignmentY + pillHeight);
+        ctx.quadraticCurveTo(
+          assignmentX,
+          assignmentY + pillHeight,
+          assignmentX,
+          assignmentY + pillHeight - pillRadius
+        );
+        ctx.lineTo(assignmentX, assignmentY + pillRadius);
+        ctx.quadraticCurveTo(assignmentX, assignmentY, assignmentX + pillRadius, assignmentY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Draw team name and requirements
+        ctx.fillStyle = '#475569'; // slate-600
+        ctx.font = '12px sans-serif';
+        const teamText = `${team}: ${Math.ceil(requirement.weeks * overheadFactor)}w`;
+        ctx.fillText(teamText, assignmentX + 8, assignmentY + 15);
+
+        assignmentX += pillWidth + 10;
+        if (assignmentX + pillWidth > x + width - 10) {
+          assignmentX = x + 10;
+          assignmentY += pillHeight + 5;
+        }
+      });
   });
 }
 
 function downloadCanvas(canvas: HTMLCanvasElement): void {
-  const link = document.createElement('a');
-  link.download = 'timeline.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  try {
+    const link = document.createElement('a');
+    link.download = `timeline-${format(new Date(), 'yyyy-MM-dd-HH-mm')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    logger.info('Timeline PNG downloaded successfully');
+  } catch (error) {
+    logger.error('Failed to download timeline PNG', error as Error);
+  }
 }
