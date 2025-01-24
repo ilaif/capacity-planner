@@ -14,7 +14,7 @@ interface TimelineStatsProps {
 export function TimelineStats({ timeline, startDate, configurationName }: TimelineStatsProps) {
   if (timeline.length === 0) return null;
 
-  const lastEndWeek = Math.max(...timeline.map(t => t.endWeek || 0));
+  const lastEndWeek = Math.max(...timeline.map(t => t.endWeek));
   const completionDate = addWeeks(startDate, lastEndWeek);
   const totalFeatures = timeline.length;
   const totalWeeks = lastEndWeek;

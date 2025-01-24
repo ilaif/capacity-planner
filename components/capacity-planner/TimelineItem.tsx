@@ -24,9 +24,7 @@ export function WeekIndicator({
   overheadFactor,
   teams,
 }: WeekIndicatorProps) {
-  const featuresInWeek = timeline.filter(
-    item => item.startWeek <= week && (item.endWeek || 0) > week
-  );
+  const featuresInWeek = timeline.filter(item => item.startWeek <= week && item.endWeek > week);
 
   // Group engineers by team for this week
   const teamEngineers: { [team: string]: number } = {};
@@ -148,7 +146,7 @@ export function TimelineItem({
       )}
       onClick={handleClick}
       style={{
-        gridColumn: `${allocation.startWeek + 1} / span ${(allocation.endWeek || 0) - allocation.startWeek}`,
+        gridColumn: `${allocation.startWeek + 1} / span ${allocation.endWeek - allocation.startWeek}`,
         gridRow: `${allocation.row + 1}`,
         minWidth: '30px',
         margin: '4px',
@@ -227,7 +225,7 @@ export function TimelineItem({
                 ))}
             </div>
             <div className="mt-3 pt-2 text-xs text-slate-700 border-t border-slate-300">
-              {getDateLabel(allocation.startWeek)} - {getDateLabel(allocation.endWeek || 0)}
+              {getDateLabel(allocation.startWeek)} - {getDateLabel(allocation.endWeek)}
             </div>
           </TooltipContent>
         </Tooltip>

@@ -6,6 +6,7 @@ import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineServi
 import { TimelineItem, TimelineGrid } from './TimelineItem';
 import { TimelineStats } from './TimelineStats';
 import { usePlannerStore } from '@/store/plannerStore';
+import { TeamUtilizationRow } from './TeamUtilizationRow';
 
 interface TimelineItemWithRow extends TimelineItemType {
   row: number;
@@ -31,7 +32,7 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
       if (item.startWeek < lastEndWeek) {
         rowIndex++;
       }
-      lastEndWeek = item.endWeek || 0;
+      lastEndWeek = item.endWeek;
       itemsWithRows.push({ ...item, row: rowIndex });
     }
 
@@ -92,7 +93,7 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
   };
 
   const getTimelineGridCount = () => {
-    const maxWeek = Math.max(...(timeline.map(t => (t.endWeek || 0) + 1) || [12]));
+    const maxWeek = Math.max(...(timeline.map(t => t.endWeek + 1) || [12]));
     return maxWeek;
   };
 
@@ -126,7 +127,7 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
         <Button onClick={handleExport}>Export PNG</Button>
       </div>
       <div className="flex flex-col h-[calc(100vh-200px)] overflow-x-auto">
-        <div className="grid grid-rows-[auto_1fr]">
+        <div className="grid grid-rows-[auto_1fr_auto]">
           <TimelineGrid
             gridCount={getTimelineGridCount()}
             columnWidth={columnWidth}
@@ -139,7 +140,25 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
             teams={teams}
           />
           <div
-            className="grid auto-rows-[77px]"
+            className="grid border-r border-l bg-muted/50"
+            style={{
+              gridTemplateColumns: `repeat(${getTimelineGridCount()}, ${columnWidth}px)`,
+            }}
+          >
+            {Object.entries(teams).map(([team, config]) => (
+              <div key={team} className="contents">
+                <TeamUtilizationRow
+                  team={team}
+                  teamConfig={config}
+                  timeline={timeline}
+                  columnWidth={columnWidth}
+                  gridCount={getTimelineGridCount()}
+                />
+              </div>
+            ))}
+          </div>
+          <div
+            className="grid"
             style={{
               gridTemplateColumns: `repeat(${getTimelineGridCount()}, ${columnWidth}px)`,
             }}

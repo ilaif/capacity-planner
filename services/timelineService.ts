@@ -52,6 +52,7 @@ export function calculateTimeline(
     const featureAllocation: TimelineItem = {
       feature: feature.name,
       startWeek: 0,
+      endWeek: 0,
       assignments: {},
     };
 

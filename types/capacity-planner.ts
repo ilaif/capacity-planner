@@ -6,7 +6,7 @@ export interface FeatureCSV {
 export interface TimelineItem {
   feature: string;
   startWeek: number;
-  endWeek?: number;
+  endWeek: number;
   assignments: {
     [team: string]: {
       weeks: number;
