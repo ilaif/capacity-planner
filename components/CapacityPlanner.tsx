@@ -1,267 +1,29 @@
-import { useState, useRef, useEffect } from 'react';
-import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
-import { getInitialState, updateURL, DEFAULT_STATE, PlannerState } from '@/services/stateService';
-import { logger } from '@/services/loggerService';
+import { useRef } from 'react';
 import { TimelineView } from './capacity-planner/TimelineView';
 import {
   ConfigurationSheet,
   ConfigurationSheetHandle,
 } from './capacity-planner/ConfigurationSheet';
-import { startOfWeek } from 'date-fns';
-import { HistoryManager } from '@/services/historyService';
 import { Button } from '@/components/ui/button';
 import { Undo2, Redo2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { usePlannerStore } from '@/store/plannerStore';
+import { useState } from 'react';
 
 const CapacityPlanner = () => {
-  const [features, setFeatures] = useState<Feature[]>(DEFAULT_STATE.features);
-  const [teams, setTeams] = useState<Teams>(DEFAULT_STATE.teams);
-  const [overheadFactor, setOverheadFactor] = useState(DEFAULT_STATE.overheadFactor);
-  const [startDate, setStartDate] = useState<Date>(startOfWeek(new Date()));
-  const [configurationName, setConfigurationName] = useState<string | undefined>(undefined);
+  const { undo, redo, pastStates, futureStates } = usePlannerStore.temporal.getState();
+  const canUndo = !!pastStates.length;
+  const canRedo = !!futureStates.length;
+
   const [openConfigurationSheet, setOpenConfigurationSheet] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const historyManagerRef = useRef<HistoryManager | null>(null);
   const configSheetRef = useRef<ConfigurationSheetHandle>(null);
-
-  function setPlannerState(state: PlannerState) {
-    setFeatures(state.features);
-    setTeams(state.teams);
-    setOverheadFactor(state.overheadFactor);
-    setStartDate(state.startDate);
-    setConfigurationName(state.configurationName);
-  }
-
-  // Initialize state and history manager
-  useEffect(() => {
-    logger.info('Initializing CapacityPlanner state');
-    const initialState = getInitialState();
-    historyManagerRef.current = new HistoryManager(initialState);
-    logger.debug('Got initial state', {
-      features: initialState.features,
-      teams: initialState.teams,
-      overheadFactor: initialState.overheadFactor,
-      startDate: initialState.startDate,
-      configurationName: initialState.configurationName,
-    });
-
-    setPlannerState(initialState);
-    setIsInitialized(true);
-    logger.info('CapacityPlanner state initialized successfully');
-  }, []);
-
-  // Update URL and history whenever state changes
-  useEffect(() => {
-    if (!isInitialized || !historyManagerRef.current) return;
-
-    const state = { features, teams, overheadFactor, startDate, configurationName };
-    logger.debug('Updating state in URL and history', state);
-    updateURL(state);
-    historyManagerRef.current.pushState(state);
-    logger.debug('State updated successfully');
-  }, [features, teams, overheadFactor, startDate, configurationName, isInitialized]);
-
-  const handleUndo = () => {
-    if (!historyManagerRef.current?.canUndo()) return;
-
-    const previousState = historyManagerRef.current.undo();
-    if (previousState) {
-      setPlannerState(previousState);
-    }
-  };
-
-  const handleRedo = () => {
-    if (!historyManagerRef.current?.canRedo()) return;
-
-    const nextState = historyManagerRef.current.redo();
-    if (nextState) {
-      setPlannerState(nextState);
-    }
-  };
 
   useKeyboardShortcuts({
     onConfigurationSheetToggle: () => setOpenConfigurationSheet(prev => !prev),
-    onUndo: handleUndo,
-    onRedo: handleRedo,
+    onUndo: () => undo(),
+    onRedo: () => redo(),
   });
-
-  const handleTeamAdd = (teamName: string) => {
-    logger.info(`Adding new team: ${teamName}`);
-    if (!teams[teamName]) {
-      setTeams(prev => ({
-        ...prev,
-        [teamName]: { sizes: [{ week: 0, size: 1 }], teamLoad: 1 },
-      }));
-      // Update all existing features to include the new team
-      setFeatures(prev =>
-        prev.map(feature => ({
-          ...feature,
-          requirements: {
-            ...feature.requirements,
-            [teamName]: { weeks: 0, parallel: 1 },
-          },
-        }))
-      );
-      logger.info(`Team ${teamName} added successfully`);
-    } else {
-      logger.warn(`Team ${teamName} already exists`);
-    }
-  };
-
-  const handleTeamRemove = (teamName: string) => {
-    logger.info(`Removing team: ${teamName}`);
-    setTeams(prev => {
-      const newTeams = { ...prev };
-      delete newTeams[teamName];
-      return newTeams;
-    });
-    setFeatures(prev =>
-      prev.map(feature => {
-        const newRequirements = { ...feature.requirements };
-        delete newRequirements[teamName];
-        return { ...feature, requirements: newRequirements };
-      })
-    );
-    logger.info(`Team ${teamName} removed successfully`);
-  };
-
-  const handleTeamRename = (oldName: string, newName: string) => {
-    logger.info(`Renaming team from ${oldName} to ${newName}`);
-    if (!teams[newName] && oldName !== newName) {
-      setTeams(prev => {
-        const newTeams = { ...prev };
-        newTeams[newName] = newTeams[oldName];
-        delete newTeams[oldName];
-        return newTeams;
-      });
-      setFeatures(prev =>
-        prev.map(feature => {
-          const newRequirements = { ...feature.requirements };
-          if (newRequirements[oldName]) {
-            newRequirements[newName] = newRequirements[oldName];
-            delete newRequirements[oldName];
-          }
-          return { ...feature, requirements: newRequirements };
-        })
-      );
-      logger.info(`Team renamed successfully from ${oldName} to ${newName}`);
-    } else {
-      logger.warn(`Cannot rename team: new name ${newName} already exists or names are identical`);
-    }
-  };
-
-  const handleTeamSizeChange = (team: string, value: number) => {
-    setTeams(prevTeams => {
-      const currentTeam = prevTeams[team];
-      const currentSize = currentTeam.sizes;
-      const newSizes = [...currentSize];
-      newSizes[0] = { week: 0, size: value };
-      return {
-        ...prevTeams,
-        [team]: {
-          ...currentTeam,
-          sizes: newSizes,
-        },
-      };
-    });
-  };
-
-  const handleTeamSizeVariationAdd = (variation: TeamSizeVariation) => {
-    setTeams(prevTeams => {
-      logger.info(
-        `Adding size variation for team ${variation.team} at week ${variation.week} with size ${variation.size}`
-      );
-      const currentTeam = prevTeams[variation.team];
-      const currentSizes = currentTeam.sizes;
-      let newSizes = [...currentSizes];
-      newSizes = newSizes.filter(size => size.week !== variation.week);
-      newSizes.push({ week: variation.week, size: variation.size });
-      newSizes.sort((a, b) => a.week - b.week);
-      return {
-        ...prevTeams,
-        [variation.team]: {
-          ...currentTeam,
-          sizes: newSizes,
-        },
-      };
-    });
-  };
-
-  const handleTeamSizeVariationRemove = (team: string, week: number) => {
-    setTeams(prevTeams => {
-      const currentTeam = prevTeams[team];
-      const currentSizes = currentTeam.sizes;
-      const newSizes = currentSizes.filter(size => size.week !== week);
-      return {
-        ...prevTeams,
-        [team]: {
-          ...currentTeam,
-          sizes: newSizes,
-        },
-      };
-    });
-  };
-
-  const handleWipLimitChange = (team: string, value: number) => {
-    setTeams(prevTeams => ({
-      ...prevTeams,
-      [team]: {
-        ...prevTeams[team],
-        teamLoad: value,
-      },
-    }));
-  };
-
-  const handleFeatureAdd = () => {
-    logger.info('Adding new feature');
-    const newFeature = {
-      id: features.length + 1,
-      name: `Feature ${features.length + 1}`,
-      requirements: Object.keys(teams).reduce(
-        (acc, team) => ({
-          ...acc,
-          [team]: { weeks: 0, parallel: 1 },
-        }),
-        {}
-      ),
-    };
-    setFeatures([...features, newFeature]);
-    logger.debug('New feature added', newFeature);
-  };
-
-  const handleFeatureRemove = (featureId: number) => {
-    setFeatures(features.filter(f => f.id !== featureId));
-    logger.debug('Feature removed', { featureId });
-  };
-
-  const handleFeatureNameChange = (featureId: number, name: string) => {
-    setFeatures(features.map(f => (f.id === featureId ? { ...f, name } : f)));
-  };
-
-  const handleRequirementChange = (
-    featureId: number,
-    team: string,
-    field: string,
-    value: string
-  ) => {
-    setFeatures(
-      features.map(feature =>
-        feature.id === featureId
-          ? {
-              ...feature,
-              requirements: {
-                ...feature.requirements,
-                [team]: {
-                  ...feature.requirements[team],
-                  [field]: parseInt(value) || 0,
-                },
-              },
-            }
-          : feature
-      )
-    );
-  };
 
   const handleFeatureClick = (featureName: string) => {
     setOpenConfigurationSheet(true);
@@ -282,12 +44,7 @@ const CapacityPlanner = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleUndo}
-                    disabled={!historyManagerRef.current?.canUndo()}
-                  >
+                  <Button variant="outline" size="icon" onClick={() => undo()} disabled={!canUndo}>
                     <Undo2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -301,12 +58,7 @@ const CapacityPlanner = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleRedo}
-                    disabled={!historyManagerRef.current?.canRedo()}
-                  >
+                  <Button variant="outline" size="icon" onClick={() => redo()} disabled={!canRedo}>
                     <Redo2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -325,39 +77,12 @@ const CapacityPlanner = () => {
           optimize your delivery schedule.
         </p>
 
-        <TimelineView
-          features={features}
-          teams={teams}
-          overheadFactor={overheadFactor}
-          startDate={startDate}
-          configurationName={configurationName || ''}
-          onFeatureClick={handleFeatureClick}
-        />
+        <TimelineView onFeatureClick={handleFeatureClick} />
 
         <ConfigurationSheet
           ref={configSheetRef}
           open={openConfigurationSheet}
           onOpenChange={setOpenConfigurationSheet}
-          features={features}
-          teams={teams}
-          overheadFactor={overheadFactor}
-          startDate={startDate}
-          configurationName={configurationName}
-          onPlannerStateChange={setPlannerState}
-          onStartDateChange={setStartDate}
-          onOverheadFactorChange={setOverheadFactor}
-          onFeaturesChange={setFeatures}
-          onTeamAdd={handleTeamAdd}
-          onTeamRemove={handleTeamRemove}
-          onTeamRename={handleTeamRename}
-          onTeamSizeChange={handleTeamSizeChange}
-          onWipLimitChange={handleWipLimitChange}
-          onTeamSizeVariationAdd={handleTeamSizeVariationAdd}
-          onTeamSizeVariationRemove={handleTeamSizeVariationRemove}
-          onFeatureAdd={handleFeatureAdd}
-          onFeatureNameChange={handleFeatureNameChange}
-          onRequirementChange={handleRequirementChange}
-          onFeatureRemove={handleFeatureRemove}
         />
       </div>
     </div>

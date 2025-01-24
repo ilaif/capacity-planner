@@ -1,32 +1,22 @@
 import { Button } from '@/components/ui/button';
-import type { TimelineItem as TimelineItemType, Feature, Teams } from '@/types/capacity-planner';
+import type { TimelineItem as TimelineItemType } from '@/types/capacity-planner';
 import { useState, useCallback, useEffect } from 'react';
 import { format, addWeeks } from 'date-fns';
 import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
 import { TimelineItem, TimelineGrid } from './TimelineItem';
 import { TimelineStats } from './TimelineStats';
+import { usePlannerStore } from '@/store/plannerStore';
 
 interface TimelineItemWithRow extends TimelineItemType {
   row: number;
 }
 
 interface TimelineViewProps {
-  features: Feature[];
-  teams: Teams;
-  overheadFactor: number;
-  startDate: Date;
-  configurationName: string;
   onFeatureClick?: (featureName: string) => void;
 }
 
-export function TimelineView({
-  features,
-  teams,
-  overheadFactor,
-  startDate,
-  configurationName,
-  onFeatureClick,
-}: TimelineViewProps) {
+export function TimelineView({ onFeatureClick }: TimelineViewProps) {
+  const { features, teams, overheadFactor, startDate, configurationName } = usePlannerStore();
   const [columnWidth, setColumnWidth] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
   const [timeline, setTimeline] = useState<TimelineItemWithRow[]>([]);
@@ -131,7 +121,7 @@ export function TimelineView({
         <TimelineStats
           timeline={timeline}
           startDate={startDate}
-          configurationName={configurationName}
+          configurationName={configurationName || 'Not set'}
         />
         <Button onClick={handleExport}>Export PNG</Button>
       </div>

@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input';
-import { Teams, TeamSizeVariation, TeamConfig } from '@/types/capacity-planner';
+import { TeamSizeVariation, TeamConfig } from '@/types/capacity-planner';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TeamAvatar } from '@/components/ui/team-avatar';
@@ -15,28 +15,11 @@ import { TeamSizeChart } from './TeamSizeChart';
 import { NumberInput } from '@/components/ui/number-input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { logger } from '@/services/loggerService';
+import { usePlannerStore } from '@/store/plannerStore';
 
-interface TeamConfigurationProps {
-  teams: Teams;
-  onTeamSizeChange: (team: string, value: number) => void;
-  onWipLimitChange: (team: string, value: number) => void;
-  onTeamSizeVariationAdd: (variation: TeamSizeVariation) => void;
-  onTeamSizeVariationRemove: (team: string, week: number) => void;
-  onTeamAdd: (teamName: string) => void;
-  onTeamRemove: (teamName: string) => void;
-  onTeamRename: (oldName: string, newName: string) => void;
-}
+export function TeamConfiguration() {
+  const { teams, setTeams, features, setFeatures } = usePlannerStore();
 
-export function TeamConfiguration({
-  teams,
-  onTeamSizeChange,
-  onWipLimitChange,
-  onTeamSizeVariationAdd,
-  onTeamSizeVariationRemove,
-  onTeamAdd,
-  onTeamRemove,
-  onTeamRename,
-}: TeamConfigurationProps) {
   const [selectedTeam, setSelectedTeam] = useState<string>('');
   const [selectedWeek, setSelectedWeek] = useState<string>('');
   const [variationSize, setVariationSize] = useState<string>('');
@@ -44,9 +27,88 @@ export function TeamConfiguration({
   const [editingTeam, setEditingTeam] = useState<string | null>(null);
   const [editedTeamName, setEditedTeamName] = useState<string>('');
 
+  const handleTeamRemove = (teamName: string) => {
+    logger.info(`Removing team: ${teamName}`);
+    const newTeams = { ...teams };
+    delete newTeams[teamName];
+    setTeams(newTeams);
+
+    setFeatures(
+      features.map(feature => {
+        const newRequirements = { ...feature.requirements };
+        delete newRequirements[teamName];
+        return { ...feature, requirements: newRequirements };
+      })
+    );
+    logger.info(`Team ${teamName} removed successfully`);
+  };
+
+  const handleTeamSizeChange = (team: string, value: number) => {
+    const currentTeam = teams[team];
+    const currentSize = currentTeam.sizes;
+    const newSizes = [...currentSize];
+    newSizes[0] = { week: 0, size: value };
+
+    setTeams({
+      ...teams,
+      [team]: {
+        ...currentTeam,
+        sizes: newSizes,
+      },
+    });
+  };
+
+  const handleTeamSizeVariationAdd = (variation: TeamSizeVariation) => {
+    logger.info(
+      `Adding size variation for team ${variation.team} at week ${variation.week} with size ${variation.size}`
+    );
+    const currentTeam = teams[variation.team];
+    const currentSizes = currentTeam.sizes;
+    let newSizes = [...currentSizes];
+    newSizes = newSizes.filter(size => size.week !== variation.week);
+    newSizes.push({ week: variation.week, size: variation.size });
+    newSizes.sort((a, b) => a.week - b.week);
+
+    setTeams({
+      ...teams,
+      [variation.team]: {
+        ...currentTeam,
+        sizes: newSizes,
+      },
+    });
+  };
+
+  const handleTeamSizeVariationRemove = (team: string, week: number) => {
+    const currentTeam = teams[team];
+    const currentSizes = currentTeam.sizes;
+    const newSizes = currentSizes.filter(size => size.week !== week);
+
+    setTeams({
+      ...teams,
+      [team]: {
+        ...currentTeam,
+        sizes: newSizes,
+      },
+    });
+  };
+
   const handleAddTeam = () => {
     if (newTeamName && !teams[newTeamName]) {
-      onTeamAdd(newTeamName);
+      setTeams({
+        ...teams,
+        [newTeamName]: { sizes: [{ week: 0, size: 1 }], teamLoad: 1 },
+      });
+      // Update all existing features to include the new team
+      setFeatures(
+        features.map(feature => ({
+          ...feature,
+          requirements: {
+            ...feature.requirements,
+            [newTeamName]: { weeks: 0, parallel: 1 },
+          },
+        }))
+      );
+      logger.info(`Team ${newTeamName} added successfully`);
       setNewTeamName('');
     }
   };
@@ -57,8 +119,37 @@ export function TeamConfiguration({
   };
 
   const handleRenameTeam = () => {
-    if (editingTeam && editedTeamName && editingTeam !== editedTeamName) {
-      onTeamRename(editingTeam, editedTeamName);
+    const oldName = editingTeam;
+    const newName = editedTeamName;
+
+    if (oldName && newName && oldName !== newName) {
+      logger.info(`Renaming team from ${oldName} to ${newName}`);
+      if (!teams[newName] && oldName !== newName) {
+        const newTeams = { ...teams };
+        newTeams[newName] = newTeams[oldName];
+        delete newTeams[oldName];
+        setTeams(newTeams);
+
+        setFeatures(
+          features.map(feature => {
+            const newRequirements = { ...feature.requirements };
+            if (newRequirements[oldName]) {
+              newRequirements[newName] = newRequirements[oldName];
+              delete newRequirements[oldName];
+            }
+            return { ...feature, requirements: newRequirements };
+          })
+        );
+        logger.info(`Team renamed successfully from ${oldName} to ${newName}`);
+      } else {
+        logger.warn(
+          `Cannot rename team: new name ${newName} already exists or names are identical`
+        );
+      }
+
+      setEditingTeam(null);
+      setEditedTeamName('');
+    } else {
       setEditingTeam(null);
       setEditedTeamName('');
     }
@@ -66,7 +157,7 @@ export function TeamConfiguration({
 
   const handleAddVariation = () => {
     if (selectedTeam && selectedWeek && variationSize) {
-      onTeamSizeVariationAdd({
+      handleTeamSizeVariationAdd({
         team: selectedTeam,
         week: parseInt(selectedWeek),
         size: parseInt(variationSize),
@@ -77,10 +168,16 @@ export function TeamConfiguration({
   };
 
   const handleEditVariation = (team: string, week: number, newSize: number) => {
-    onTeamSizeVariationAdd({
-      team,
-      week,
-      size: newSize,
+    handleTeamSizeVariationAdd({ team, week, size: newSize });
+  };
+
+  const handleWipLimitChange = (team: string, value: number) => {
+    setTeams({
+      ...teams,
+      [team]: {
+        ...teams[team],
+        teamLoad: value,
+      },
     });
   };
 
@@ -160,7 +257,7 @@ export function TeamConfiguration({
                           </div>
                           <NumberInput
                             value={getBaseTeamSize(config)}
-                            onChange={value => onTeamSizeChange(team, value)}
+                            onChange={value => handleTeamSizeChange(team, value)}
                             min={0}
                             inputClassName="max-w-12"
                           />
@@ -186,7 +283,7 @@ export function TeamConfiguration({
                           </div>
                           <NumberInput
                             value={config.teamLoad}
-                            onChange={value => onWipLimitChange(team, value)}
+                            onChange={value => handleWipLimitChange(team, value)}
                             min={0.5}
                             step={0.5}
                             inputClassName="max-w-12"
@@ -206,7 +303,7 @@ export function TeamConfiguration({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onTeamRemove(team)}
+                    onClick={() => handleTeamRemove(team)}
                     className="h-8 px-2 self-end"
                   >
                     <X className="h-3 w-3" />
@@ -305,7 +402,7 @@ export function TeamConfiguration({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => onTeamSizeVariationRemove(team, week)}
+                    onClick={() => handleTeamSizeVariationRemove(team, week)}
                     className="h-6 w-6 ml-5"
                   >
                     <X className="h-3 w-3" />

@@ -7,10 +7,10 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface FeatureUploadProps {
   onFeaturesUploaded: (features: Feature[]) => void;
-  teams: string[];
+  teamNames: string[];
 }
 
-export function FeatureUpload({ onFeaturesUploaded, teams }: FeatureUploadProps) {
+export function FeatureUpload({ onFeaturesUploaded, teamNames }: FeatureUploadProps) {
   const [isRequirementsOpen, setIsRequirementsOpen] = useState(false);
 
   const findCaseInsensitiveKey = (
@@ -31,11 +31,11 @@ export function FeatureUpload({ onFeaturesUploaded, teams }: FeatureUploadProps)
         complete: (results: ParseResult<FeatureCSV>) => {
           const newFeatures = results.data.map((row, index) => {
             const requirements: { [key: string]: { weeks: number; parallel: number } } = {};
-            teams.forEach(team => {
-              const weeksKey = findCaseInsensitiveKey(row, `${team}_weeks`);
-              const parallelKey = findCaseInsensitiveKey(row, `${team}_parallel`);
+            teamNames.forEach(teamName => {
+              const weeksKey = findCaseInsensitiveKey(row, `${teamName}_weeks`);
+              const parallelKey = findCaseInsensitiveKey(row, `${teamName}_parallel`);
 
-              requirements[team] = {
+              requirements[teamName] = {
                 weeks: parseInt(weeksKey ? row[weeksKey] : '0') || 0,
                 parallel: parseInt(parallelKey ? row[parallelKey] : '1') || 1,
               };
@@ -87,20 +87,20 @@ export function FeatureUpload({ onFeaturesUploaded, teams }: FeatureUploadProps)
                 <td className="pr-4">text</td>
                 <td>Feature name (e.g., "Login System") - Case insensitive</td>
               </tr>
-              {teams.map(team => (
+              {teamNames.map(teamName => (
                 <>
-                  <tr key={`${team}_weeks`}>
-                    <td className="pr-4">{team}_weeks</td>
+                  <tr key={`${teamName}_weeks`}>
+                    <td className="pr-4">{teamName}_weeks</td>
                     <td className="pr-4">number</td>
                     <td>
-                      Number of engineer weeks needed by {team} team (e.g., 3) - Case insensitive
+                      Number of engineer weeks needed by {teamName} team (e.g., 3) - Case insensitive
                     </td>
                   </tr>
-                  <tr key={`${team}_parallel`}>
-                    <td className="pr-4">{team}_parallel</td>
+                  <tr key={`${teamName}_parallel`}>
+                    <td className="pr-4">{teamName}_parallel</td>
                     <td className="pr-4">number</td>
                     <td>
-                      Number of {team} engineers that can work in parallel (e.g., 2) - Case
+                      Number of {teamName} engineers that can work in parallel (e.g., 2) - Case
                       insensitive
                     </td>
                   </tr>
@@ -110,9 +110,9 @@ export function FeatureUpload({ onFeaturesUploaded, teams }: FeatureUploadProps)
           </table>
           <p className="mt-2">Example row:</p>
           <code className="block bg-gray-100 p-2 rounded">
-            {`Feature Name,${teams.map(team => `${team}_weeks,${team}_parallel`).join(',')}`}
+            {`Feature Name,${teamNames.map(teamName => `${teamName}_weeks,${teamName}_parallel`).join(',')}`}
             <br />
-            {`Login System,${teams.map(() => '3,2').join(',')}`}
+            {`Login System,${teamNames.map(() => '3,2').join(',')}`}
           </code>
           <p className="mt-2 text-xs text-gray-500">Note: Column names are case-insensitive</p>
         </div>

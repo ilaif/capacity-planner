@@ -257,6 +257,7 @@ export function ConfigurationManager({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Save Configuration</DialogTitle>
+              <DialogDescription>Enter a name for your new configuration</DialogDescription>
             </DialogHeader>
             <div className="flex gap-2 items-center">
               <Input

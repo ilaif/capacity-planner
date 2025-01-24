@@ -72,7 +72,7 @@ export function calculateTimeline(
           const weekIndex = startWeek + w;
           const teamLoad = teams[team].teamLoad;
           const teamSize = teams[team].sizes[0].size;
-          const wipLimit = Math.floor(teamSize / teamLoad);
+          const wipLimit = Math.max(1, Math.floor(teamSize / teamLoad));
           if (
             weekIndex >= maxWeek ||
             teamAvailability[team][weekIndex] < parallel ||

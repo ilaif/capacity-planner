@@ -1,7 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Features, FeaturesHandle } from './Features';
 import { TeamConfiguration } from './TeamConfiguration';
-import { Feature, Teams, TeamSizeVariation } from '@/types/capacity-planner';
 import { forwardRef, useImperativeHandle, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -13,30 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { logger } from '@/services/loggerService';
+import { usePlannerStore } from '@/store/plannerStore';
 
 interface ConfigurationSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  features: Feature[];
-  teams: Teams;
-  overheadFactor: number;
-  startDate: Date;
-  configurationName?: string;
-  onPlannerStateChange: (state: PlannerState) => void;
-  onStartDateChange: (date: Date) => void;
-  onOverheadFactorChange: (value: number) => void;
-  onTeamAdd: (teamName: string) => void;
-  onTeamRemove: (teamName: string) => void;
-  onTeamRename: (oldName: string, newName: string) => void;
-  onTeamSizeChange: (team: string, value: number) => void;
-  onWipLimitChange: (team: string, value: number) => void;
-  onTeamSizeVariationAdd: (variation: TeamSizeVariation) => void;
-  onTeamSizeVariationRemove: (team: string, week: number) => void;
-  onFeatureAdd: () => void;
-  onFeatureNameChange: (featureId: number, name: string) => void;
-  onRequirementChange: (featureId: number, team: string, field: string, value: string) => void;
-  onFeaturesChange: (features: Feature[]) => void;
-  onFeatureRemove: (featureId: number) => void;
 }
 
 export interface ConfigurationSheetHandle {
@@ -44,33 +24,7 @@ export interface ConfigurationSheetHandle {
 }
 
 export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, ConfigurationSheetProps>(
-  (
-    {
-      open,
-      onOpenChange,
-      features,
-      teams,
-      overheadFactor,
-      startDate,
-      configurationName,
-      onPlannerStateChange,
-      onStartDateChange,
-      onOverheadFactorChange,
-      onFeaturesChange,
-      onTeamAdd,
-      onTeamRemove,
-      onTeamRename,
-      onTeamSizeChange,
-      onWipLimitChange,
-      onTeamSizeVariationAdd,
-      onTeamSizeVariationRemove,
-      onFeatureAdd,
-      onFeatureNameChange,
-      onRequirementChange,
-      onFeatureRemove,
-    },
-    ref
-  ) => {
+  ({ open, onOpenChange }, ref) => {
     const featuresRef = useRef<FeaturesHandle>(null);
 
     useImperativeHandle(ref, () => ({
@@ -79,17 +33,23 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       },
     }));
 
+    const {
+      features,
+      teams,
+      overheadFactor,
+      startDate,
+      configurationName,
+      setState,
+      setOverheadFactor,
+      setStartDate,
+    } = usePlannerStore();
+
     const currentState: PlannerState = {
       features,
       teams,
       overheadFactor,
       startDate,
       configurationName,
-    };
-
-    const handleConfigurationLoad = (state: PlannerState) => {
-      logger.info('Loading configuration state', { state });
-      onPlannerStateChange(state);
     };
 
     return (
@@ -115,12 +75,15 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
               <div className="flex-1">
                 <ConfigurationManager
                   currentState={currentState}
-                  onConfigurationLoad={handleConfigurationLoad}
+                  onConfigurationLoad={(state: PlannerState) => {
+                    logger.info('Loading configuration state', { state });
+                    setState(state);
+                  }}
                 />
               </div>
               <div className="flex gap-2">
                 <ExportButton state={currentState} />
-                <ImportButton setPlannerState={onPlannerStateChange} />
+                <ImportButton setPlannerState={setState} />
               </div>
             </div>
           </SheetHeader>
@@ -135,7 +98,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
                     id="startDate"
                     type="date"
                     value={startDate.toISOString().split('T')[0]}
-                    onChange={e => onStartDateChange(new Date(e.target.value))}
+                    onChange={e => setStartDate(new Date(e.target.value))}
                   />
                 </div>
                 <div>
@@ -146,7 +109,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
                     min="1"
                     step="0.1"
                     value={overheadFactor}
-                    onChange={e => onOverheadFactorChange(parseFloat(e.target.value))}
+                    onChange={e => setOverheadFactor(parseFloat(e.target.value))}
                   />
                 </div>
               </div>
@@ -155,32 +118,14 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
             <div>
               <h3 className="text-lg font-medium">Teams</h3>
               <div className="mt-2">
-                <TeamConfiguration
-                  teams={teams}
-                  onTeamAdd={onTeamAdd}
-                  onTeamRemove={onTeamRemove}
-                  onTeamRename={onTeamRename}
-                  onTeamSizeChange={onTeamSizeChange}
-                  onWipLimitChange={onWipLimitChange}
-                  onTeamSizeVariationAdd={onTeamSizeVariationAdd}
-                  onTeamSizeVariationRemove={onTeamSizeVariationRemove}
-                />
+                <TeamConfiguration />
               </div>
             </div>
 
             <div>
               <h3 className="text-lg font-medium">Features</h3>
               <div className="mt-2">
-                <Features
-                  ref={featuresRef}
-                  features={features}
-                  teams={Object.keys(teams)}
-                  onFeatureAdd={onFeatureAdd}
-                  onFeatureNameChange={onFeatureNameChange}
-                  onRequirementChange={onRequirementChange}
-                  onFeaturesUploaded={onFeaturesChange}
-                  onFeatureRemove={onFeatureRemove}
-                />
+                <Features ref={featuresRef} />
               </div>
             </div>
           </div>

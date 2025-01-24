@@ -25,7 +25,7 @@ export function TimelineStats({ timeline, startDate, configurationName }: Timeli
         <LetterText className="h-4 w-4 text-muted-foreground" />
         <div>
           <span className="text-muted-foreground">Name:</span>{' '}
-          <span className="font-medium">{configurationName || 'No set'}</span>
+          <span className="font-medium">{configurationName}</span>
         </div>
       </div>
 
