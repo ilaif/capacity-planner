@@ -28,6 +28,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { logger } from '@/services/loggerService';
+import { DiffView } from './DiffView';
 
 interface ConfigurationManagerProps {
   currentState: PlannerState;
@@ -44,6 +45,7 @@ export function ConfigurationManager({
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [diffDialogOpen, setDiffDialogOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
@@ -105,6 +107,7 @@ export function ConfigurationManager({
 
   const handleUpdateConfiguration = () => {
     if (!selectedConfigName) return;
+    setDiffDialogOpen(false);
     logger.info(`Updating configuration: ${selectedConfigName}`);
     const configToSave = {
       ...currentState,
@@ -182,13 +185,34 @@ export function ConfigurationManager({
       {selectedConfigName ? (
         <>
           <div className="relative">
-            <Button
-              variant="outline"
-              onClick={handleUpdateConfiguration}
-              disabled={!hasUnsavedChanges}
-            >
-              Save
-            </Button>
+            <Dialog open={diffDialogOpen} onOpenChange={setDiffDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => setDiffDialogOpen(true)}
+                  disabled={!hasUnsavedChanges}
+                >
+                  Save
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Review Changes</DialogTitle>
+                  <DialogDescription>
+                    Review the changes before saving the configuration
+                  </DialogDescription>
+                </DialogHeader>
+                {selectedConfig && (
+                  <DiffView currentState={currentState} savedState={selectedConfig.state} />
+                )}
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setDiffDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleUpdateConfiguration}>Save Changes</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             {hasUnsavedChanges && (
               <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-orange-500" />
             )}
