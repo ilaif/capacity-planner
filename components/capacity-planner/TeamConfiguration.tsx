@@ -16,9 +16,10 @@ import { NumberInput } from '@/components/ui/number-input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { logger } from '@/services/loggerService';
 import { usePlannerStore } from '@/store/plannerStore';
+import { format, addWeeks } from 'date-fns';
 
 export function TeamConfiguration() {
-  const { teams, setTeams, features, setFeatures } = usePlannerStore();
+  const { teams, setTeams, features, setFeatures, startDate } = usePlannerStore();
 
   const [selectedTeam, setSelectedTeam] = useState<string>('');
   const [selectedWeek, setSelectedWeek] = useState<string>('');
@@ -343,6 +344,11 @@ export function TeamConfiguration() {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="max-w-xs">The week number when the team size changes</p>
+                    {selectedWeek && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(addWeeks(startDate, parseInt(selectedWeek)), 'MMM d, yyyy')}
+                      </p>
+                    )}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -391,7 +397,16 @@ export function TeamConfiguration() {
                 >
                   <div className="flex items-center space-x-2">
                     <TeamAvatar teamName={team} size={16} />
-                    <span className="text-gray-500">W{week}:</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <span className="text-gray-500">W{week}:</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{format(addWeeks(startDate, week), 'MMM d, yyyy')}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <NumberInput
                       value={size}
                       onChange={value => handleEditVariation(team, week, value)}

@@ -51,7 +51,7 @@ export function WeekIndicator({
   return (
     <div className="p-2">
       <div className="text-sm font-medium text-slate-900">
-        {format(addWeeks(startDate, week), 'MMM d, yyyy')}
+        Week {week} ({format(addWeeks(startDate, week), 'MMM d, yyyy')})
       </div>
       <div className="mt-2 space-y-3">
         {featuresInWeek.map(item => (
@@ -225,7 +225,8 @@ export function TimelineItem({
                 ))}
             </div>
             <div className="mt-3 pt-2 text-xs text-slate-700 border-t border-slate-300">
-              {getDateLabel(allocation.startWeek)} - {getDateLabel(allocation.endWeek)}
+              Weeks {allocation.startWeek}-{allocation.endWeek} (
+              {getDateLabel(allocation.startWeek)} - {getDateLabel(allocation.endWeek)})
             </div>
           </TooltipContent>
         </Tooltip>
@@ -239,6 +240,7 @@ interface TimelineGridProps {
   columnWidth: number;
   onResizeStart: () => void;
   getTimelineLabel: (index: number) => string;
+  getTimelineDateLabel: (index: number) => string;
   getQuarterLabel: (index: number) => string;
   timeline: TimelineItemWithRow[];
   startDate: Date;
@@ -251,6 +253,7 @@ export function TimelineGrid({
   columnWidth,
   onResizeStart,
   getTimelineLabel,
+  getTimelineDateLabel,
   getQuarterLabel,
   timeline,
   startDate,
@@ -306,6 +309,7 @@ export function TimelineGrid({
                     side="left"
                     className="bg-white/95 backdrop-blur-sm border-slate-300 shadow-lg"
                   >
+                    <div className="text-sm text-slate-900">{getTimelineDateLabel(i)}</div>
                     <WeekIndicator
                       week={i}
                       timeline={timeline}

@@ -79,9 +79,12 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const getTimelineLabel = (index: number) => {
+    return `W${index}`;
+  };
+
+  const getTimelineDateLabel = (index: number) => {
     const date = addWeeks(startDate, index);
-    if (columnWidth < 90) return format(date, 'M/d');
-    return `W${index} (${format(date, 'MMM d')})`;
+    return format(date, 'MMM d, yyyy');
   };
 
   const getColumnPosition = (week: number) => {
@@ -133,6 +136,7 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
             columnWidth={columnWidth}
             onResizeStart={handleMouseDown}
             getTimelineLabel={getTimelineLabel}
+            getTimelineDateLabel={getTimelineDateLabel}
             getQuarterLabel={getQuarterLabel}
             timeline={timeline}
             startDate={startDate}
