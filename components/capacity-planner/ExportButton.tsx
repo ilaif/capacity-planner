@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PlannerState, exportStateToJSON } from '@/services/stateService';
 
@@ -21,7 +21,7 @@ export function ExportButton({ state }: ExportButtonProps) {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="outline" size="sm" onClick={handleExport} className="h-full">
-            <Download className="h-4 w-4 mr-2" />
+            <Upload className="h-4 w-4 mr-2" />
             Export JSON
           </Button>
         </TooltipTrigger>

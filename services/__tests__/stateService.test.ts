@@ -3,12 +3,22 @@
  */
 
 import { encodeState, decodeState, PlannerState } from '../stateService';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
+
+// Mock lz-string
+jest.mock('lz-string', () => ({
+  compressToEncodedURIComponent: jest.fn(str => str),
+  decompressFromEncodedURIComponent: jest.fn(str => str),
+}));
 
 describe('stateService', () => {
   beforeEach(() => {
     // Clear localStorage and URL before each test
     localStorage.clear();
     window.history.replaceState({}, '', '/');
+    // Reset mocks
+    (compressToEncodedURIComponent as jest.Mock).mockClear();
+    (decompressFromEncodedURIComponent as jest.Mock).mockClear();
   });
 
   it('should encode and decode state correctly', () => {
@@ -148,5 +158,43 @@ describe('stateService', () => {
     const encoded = encodeState(state);
     const decoded = decodeState(encoded);
     expect(decoded).toEqual(state);
+  });
+
+  it('should use lz-string for compression', () => {
+    const state: PlannerState = {
+      features: [],
+      teams: { 'Team A': { sizes: [{ week: 0, size: 2 }], teamLoad: 1 } },
+      overheadFactor: 1,
+      startDate: new Date(),
+    };
+
+    encodeState(state);
+    expect(compressToEncodedURIComponent).toHaveBeenCalledWith(JSON.stringify(state));
+
+    const encoded = encodeState(state);
+    decodeState(encoded);
+    expect(decompressFromEncodedURIComponent).toHaveBeenCalledWith(encoded);
+  });
+
+  it('should handle compression failure gracefully', () => {
+    (compressToEncodedURIComponent as jest.Mock).mockImplementationOnce(() => {
+      throw new Error('Compression failed');
+    });
+
+    const state: PlannerState = {
+      features: [],
+      teams: {},
+      overheadFactor: 1,
+      startDate: new Date(),
+    };
+
+    expect(() => encodeState(state)).toThrow();
+  });
+
+  it('should handle decompression failure gracefully', () => {
+    (decompressFromEncodedURIComponent as jest.Mock).mockImplementationOnce(() => null);
+
+    const result = decodeState('invalid-compressed-string');
+    expect(result).toBeNull();
   });
 });

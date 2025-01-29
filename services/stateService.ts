@@ -1,6 +1,7 @@
 import { Feature, Teams } from '@/types/capacity-planner';
 import { logger } from '@/services/loggerService';
 import { startOfWeek } from 'date-fns';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 
 export interface PlannerState {
   features: Feature[];
@@ -36,23 +37,27 @@ export const DEFAULT_STATE: PlannerState = {
 
 export const encodeState = (state: Partial<PlannerState>): string => {
   try {
-    const encoded = btoa(JSON.stringify(state));
-    logger.debug('State encoded successfully', { stateSize: encoded.length });
-    return encoded;
+    const compressed = compressToEncodedURIComponent(JSON.stringify(state));
+    logger.debug('State compressed and encoded successfully', { stateSize: compressed.length });
+    return compressed;
   } catch (error) {
-    logger.error('Failed to encode state', error as Error, { state });
+    logger.error('Failed to compress and encode state', error as Error, { state });
     throw error;
   }
 };
 
 export const decodeState = (encoded: string): PlannerState | null => {
   try {
-    const decoded = JSON.parse(atob(encoded));
+    const decompressed = decompressFromEncodedURIComponent(encoded);
+    if (!decompressed) {
+      throw new Error('Failed to decompress state');
+    }
+    const decoded = JSON.parse(decompressed);
     decoded.startDate = decoded.startDate ? new Date(decoded.startDate) : DEFAULT_STATE.startDate;
-    logger.debug('State decoded successfully');
+    logger.debug('State decompressed and decoded successfully');
     return decoded;
   } catch (error) {
-    logger.error('Failed to decode state', error as Error, { encoded });
+    logger.error('Failed to decompress and decode state', error as Error, { encoded });
     return null;
   }
 };

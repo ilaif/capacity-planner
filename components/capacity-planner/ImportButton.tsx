@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { importStateFromJSON, PlannerState } from '@/services/stateService';
-import { Upload } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function ImportButton({
@@ -29,7 +29,7 @@ export function ImportButton({
         <TooltipTrigger asChild>
           <Button asChild variant="outline" size="sm" className="h-full">
             <label className="flex items-center cursor-pointer">
-              <Upload className="h-4 w-4 mr-2" />
+              <Download className="h-4 w-4 mr-2" />
               Import JSON
               <input
                 type="file"
