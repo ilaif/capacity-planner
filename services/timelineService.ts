@@ -254,7 +254,7 @@ function drawTimelineFeatures(
   ctx: CanvasRenderingContext2D,
   timeline: TimelineItem[],
   overheadFactor: number,
-  columnWidth: number,
+  columnWidth: number
 ): void {
   timeline.forEach((allocation, index) => {
     const y = index * 80 + 50;
