@@ -1,16 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { PlannerState, exportStateToJSON } from '@/services/stateService';
+import { exportPlanStateToJSON } from '@/services/jsonStateService';
+import { PlanState } from '@/types/capacity-planner';
 
 interface ExportButtonProps {
-  state: PlannerState;
+  state: PlanState;
 }
 
 export function ExportButton({ state }: ExportButtonProps) {
   const handleExport = () => {
     try {
-      exportStateToJSON(state);
+      exportPlanStateToJSON(state);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to export file');
     }

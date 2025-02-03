@@ -1,12 +1,12 @@
-import { PlannerState } from '@/services/stateService';
+import { PlanState } from '@/types/capacity-planner';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowRight } from 'lucide-react';
 import { isEqual } from 'date-fns';
 
 interface DiffViewProps {
-  currentState: PlannerState;
-  savedState: PlannerState;
+  currentState: PlanState;
+  savedState: PlanState;
 }
 
 type ChangeType = 'added' | 'removed' | 'modified';
@@ -84,12 +84,12 @@ export function DiffView({ currentState, savedState }: DiffViewProps) {
 
   // Compare other fields
   ['overheadFactor'].forEach(field => {
-    if (currentState[field as keyof PlannerState] !== savedState[field as keyof PlannerState]) {
+    if (currentState[field as keyof PlanState] !== savedState[field as keyof PlanState]) {
       changes.push({
         type: 'modified',
         field,
-        old: savedState[field as keyof PlannerState],
-        new: currentState[field as keyof PlannerState],
+        old: savedState[field as keyof PlanState],
+        new: currentState[field as keyof PlanState],
       });
     }
   });

@@ -5,16 +5,20 @@ import {
   ConfigurationSheetHandle,
 } from './capacity-planner/ConfigurationSheet';
 import { Button } from '@/components/ui/button';
-import { Undo2, Redo2 } from 'lucide-react';
+import { Undo2, Redo2, LogIn, Menu } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { usePlannerStore } from '@/store/plannerStore';
 import { useState } from 'react';
+import { useAuthStore } from '@/store/authStore';
+import { AuthDialog } from '@/components/auth/AuthDialog';
+import { Badge } from '@/components/ui/badge';
 
 const CapacityPlanner = () => {
   const { undo, redo, pastStates, futureStates } = usePlannerStore.temporal.getState();
   const canUndo = !!pastStates.length;
   const canRedo = !!futureStates.length;
+  const { user, signOut } = useAuthStore();
 
   const [openConfigurationSheet, setOpenConfigurationSheet] = useState(false);
   const configSheetRef = useRef<ConfigurationSheetHandle>(null);
@@ -39,35 +43,82 @@ const CapacityPlanner = () => {
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-medium">Capacity Planner</h2>
         </div>
-        <div className="flex gap-2 mr-11">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Button variant="outline" size="icon" onClick={() => undo()} disabled={!canUndo}>
-                    <Undo2 className="h-4 w-4" />
+        <div className="flex items-center gap-2">
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="gap-2">
+                <span>{user.email}</span>
+              </Badge>
+              <Button variant="outline" size="sm" onClick={signOut}>
+                Sign out
+              </Button>
+            </div>
+          ) : (
+            <AuthDialog
+              trigger={
+                <Button variant="outline" size="sm">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign in
+                </Button>
+              }
+            />
+          )}
+          <div className="flex gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => undo()}
+                      disabled={!canUndo}
+                    >
+                      <Undo2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Undo (⌘Z)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => redo()}
+                      disabled={!canRedo}
+                    >
+                      <Redo2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Redo (⌘⇧Z / ⌘Y)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setOpenConfigurationSheet(true)}
+                  >
+                    <Menu className="h-4 w-4" />
                   </Button>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Undo (⌘Z)</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Button variant="outline" size="icon" onClick={() => redo()} disabled={!canRedo}>
-                    <Redo2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Redo (⌘⇧Z / ⌘Y)</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Open Configuration (⌘K)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
       </div>
       <div className="flex-1">

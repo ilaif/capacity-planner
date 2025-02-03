@@ -28,7 +28,8 @@ interface FeaturesProps {}
 
 export const Features = forwardRef<FeaturesHandle, FeaturesProps>((_props, ref) => {
   const featureRefs = useRef<Map<number, FeatureItemHandle>>(new Map());
-  const { teams, features, setFeatures } = usePlannerStore();
+  const { planState, setFeatures } = usePlannerStore();
+  const { features, teams } = planState;
 
   const handleFeatureAdd = () => {
     const newFeature = {

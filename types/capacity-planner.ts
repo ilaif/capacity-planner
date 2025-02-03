@@ -1,3 +1,35 @@
+import { startOfWeek } from 'date-fns';
+
+export interface PlanState {
+  features: Feature[];
+  teams: Teams;
+  overheadFactor: number;
+  startDate: Date;
+}
+
+export const DEFAULT_STATE: PlanState = {
+  startDate: startOfWeek(new Date()),
+  overheadFactor: 1.2,
+  teams: {
+    'Team 1': {
+      sizes: [{ week: 0, size: 5 }],
+      teamLoad: 2,
+    },
+  },
+  features: [
+    {
+      id: 1,
+      name: 'Feature 1',
+      requirements: {
+        'Team 1': {
+          weeks: 2,
+          parallel: 1,
+        },
+      },
+    },
+  ],
+};
+
 export interface FeatureCSV {
   feature: string;
   [key: string]: string;

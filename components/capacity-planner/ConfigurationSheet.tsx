@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Features, FeaturesHandle } from './Features';
 import { TeamConfiguration } from './TeamConfiguration';
 import { forwardRef, useImperativeHandle, useRef } from 'react';
@@ -6,13 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ExportButton } from './ExportButton';
 import { ImportButton } from './ImportButton';
-import { ConfigurationManager } from './ConfigurationManager';
-import { PlannerState } from '@/services/stateService';
-import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { logger } from '@/services/loggerService';
+import { PlanManager } from './PlanManager';
 import { usePlannerStore } from '@/store/plannerStore';
+import { logger } from '@/services/loggerService';
+import { useSearchParams } from 'react-router-dom';
 
 interface ConfigurationSheetProps {
   open: boolean;
@@ -26,6 +23,7 @@ export interface ConfigurationSheetHandle {
 export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, ConfigurationSheetProps>(
   ({ open, onOpenChange }, ref) => {
     const featuresRef = useRef<FeaturesHandle>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     useImperativeHandle(ref, () => ({
       focusFeature: (featureName: string) => {
@@ -33,57 +31,31 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       },
     }));
 
-    const {
-      features,
-      teams,
-      overheadFactor,
-      startDate,
-      configurationName,
-      setState,
-      setOverheadFactor,
-      setStartDate,
-    } = usePlannerStore();
+    const { planState, setOverheadFactor, setStartDate, planName } = usePlannerStore();
 
-    const currentState: PlannerState = {
-      features,
-      teams,
-      overheadFactor,
-      startDate,
-      configurationName,
+    const handlePlanLoad = async (planId: string) => {
+      logger.info('Loading plan', { planId });
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('id', planId);
+      setSearchParams(newParams);
     };
 
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetTrigger>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" className="absolute top-4 right-4 z-50">
-                  <Menu className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Open Configuration (⌘K)</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </SheetTrigger>
         <SheetContent className="pr-1">
           <SheetHeader>
             <SheetTitle>Configuration</SheetTitle>
             <div className="flex gap-2 mt-2 mr-6">
               <div className="flex-1">
-                <ConfigurationManager
-                  currentState={currentState}
-                  onConfigurationLoad={(state: PlannerState) => {
-                    logger.info('Loading configuration state', { state });
-                    setState(state);
-                  }}
+                <PlanManager
+                  currentState={planState}
+                  planName={planName}
+                  onPlanLoad={handlePlanLoad}
                 />
               </div>
               <div className="flex gap-2">
-                <ExportButton state={currentState} />
-                <ImportButton setPlannerState={setState} />
+                <ExportButton state={planState} />
+                <ImportButton onImport={handlePlanLoad} />
               </div>
             </div>
           </SheetHeader>
@@ -97,7 +69,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
                   <Input
                     id="startDate"
                     type="date"
-                    value={startDate.toISOString().split('T')[0]}
+                    value={planState.startDate.toISOString().split('T')[0]}
                     onChange={e => setStartDate(new Date(e.target.value))}
                   />
                 </div>
@@ -108,7 +80,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
                     type="number"
                     min="1"
                     step="0.1"
-                    value={overheadFactor}
+                    value={planState.overheadFactor}
                     onChange={e => setOverheadFactor(parseFloat(e.target.value))}
                   />
                 </div>
