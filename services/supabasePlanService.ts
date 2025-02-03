@@ -14,6 +14,13 @@ export type Plan = {
   updated_at: string;
 };
 
+export type PlanShare = {
+  owner_id: string;
+  shared_with_email: string;
+  plan_id: string;
+  created_at: string;
+};
+
 export const getPlanById = async (id: string): Promise<Plan | null> => {
   try {
     const { data: plan, error } = await supabase
@@ -203,5 +210,58 @@ export const sharePlan = async (planId: string, sharedWithEmail: string): Promis
   } catch (error) {
     logger.error('Failed to share plan', error as Error);
     throw new Error('Failed to share plan');
+  }
+};
+
+export const getPlanShares = async (planId: string): Promise<PlanShare[]> => {
+  try {
+    const user = useAuthStore.getState().user;
+    if (!user) {
+      logger.warn('No user found, returning empty shares list');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from(PLAN_SHARES_TABLE)
+      .select('*')
+      .eq('plan_id', planId)
+      .eq('owner_id', user.id);
+
+    if (error) {
+      logger.error('Failed to load plan shares', error);
+      return [];
+    }
+
+    return data;
+  } catch (error) {
+    logger.error('Failed to load plan shares', error as Error);
+    return [];
+  }
+};
+
+export const removePlanShare = async (planId: string, sharedWithEmail: string): Promise<void> => {
+  try {
+    const user = useAuthStore.getState().user;
+    if (!user) {
+      logger.warn('No user found, skipping share removal');
+      return;
+    }
+
+    const { error } = await supabase
+      .from(PLAN_SHARES_TABLE)
+      .delete()
+      .eq('plan_id', planId)
+      .eq('owner_id', user.id)
+      .eq('shared_with_email', sharedWithEmail);
+
+    if (error) {
+      logger.error('Failed to remove plan share', error);
+      throw new Error('Failed to remove plan share');
+    }
+
+    logger.info('Plan share removed successfully', { planId, sharedWithEmail });
+  } catch (error) {
+    logger.error('Failed to remove plan share', error as Error);
+    throw new Error('Failed to remove plan share');
   }
 };

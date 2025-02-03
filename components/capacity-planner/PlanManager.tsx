@@ -9,8 +9,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PlanState } from '@/types/capacity-planner';
-import { Plan, listPlans, upsertPlan, deletePlan, sharePlan } from '@/services/supabasePlanService';
-import { Save, Trash2, Copy, Loader2, Share2 } from 'lucide-react';
+import {
+  Plan,
+  PlanShare,
+  listPlans,
+  upsertPlan,
+  deletePlan,
+  sharePlan,
+  getPlanShares,
+  removePlanShare,
+} from '@/services/supabasePlanService';
+import { Save, Trash2, Copy, Loader2, Share2, X } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -41,6 +50,7 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareEmail, setShareEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [planShares, setPlanShares] = useState<PlanShare[]>([]);
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -68,6 +78,18 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
       setNewPlanName(planName || '');
     }
   }, [saveDialogOpen, saveAsDialogOpen, planName]);
+
+  useEffect(() => {
+    const loadShares = async () => {
+      if (selectedPlanId) {
+        const shares = await getPlanShares(selectedPlanId);
+        setPlanShares(shares);
+      } else {
+        setPlanShares([]);
+      }
+    };
+    loadShares();
+  }, [selectedPlanId]);
 
   const handleSaveNewPlan = async () => {
     if (!newPlanName) return;
@@ -138,9 +160,24 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
     try {
       await sharePlan(selectedPlanId, shareEmail);
       setShareEmail('');
-      setShareDialogOpen(false);
+      const shares = await getPlanShares(selectedPlanId);
+      setPlanShares(shares);
     } catch (error) {
       logger.error('Failed to share plan', error as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRemoveShare = async (email: string) => {
+    if (!selectedPlanId) return;
+    setIsLoading(true);
+    try {
+      await removePlanShare(selectedPlanId, email);
+      const shares = await getPlanShares(selectedPlanId);
+      setPlanShares(shares);
+    } catch (error) {
+      logger.error('Failed to remove share', error as Error);
     } finally {
       setIsLoading(false);
     }
@@ -248,25 +285,46 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Share Plan</DialogTitle>
-                <DialogDescription>
-                  Enter the email address to share "{selectedPlan?.name}" with
-                </DialogDescription>
+                <DialogDescription>Share "{selectedPlan?.name}" with other users</DialogDescription>
               </DialogHeader>
               <div className="flex flex-col gap-4">
-                <Input
-                  type="email"
-                  placeholder="Email address"
-                  value={shareEmail}
-                  onChange={e => setShareEmail(e.target.value)}
-                />
-                <Button
-                  onClick={handleSharePlan}
-                  disabled={!shareEmail.trim() || isLoading}
-                  className="w-full"
-                >
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Share Plan
-                </Button>
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="Email address"
+                    value={shareEmail}
+                    onChange={e => setShareEmail(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button onClick={handleSharePlan} disabled={!shareEmail.trim() || isLoading}>
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Share
+                  </Button>
+                </div>
+                {planShares.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-sm font-medium">Shared with:</div>
+                    <div className="flex flex-col gap-2">
+                      {planShares.map(share => (
+                        <div
+                          key={share.shared_with_email}
+                          className="flex items-center justify-between bg-secondary p-2 rounded-md"
+                        >
+                          <span className="text-sm">{share.shared_with_email}</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveShare(share.shared_with_email)}
+                            disabled={isLoading}
+                            className="h-8 w-8"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </DialogContent>
           </Dialog>
