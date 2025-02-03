@@ -15,8 +15,7 @@ interface PlannerStore {
   setStartDate: (date: Date) => void;
   setState: (state: Partial<PlanState>) => void;
   reset: () => void;
-  loadStateById: (id: string) => Promise<void>;
-  saveState: (planId: string) => Promise<string>;
+  loadPlanById: (id: string) => Promise<boolean>;
 }
 
 export const usePlannerStore = create<PlannerStore>()(
@@ -86,21 +85,17 @@ export const usePlannerStore = create<PlannerStore>()(
       });
     },
 
-    loadStateById: async (id: string) => {
+    loadPlanById: async (id: string): Promise<boolean> => {
+      logger.debug('Loading plan by ID', { id });
       const plan = await getPlanById(id);
+      if (!plan) {
+        return false;
+      }
       set({
         planState: plan?.state,
         planName: plan?.name,
       });
-    },
-
-    saveState: async (planId: string) => {
-      const state = usePlannerStore.getState();
-      await upsertPlan(planId, {
-        state: state.planState,
-        name: state.planName,
-      });
-      return planId;
+      return true;
     },
   }))
 );

@@ -189,6 +189,7 @@ export const sharePlan = async (planId: string, sharedWithEmail: string): Promis
         owner_id: user.id,
         shared_with_email: sharedWithEmail,
         plan_id: planId,
+        created_at: new Date().toISOString(),
       },
       { onConflict: 'owner_id,shared_with_email,plan_id' }
     );

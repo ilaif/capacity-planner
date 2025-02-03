@@ -16,10 +16,11 @@ import { useAuthStore } from '@/store/authStore';
 interface AuthDialogProps {
   trigger: React.ReactNode;
   mode?: 'save' | 'default';
+  defaultOpen?: boolean;
 }
 
-export function AuthDialog({ trigger, mode = 'default' }: AuthDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function AuthDialog({ trigger, mode = 'default', defaultOpen = false }: AuthDialogProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signInWithMagicLink } = useAuthStore();
