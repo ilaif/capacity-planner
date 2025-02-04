@@ -57,7 +57,8 @@ export const getPlanById = async (id: string): Promise<Plan | null> => {
 
 export const upsertPlan = async (
   id: string,
-  fields: { state?: PlanState; name?: string }
+  fields: { state?: PlanState; name?: string },
+  existingPlan: boolean
 ): Promise<void> => {
   const user = useAuthStore.getState().user;
   if (!user) {
@@ -67,17 +68,19 @@ export const upsertPlan = async (
 
   const fieldsToUpdate: {
     id: string;
-    owner_id: string;
     updated_at: string;
+    owner_id?: string;
     name?: string;
     state?: {
       startDate: string;
     };
   } = {
     id,
-    owner_id: user.id,
     updated_at: new Date().toISOString(),
   };
+  if (!existingPlan) {
+    fieldsToUpdate.owner_id = user.id;
+  }
   if (fields.name) {
     fieldsToUpdate.name = fields.name;
   }

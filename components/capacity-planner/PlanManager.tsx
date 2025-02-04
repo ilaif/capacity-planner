@@ -97,7 +97,7 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
     try {
       logger.info(`Saving new plan: ${newPlanName}`);
       const newPlanId = crypto.randomUUID();
-      await upsertPlan(newPlanId, { state: currentState, name: newPlanName });
+      await upsertPlan(newPlanId, { state: currentState, name: newPlanName }, false);
       setNewPlanName('');
       setSaveDialogOpen(false);
       onPlanLoad(newPlanId);
@@ -140,7 +140,7 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
     try {
       logger.info(`Saving plan as copy: ${newPlanName}`);
       const newPlanId = crypto.randomUUID();
-      await upsertPlan(newPlanId, { state: currentState, name: newPlanName });
+      await upsertPlan(newPlanId, { state: currentState, name: newPlanName }, false);
       setNewPlanName('');
       setSaveAsDialogOpen(false);
       onPlanLoad(newPlanId);

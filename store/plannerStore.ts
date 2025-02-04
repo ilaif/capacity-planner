@@ -13,7 +13,6 @@ interface PlannerStore {
   setTeams: (teams: Teams) => void;
   setOverheadFactor: (factor: number) => void;
   setStartDate: (date: Date) => void;
-  setState: (state: Partial<PlanState>) => void;
   reset: () => void;
   loadPlanById: (id: string) => Promise<boolean>;
 }
@@ -67,15 +66,6 @@ export const usePlannerStore = create<PlannerStore>()(
       });
     },
 
-    setState: newState => {
-      logger.debug('Setting partial state', newState);
-      set(state => {
-        const updatedPlanState = { ...state.planState, ...newState };
-        syncStateToSupabase(updatedPlanState, state.planName);
-        return { ...state, planState: updatedPlanState };
-      });
-    },
-
     reset: () => {
       logger.debug('Resetting state to default');
       set(state => {
@@ -107,9 +97,13 @@ const syncStateToSupabase = async (state?: PlanState, planName?: string) => {
   const user = useAuthStore.getState().user;
 
   if (id && user) {
-    await upsertPlan(id, {
-      state,
-      name: planName,
-    });
+    await upsertPlan(
+      id,
+      {
+        state,
+        name: planName,
+      },
+      true
+    );
   }
 };
