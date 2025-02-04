@@ -20,7 +20,7 @@ export function ImportButton({ onImport }: ImportButtonProps) {
     try {
       const state = await importPlanStateFromJSON(file);
       const planId = crypto.randomUUID();
-      await upsertPlan(planId, { state, name: file.name.replace('.json', '') });
+      await upsertPlan(planId, { state, name: file.name.replace('.json', '') }, false);
       onImport(planId);
       toast({
         title: 'Import successful',
