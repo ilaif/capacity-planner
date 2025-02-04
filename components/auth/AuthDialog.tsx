@@ -8,10 +8,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
+import { DebouncedInput } from '@/components/ui/debounced-input';
 
 interface AuthDialogProps {
   trigger: React.ReactNode;
@@ -62,12 +62,12 @@ export function AuthDialog({ trigger, mode = 'default', defaultOpen = false }: A
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input
+            <DebouncedInput
               id="email"
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={setEmail}
               required
             />
           </div>
