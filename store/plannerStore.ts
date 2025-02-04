@@ -3,7 +3,7 @@ import { temporal } from 'zundo';
 import { Feature, Teams } from '@/types/capacity-planner';
 import { logger } from '@/services/loggerService';
 import { DEFAULT_STATE, PlanState } from '@/types/capacity-planner';
-import { upsertPlan, getPlanById, updatePlan } from '@/services/supabasePlanService';
+import { getPlanById, updatePlan } from '@/services/supabasePlanService';
 import { useAuthStore } from '@/store/authStore';
 
 interface PlannerStore {
