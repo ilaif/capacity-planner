@@ -17,7 +17,8 @@ interface TimelineViewProps {
 }
 
 export function TimelineView({ onFeatureClick }: TimelineViewProps) {
-  const { features, teams, overheadFactor, startDate, configurationName } = usePlannerStore();
+  const { planState, planName } = usePlannerStore();
+  const { features, teams, overheadFactor, startDate } = planState;
   const [columnWidth, setColumnWidth] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
   const [timeline, setTimeline] = useState<TimelineItemWithRow[]>([]);
@@ -125,7 +126,7 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
         <TimelineStats
           timeline={timeline}
           startDate={startDate}
-          configurationName={configurationName || 'Not set'}
+          configurationName={planName || 'Not set'}
         />
         <Button onClick={handleExport}>Export PNG</Button>
       </div>

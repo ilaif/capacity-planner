@@ -93,7 +93,8 @@ export function FeatureUpload({ onFeaturesUploaded, teamNames }: FeatureUploadPr
                     <td className="pr-4">{teamName}_weeks</td>
                     <td className="pr-4">number</td>
                     <td>
-                      Number of engineer weeks needed by {teamName} team (e.g., 3) - Case insensitive
+                      Number of engineer weeks needed by {teamName} team (e.g., 3) - Case
+                      insensitive
                     </td>
                   </tr>
                   <tr key={`${teamName}_parallel`}>

@@ -1,4 +1,3 @@
-import { Input } from '@/components/ui/input';
 import { Feature } from '@/types/capacity-planner';
 import { Button } from '@/components/ui/button';
 import { X, GripVertical, Users } from 'lucide-react';
@@ -10,6 +9,7 @@ import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { NumberInput } from '@/components/ui/number-input';
 import { TeamAvatar } from '@/components/ui/team-avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DebouncedInput } from '@/components/ui/debounced-input';
 
 interface SortableHandleProps {
   listeners: SyntheticListenerMap | undefined;
@@ -69,10 +69,10 @@ export const FeatureItem = forwardRef<FeatureItemHandle, FeatureItemProps>(
             <SortableHandle listeners={listeners} attributes={attributes} />
           </Suspense>
           <div className="flex-1 flex gap-2">
-            <Input
+            <DebouncedInput
               ref={inputRef}
               value={feature.name}
-              onChange={e => onFeatureNameChange(feature.id, e.target.value)}
+              onChange={value => onFeatureNameChange(feature.id, value)}
             />
             <Button
               variant="ghost"

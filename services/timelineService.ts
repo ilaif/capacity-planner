@@ -111,7 +111,7 @@ export function calculateTimeline(
         featureAllocation.endWeek =
           startWeek + Math.max(...Object.values(resourceNeeds).map(n => n.weeks), 0);
         newTimeline.push(featureAllocation);
-        logger.info(`Scheduled feature ${feature.name}`, {
+        logger.debug(`Scheduled feature ${feature.name}`, {
           startWeek: featureAllocation.startWeek,
           endWeek: featureAllocation.endWeek,
           assignments: featureAllocation.assignments,

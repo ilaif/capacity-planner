@@ -19,7 +19,8 @@ import { usePlannerStore } from '@/store/plannerStore';
 import { format, addWeeks } from 'date-fns';
 
 export function TeamConfiguration() {
-  const { teams, setTeams, features, setFeatures, startDate } = usePlannerStore();
+  const { planState, setTeams, setFeatures } = usePlannerStore();
+  const { teams, features, startDate } = planState;
 
   const [selectedTeam, setSelectedTeam] = useState<string>('');
   const [selectedWeek, setSelectedWeek] = useState<string>('');
