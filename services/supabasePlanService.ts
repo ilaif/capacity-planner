@@ -102,6 +102,51 @@ export const upsertPlan = async (
   }
 };
 
+export const updatePlan = async (
+  id: string,
+  fields: { state?: PlanState; name?: string }
+): Promise<void> => {
+  const user = useAuthStore.getState().user;
+  if (!user) {
+    logger.warn('No user found, skipping plan update');
+    return;
+  }
+
+  const fieldsToUpdate: {
+    updated_at: string;
+    name?: string;
+    state?: {
+      startDate: string;
+    };
+  } = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (fields.name) {
+    fieldsToUpdate.name = fields.name;
+  }
+  if (fields.state) {
+    fieldsToUpdate.state = {
+      ...fields.state,
+      startDate: fields.state.startDate.toISOString(),
+    };
+  }
+
+  try {
+    const { error } = await supabase.from(PLANS_TABLE).update(fieldsToUpdate).eq('id', id);
+
+    if (error) {
+      logger.error('Error updating plan', error);
+      throw new Error('Failed to update plan');
+    }
+
+    logger.info('Plan updated successfully', { id });
+  } catch (error) {
+    logger.error('Error updating plan', error as Error);
+    throw new Error('Failed to update plan');
+  }
+};
+
 export const listPlans = async (): Promise<Plan[]> => {
   try {
     const user = useAuthStore.getState().user;

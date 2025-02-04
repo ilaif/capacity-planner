@@ -3,7 +3,7 @@ import { temporal } from 'zundo';
 import { Feature, Teams } from '@/types/capacity-planner';
 import { logger } from '@/services/loggerService';
 import { DEFAULT_STATE, PlanState } from '@/types/capacity-planner';
-import { upsertPlan, getPlanById } from '@/services/supabasePlanService';
+import { upsertPlan, getPlanById, updatePlan } from '@/services/supabasePlanService';
 import { useAuthStore } from '@/store/authStore';
 
 interface PlannerStore {
@@ -97,13 +97,6 @@ const syncStateToSupabase = async (state?: PlanState, planName?: string) => {
   const user = useAuthStore.getState().user;
 
   if (id && user) {
-    await upsertPlan(
-      id,
-      {
-        state,
-        name: planName,
-      },
-      true
-    );
+    await updatePlan(id, { state, name: planName });
   }
 };
