@@ -8,17 +8,53 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { Button } from '@/components/ui/button';
 import { PlanNotFoundDialog } from '@/components/capacity-planner/PlanNotFoundDialog';
+import { Loader2 } from 'lucide-react';
+import { DEFAULT_STATE } from '@/types/capacity-planner';
 
 export const SupabaseProvider = ({ children }: { children: React.ReactNode }) => {
-  const { loadPlanById } = usePlannerStore();
+  const { loadPlanById, isLoading, setState } = usePlannerStore();
   const { setUser, user } = useAuthStore();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showNotFoundDialog, setShowNotFoundDialog] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-  // Watch for URL changes
   useEffect(() => {
+    const setupAuth = async () => {
+      try {
+        setIsAuthLoading(true);
+        // Set initial user
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+
+        // Listen for auth changes
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+          setUser(session?.user ?? null);
+        });
+
+        return () => {
+          subscription.unsubscribe();
+        };
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+
+    const cleanup = setupAuth();
+    return () => {
+      cleanup.then(unsubscribe => unsubscribe?.());
+    };
+  }, [setUser]);
+
+  useEffect(() => {
+    // Don't proceed if auth is still loading
+    if (isAuthLoading) return;
+
     const loadPlan = async () => {
       const id = searchParams.get('id');
 
@@ -46,41 +82,35 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
           unsubscribe();
         };
       } else {
+        setState(DEFAULT_STATE);
         logger.info('No plan id found in URL, loading default state');
       }
     };
 
     loadPlan();
-  }, [searchParams, loadPlanById, user]);
+  }, [searchParams, loadPlanById, user, setState, isAuthLoading]);
 
-  useEffect(() => {
-    const setupAuth = async () => {
-      // Set initial user
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-
-      // Listen for auth changes
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null);
-      });
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    };
-
-    const cleanup = setupAuth();
-    return () => {
-      cleanup.then(unsubscribe => unsubscribe?.());
-    };
-  }, [setUser]);
+  if (isAuthLoading) {
+    return (
+      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
+      {isLoading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Loading plan...</p>
+          </div>
+        </div>
+      )}
       {showAuthDialog && !user && (
         <AuthDialog
           trigger={<Button className="hidden">Sign in</Button>}
@@ -92,7 +122,6 @@ export const SupabaseProvider = ({ children }: { children: React.ReactNode }) =>
         open={showNotFoundDialog}
         onClose={() => {
           setShowNotFoundDialog(false);
-          // reset();
           navigate('/');
         }}
       />

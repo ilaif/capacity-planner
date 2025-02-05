@@ -4,7 +4,6 @@ import { User } from '@supabase/supabase-js';
 
 interface AuthState {
   user: User | null;
-  isLoading: boolean;
   signInWithMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   setUser: (user: User | null) => void;
@@ -12,7 +11,6 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>(set => ({
   user: null,
-  isLoading: true,
   signInWithMagicLink: async (email: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,

@@ -12,6 +12,7 @@ export type Plan = {
   state: PlanState;
   created_at: string;
   updated_at: string;
+  last_updated_by: string;
 };
 
 export type PlanShare = {
@@ -74,9 +75,11 @@ export const upsertPlan = async (
     state?: {
       startDate: string;
     };
+    last_updated_by: string;
   } = {
     id,
     updated_at: new Date().toISOString(),
+    last_updated_by: user.id,
   };
   if (!existingPlan) {
     fieldsToUpdate.owner_id = user.id;
@@ -118,8 +121,10 @@ export const updatePlan = async (
     state?: {
       startDate: string;
     };
+    last_updated_by: string;
   } = {
     updated_at: new Date().toISOString(),
+    last_updated_by: user.id,
   };
 
   if (fields.name) {
@@ -217,6 +222,14 @@ export const subscribeToPlanChanges = (
       payload => {
         if (payload.new) {
           const plan = payload.new as Plan;
+          const currentUser = useAuthStore.getState().user;
+
+          // Ignore updates from the current user
+          if (currentUser && plan.last_updated_by === currentUser.id) {
+            logger.debug('Ignoring update from current user', { planId });
+            return;
+          }
+
           callback({
             ...plan.state,
             startDate: new Date(plan.state.startDate),

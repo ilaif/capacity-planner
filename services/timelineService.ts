@@ -79,7 +79,7 @@ export function calculateTimeline(
             teamAvailability[team][weekIndex] < parallel ||
             teamWipCount[team][weekIndex] >= wipLimit
           ) {
-            logger.debug(`Cannot schedule ${feature.name} at week ${startWeek}`, {
+            logger.debug(`Cannot schedule '${feature.name}' at week ${startWeek}`, {
               team,
               weekIndex,
               required: parallel,

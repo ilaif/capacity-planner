@@ -200,8 +200,6 @@ export function TeamConfiguration() {
     return config.sizes?.[0]?.size || 0;
   };
 
-  logger.info('TeamConfiguration', { teams });
-
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">

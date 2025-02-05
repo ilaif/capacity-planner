@@ -7,6 +7,13 @@ export interface PlanState {
   startDate: Date;
 }
 
+export const EMPTY_STATE: PlanState = {
+  startDate: startOfWeek(new Date()),
+  overheadFactor: 1.2,
+  teams: {},
+  features: [],
+};
+
 export const DEFAULT_STATE: PlanState = {
   startDate: startOfWeek(new Date()),
   overheadFactor: 1.2,

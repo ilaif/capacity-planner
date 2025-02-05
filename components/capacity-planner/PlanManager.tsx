@@ -59,7 +59,6 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
         setPlans([]);
         return;
       }
-      logger.info('Loading saved plans');
       const plans = await listPlans();
       setPlans(plans);
     };

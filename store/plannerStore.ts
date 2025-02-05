@@ -1,26 +1,28 @@
 import { create } from 'zustand';
 import { temporal } from 'zundo';
-import { Feature, Teams } from '@/types/capacity-planner';
+import { EMPTY_STATE, Feature, Teams } from '@/types/capacity-planner';
 import { logger } from '@/services/loggerService';
-import { DEFAULT_STATE, PlanState } from '@/types/capacity-planner';
+import { PlanState } from '@/types/capacity-planner';
 import { getPlanById, updatePlan } from '@/services/supabasePlanService';
 import { useAuthStore } from '@/store/authStore';
 
 interface PlannerStore {
   planState: PlanState;
   planName: string;
+  isLoading: boolean;
   setFeatures: (features: Feature[]) => void;
   setTeams: (teams: Teams) => void;
   setOverheadFactor: (factor: number) => void;
   setStartDate: (date: Date) => void;
-  reset: () => void;
+  setState: (state: PlanState) => void;
   loadPlanById: (id: string) => Promise<boolean>;
 }
 
 export const usePlannerStore = create<PlannerStore>()(
   temporal(set => ({
-    planState: { ...DEFAULT_STATE },
+    planState: { ...EMPTY_STATE },
     planName: '',
+    isLoading: false,
 
     setFeatures: features => {
       logger.debug('Setting features', { count: features.length });
@@ -66,26 +68,29 @@ export const usePlannerStore = create<PlannerStore>()(
       });
     },
 
-    reset: () => {
-      logger.debug('Resetting state to default');
-      set(state => {
-        const newPlanState = DEFAULT_STATE;
-        syncStateToSupabase(newPlanState, state.planName);
-        return { ...state, planState: newPlanState };
-      });
+    setState: (state: PlanState) => {
+      logger.debug('Setting state', { state });
+      set({ planState: state });
     },
 
     loadPlanById: async (id: string): Promise<boolean> => {
       logger.debug('Loading plan by ID', { id });
-      const plan = await getPlanById(id);
-      if (!plan) {
+      set({ isLoading: true });
+      try {
+        const plan = await getPlanById(id);
+        if (!plan) {
+          return false;
+        }
+        set({
+          planState: plan?.state,
+          planName: plan?.name,
+          isLoading: false,
+        });
+        return true;
+      } catch (error) {
+        set({ isLoading: false });
         return false;
       }
-      set({
-        planState: plan?.state,
-        planName: plan?.name,
-      });
-      return true;
     },
   }))
 );
