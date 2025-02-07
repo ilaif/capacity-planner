@@ -133,7 +133,7 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
           Export PNG
         </Button>
       </div>
-      <div className="flex flex-col h-[calc(100vh-200px)] overflow-x-auto">
+      <div className="flex flex-col h-[calc(100vh-137px)] overflow-x-auto">
         <div className="grid grid-rows-[auto_1fr_auto]">
           <TimelineGrid
             gridCount={getTimelineGridCount()}
