@@ -14,6 +14,7 @@ import { useAuthStore } from '@/store/authStore';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { CursorOverlay } from './capacity-planner/CursorOverlay';
 
 const CapacityPlanner = () => {
   const { undo, redo, pastStates, futureStates } = usePlannerStore.temporal.getState();
@@ -40,6 +41,7 @@ const CapacityPlanner = () => {
 
   return (
     <div className="inset-0 flex flex-col h-screen">
+      <CursorOverlay />
       <div className="flex items-center justify-between p-4 relative">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-medium">Capacity Planner</h2>
