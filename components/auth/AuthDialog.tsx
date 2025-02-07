@@ -130,6 +130,11 @@ export function AuthDialog({ trigger, mode = 'default', defaultOpen = false }: A
                 maxLength={6}
                 className="tracking-widest text-center text-lg"
               />
+              <p className="text-sm text-muted-foreground">
+                Note: If this is your first time signing up, you will receive a confirmation URL via
+                email instead. Please click the confirmation link in your email and return to this
+                page.
+              </p>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
