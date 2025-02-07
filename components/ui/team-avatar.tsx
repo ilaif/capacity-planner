@@ -4,13 +4,19 @@ import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-interface TeamAvatarProps {
+type TeamAvatarProps = {
   teamName: string;
   size?: number;
   className?: string;
-}
+  showTooltip?: boolean;
+};
 
-export function TeamAvatar({ teamName, size = 32, className }: TeamAvatarProps) {
+export function TeamAvatar({
+  teamName,
+  size = 32,
+  className,
+  showTooltip = true,
+}: TeamAvatarProps) {
   const avatar = useMemo(() => {
     return createAvatar(shapes, {
       seed: teamName,
@@ -19,20 +25,28 @@ export function TeamAvatar({ teamName, size = 32, className }: TeamAvatarProps) 
     }).toDataUri();
   }, [teamName, size]);
 
+  const AvatarImage = () => (
+    <img
+      src={avatar}
+      alt={`${teamName} avatar`}
+      className="rounded-full"
+      width={size}
+      height={size}
+    />
+  );
+
   return (
     <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger className={cn('relative', className)}>
-          <img
-            src={avatar}
-            alt={`${teamName} avatar`}
-            className="rounded-full"
-            width={size}
-            height={size}
-          />
-        </TooltipTrigger>
-        <TooltipContent>{teamName}</TooltipContent>
-      </Tooltip>
+      {showTooltip ? (
+        <Tooltip>
+          <TooltipTrigger className={cn('relative', className)}>
+            <AvatarImage />
+          </TooltipTrigger>
+          <TooltipContent>{teamName}</TooltipContent>
+        </Tooltip>
+      ) : (
+        <AvatarImage />
+      )}
     </TooltipProvider>
   );
 }

@@ -9,16 +9,13 @@ import { useState } from 'react';
 
 export const SupabaseProvider = ({ children }: { children: React.ReactNode }) => {
   const [searchParams] = useSearchParams();
-  const { user, isLoggingIn } = useAuth();
+  const { user, loadingAuthSession } = useAuth();
   const navigate = useNavigate();
   const [showNotFoundDialog, setShowNotFoundDialog] = useState(false);
-  const { isLoading, showAuthDialog } = usePlanLoader(
-    searchParams.get('id'),
-    user,
-    setShowNotFoundDialog
-  );
+  const planId = searchParams.get('id');
+  const { isLoading, showAuthDialog } = usePlanLoader(planId, user, setShowNotFoundDialog);
 
-  if (isLoggingIn) {
+  if (loadingAuthSession) {
     return (
       <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-2">

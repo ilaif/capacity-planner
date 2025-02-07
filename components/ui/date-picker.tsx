@@ -8,10 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-interface DatePickerProps {
+type DatePickerProps = {
   date?: Date;
   onSelect?: (date: Date | undefined) => void;
-}
+};
 
 export function DatePicker({ date, onSelect }: DatePickerProps) {
   return (

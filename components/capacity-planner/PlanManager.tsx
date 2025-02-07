@@ -34,11 +34,11 @@ import { logger } from '@/services/loggerService';
 import { useAuthStore } from '@/store/authStore';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-interface PlanManagerProps {
+type PlanManagerProps = {
   currentState: PlanState;
   planName: string;
   onPlanLoad: (planId: string) => void;
-}
+};
 
 export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerProps) {
   const [plans, setPlans] = useState<Plan[]>([]);

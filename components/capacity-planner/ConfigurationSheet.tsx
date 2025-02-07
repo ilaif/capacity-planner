@@ -11,14 +11,14 @@ import { usePlannerStore } from '@/store/plannerStore';
 import { logger } from '@/services/loggerService';
 import { useSearchParams } from 'react-router-dom';
 
-interface ConfigurationSheetProps {
+type ConfigurationSheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
+};
 
-export interface ConfigurationSheetHandle {
+export type ConfigurationSheetHandle = {
   focusFeature: (featureName: string) => void;
-}
+};
 
 export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, ConfigurationSheetProps>(
   ({ open, onOpenChange }, ref) => {

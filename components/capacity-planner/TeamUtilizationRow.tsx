@@ -2,13 +2,13 @@ import { Teams, TimelineItem } from '@/types/capacity-planner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TeamAvatar } from '@/components/ui/team-avatar';
 
-interface TeamUtilizationRowProps {
+type TeamUtilizationRowProps = {
   team: string;
   teamConfig: Teams[string];
   timeline: TimelineItem[];
   columnWidth: number;
   gridCount: number;
-}
+};
 
 export function TeamUtilizationRow({
   team,

@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 
-interface UseKeyboardShortcutsProps {
+type UseKeyboardShortcutsProps = {
   onConfigurationSheetToggle: () => void;
   onUndo: () => void;
   onRedo: () => void;
-}
+};
 
 export const useKeyboardShortcuts = ({
   onConfigurationSheetToggle,

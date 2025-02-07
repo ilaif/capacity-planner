@@ -11,10 +11,10 @@ import { TeamAvatar } from '@/components/ui/team-avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DebouncedInput } from '@/components/ui/debounced-input';
 
-interface SortableHandleProps {
+type SortableHandleProps = {
   listeners: SyntheticListenerMap | undefined;
   attributes: DraggableAttributes;
-}
+};
 
 // Create the handle component separately
 const Handle = ({ listeners, attributes }: SortableHandleProps) => (
@@ -32,16 +32,16 @@ const Handle = ({ listeners, attributes }: SortableHandleProps) => (
 // Lazy load the handle component
 const SortableHandle = lazy(() => Promise.resolve({ default: Handle }));
 
-interface FeatureItemProps {
+type FeatureItemProps = {
   feature: Feature;
   onFeatureNameChange: (featureId: number, name: string) => void;
   onRequirementChange: (featureId: number, team: string, field: string, value: string) => void;
   onFeatureRemove: (featureId: number) => void;
-}
+};
 
-export interface FeatureItemHandle {
+export type FeatureItemHandle = {
   focus: () => void;
-}
+};
 
 export const FeatureItem = forwardRef<FeatureItemHandle, FeatureItemProps>(
   ({ feature, onFeatureNameChange, onRequirementChange, onFeatureRemove }, ref) => {

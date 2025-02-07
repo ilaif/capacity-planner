@@ -4,9 +4,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { exportPlanStateToJSON } from '@/services/jsonStateService';
 import { PlanState } from '@/types/capacity-planner';
 
-interface ExportButtonProps {
+type ExportButtonProps = {
   state: PlanState;
-}
+};
 
 export function ExportButton({ state }: ExportButtonProps) {
   const handleExport = () => {

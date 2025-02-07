@@ -37,12 +37,12 @@ export const DEFAULT_STATE: PlanState = {
   ],
 };
 
-export interface FeatureCSV {
+export type FeatureCSV = {
   feature: string;
   [key: string]: string;
-}
+};
 
-export interface TimelineItem {
+export type TimelineItem = {
   feature: string;
   startWeek: number;
   endWeek: number;
@@ -52,53 +52,53 @@ export interface TimelineItem {
       parallel: number;
     };
   };
-}
+};
 
-export interface TeamAvailability {
+export type TeamAvailability = {
   [team: string]: number[];
-}
+};
 
-export interface SizeVariation {
+export type SizeVariation = {
   week: number;
   size: number;
-}
+};
 
-export interface TeamConfig {
+export type TeamConfig = {
   sizes: SizeVariation[];
   teamLoad: number;
-}
+};
 
-export interface Teams {
+export type Teams = {
   [key: string]: TeamConfig;
-}
+};
 
-export interface TeamSizeVariation {
+export type TeamSizeVariation = {
   team: string;
   week: number;
   size: number;
-}
+};
 
-export interface ResourceNeeds {
+export type ResourceNeeds = {
   [team: string]: {
     weeks: number;
     parallel: number;
   };
-}
+};
 
-export interface Requirements {
+export type Requirements = {
   [team: string]: {
     weeks: number;
     parallel: number;
   };
-}
+};
 
-export interface Feature {
+export type Feature = {
   id: number;
   name: string;
   requirements: Requirements;
-}
+};
 
-export interface ImportHandlers {
+export type ImportHandlers = {
   onFeaturesUploaded: (features: Feature[]) => void;
   onTeamAdd: (teamName: string) => void;
   onTeamRemove: (teamName: string) => void;
@@ -107,4 +107,4 @@ export interface ImportHandlers {
   onTeamSizeVariationAdd: (variation: { team: string; week: number; size: number }) => void;
   onOverheadFactorChange: (value: number) => void;
   onStartDateChange: (date: Date) => void;
-}
+};

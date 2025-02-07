@@ -20,11 +20,11 @@ import {
 import { useRef, useImperativeHandle, forwardRef } from 'react';
 import { logger } from '@/services/loggerService';
 
-export interface FeaturesHandle {
+export type FeaturesHandle = {
   focusFeature: (featureName: string) => void;
-}
+};
 
-interface FeaturesProps {}
+type FeaturesProps = Record<string, never>;
 
 export const Features = forwardRef<FeaturesHandle, FeaturesProps>((_props, ref) => {
   const featureRefs = useRef<Map<number, FeatureItemHandle>>(new Map());

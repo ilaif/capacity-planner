@@ -8,10 +8,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-interface PlanNotFoundDialogProps {
+type PlanNotFoundDialogProps = {
   open: boolean;
   onClose: () => void;
-}
+};
 
 export function PlanNotFoundDialog({ open, onClose }: PlanNotFoundDialogProps) {
   return (

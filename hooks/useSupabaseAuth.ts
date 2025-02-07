@@ -1,17 +1,17 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/services/loggerService';
 
 export const useAuth = () => {
-  const { setUser, user, login, isLoggingIn } = useAuthStore();
+  const { setUser, user, loadingAuthSession } = useAuthStore();
 
   useEffect(() => {
-    login();
-
     const setupAuth = async () => {
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
+        logger.info('Auth state changed', { session });
         setUser(session?.user ?? null);
       });
       return () => {
@@ -23,7 +23,7 @@ export const useAuth = () => {
     return () => {
       cleanup.then(unsubscribe => unsubscribe?.());
     };
-  }, [setUser, login]);
+  }, [setUser]);
 
-  return { user, isLoggingIn };
+  return { user, loadingAuthSession };
 };

@@ -4,19 +4,19 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowRight } from 'lucide-react';
 import { isEqual } from 'date-fns';
 
-interface DiffViewProps {
+type DiffViewProps = {
   currentState: PlanState;
   savedState: PlanState;
-}
+};
 
 type ChangeType = 'added' | 'removed' | 'modified';
 
-interface Change {
+type Change = {
   type: ChangeType;
   field: string;
   old: unknown;
   new: unknown;
-}
+};
 
 export function DiffView({ currentState, savedState }: DiffViewProps) {
   const changes: Change[] = [];

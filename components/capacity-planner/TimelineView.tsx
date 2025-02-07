@@ -8,13 +8,13 @@ import { TimelineStats } from './TimelineStats';
 import { usePlannerStore } from '@/store/plannerStore';
 import { TeamUtilizationRow } from './TeamUtilizationRow';
 
-interface TimelineItemWithRow extends TimelineItemType {
+type TimelineItemWithRow = TimelineItemType & {
   row: number;
-}
+};
 
-interface TimelineViewProps {
+type TimelineViewProps = {
   onFeatureClick?: (featureName: string) => void;
-}
+};
 
 export function TimelineView({ onFeatureClick }: TimelineViewProps) {
   const { planState, planName } = usePlannerStore();

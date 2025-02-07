@@ -5,10 +5,10 @@ import { Feature, FeatureCSV } from '@/types/capacity-planner';
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-interface FeatureUploadProps {
+type FeatureUploadProps = {
   onFeaturesUploaded: (features: Feature[]) => void;
   teamNames: string[];
-}
+};
 
 export function FeatureUpload({ onFeaturesUploaded, teamNames }: FeatureUploadProps) {
   const [isRequirementsOpen, setIsRequirementsOpen] = useState(false);

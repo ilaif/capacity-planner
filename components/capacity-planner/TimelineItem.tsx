@@ -5,17 +5,17 @@ import { TeamAvatar } from '@/components/ui/team-avatar';
 import { cn } from '@/lib/utils';
 import { Users } from 'lucide-react';
 
-interface TimelineItemWithRow extends TimelineItemType {
+type TimelineItemWithRow = TimelineItemType & {
   row: number;
-}
+};
 
-interface WeekIndicatorProps {
+type WeekIndicatorProps = {
   week: number;
   timeline: TimelineItemWithRow[];
   startDate: Date;
   overheadFactor: number;
   teams: Teams;
-}
+};
 
 export function WeekIndicator({
   week,
@@ -108,7 +108,7 @@ export function WeekIndicator({
   );
 }
 
-interface TimelineItemProps {
+type TimelineItemProps = {
   allocation: TimelineItemWithRow;
   index: number;
   overheadFactor: number;
@@ -116,7 +116,7 @@ interface TimelineItemProps {
   getColumnWidth: (startWeek: number, endWeek: number) => number;
   startDate: Date;
   onFeatureClick?: (featureName: string) => void;
-}
+};
 
 export function TimelineItem({
   allocation,
@@ -169,23 +169,14 @@ export function TimelineItem({
                       'group-hover:bg-white/90'
                     )}
                   >
-                    <TeamAvatar teamName={team} size={14} />
+                    <TeamAvatar teamName={team} size={14} showTooltip={false} />
                     <span className="text-[11px] font-medium text-slate-800">
                       {Math.ceil(requirement.weeks * overheadFactor)}w
                     </span>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <span className="text-[11px] text-slate-600 ml-0.5 flex items-center">
-                            <Users className="h-3.5 w-3.5 mr-1" />
-                            {requirement.parallel}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{requirement.parallel} team members working in parallel</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <span className="text-[11px] text-slate-600 ml-0.5 flex items-center">
+                      <Users className="h-3.5 w-3.5 mr-1" />
+                      {requirement.parallel}
+                    </span>
                   </div>
                 ))}
             </div>
@@ -235,7 +226,7 @@ export function TimelineItem({
   );
 }
 
-interface TimelineGridProps {
+type TimelineGridProps = {
   gridCount: number;
   columnWidth: number;
   onResizeStart: () => void;
@@ -246,7 +237,7 @@ interface TimelineGridProps {
   startDate: Date;
   overheadFactor: number;
   teams: Teams;
-}
+};
 
 export function TimelineGrid({
   gridCount,

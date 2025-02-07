@@ -5,11 +5,11 @@ import { addWeeks, format } from 'date-fns';
 import { CalendarDays, CheckCircle2, Clock, LetterText } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-interface TimelineStatsProps {
+type TimelineStatsProps = {
   timeline: TimelineItem[];
   startDate: Date;
   configurationName: string;
-}
+};
 
 export function TimelineStats({ timeline, startDate, configurationName }: TimelineStatsProps) {
   if (timeline.length === 0) return null;

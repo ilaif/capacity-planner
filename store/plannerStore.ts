@@ -89,11 +89,10 @@ export const usePlannerStore = create<PlannerStore>()(
 
         const { planState } = get();
         if (JSON.stringify(plan.state) === JSON.stringify(planState)) {
-          console.log(
-            'Plan state is the same as the current state, skipping',
-            plan.state,
-            planState
-          );
+          logger.debug('Plan state is the same as the current state, skipping', {
+            newState: plan.state,
+            currentState: planState,
+          });
           return true;
         }
 

@@ -13,11 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
 import { Input } from '../ui/input';
 
-interface AuthDialogProps {
+type AuthDialogProps = {
   trigger: React.ReactNode;
   mode?: 'save' | 'default';
   defaultOpen?: boolean;
-}
+};
 
 export function AuthDialog({ trigger, mode = 'default', defaultOpen = false }: AuthDialogProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);

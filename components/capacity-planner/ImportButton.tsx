@@ -6,9 +6,9 @@ import { upsertPlan } from '@/services/supabasePlanService';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/services/loggerService';
 
-interface ImportButtonProps {
+type ImportButtonProps = {
   onImport: (planId: string) => void;
-}
+};
 
 export function ImportButton({ onImport }: ImportButtonProps) {
   const { toast } = useToast();
