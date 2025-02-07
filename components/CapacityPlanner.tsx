@@ -5,7 +5,7 @@ import {
   ConfigurationSheetHandle,
 } from './capacity-planner/ConfigurationSheet';
 import { Button } from '@/components/ui/button';
-import { Undo2, Redo2, LogIn, Menu } from 'lucide-react';
+import { Undo2, Redo2, LogIn, Menu, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { usePlannerStore } from '@/store/plannerStore';
@@ -45,6 +45,22 @@ const CapacityPlanner = () => {
       <div className="flex items-center justify-between p-4 relative">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-medium">Capacity Planner</h2>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-5 w-5">
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm">
+                <p>
+                  A visual planning tool that helps you estimate project timelines by mapping team
+                  capacity against feature requirements. Adjust team sizes, WIP limits, and feature
+                  specifications to optimize your delivery schedule.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
@@ -119,12 +135,6 @@ const CapacityPlanner = () => {
         </div>
       </div>
       <div className="flex-1">
-        <p className="px-4 py-2 text-sm text-muted-foreground border-b">
-          A visual planning tool that helps you estimate project timelines by mapping team capacity
-          against feature requirements. Adjust team sizes, WIP limits, and feature specifications to
-          optimize your delivery schedule.
-        </p>
-
         <TimelineView onFeatureClick={handleFeatureClick} />
 
         <ConfigurationSheet
