@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": ["app/**/*.{ts,tsx}", "vite.config.ts"],
+  "project": ["**/*.{ts,tsx}"],
+  "ignoreDependencies": ["jest-environment-jsdom"],
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true
+  },
+  "ignore": [
+    "**/*.test.{ts,tsx}",
+    "**/*.spec.{ts,tsx}",
+    "jest.config.ts",
+    "components/ui/**",
+    "hooks/use-toast.ts"
+  ]
+}

@@ -72,12 +72,6 @@ export type Teams = {
   [key: string]: TeamConfig;
 };
 
-export type TeamSizeVariation = {
-  team: string;
-  week: number;
-  size: number;
-};
-
 export type ResourceNeeds = {
   [team: string]: {
     weeks: number;
@@ -96,15 +90,4 @@ export type Feature = {
   id: number;
   name: string;
   requirements: Requirements;
-};
-
-export type ImportHandlers = {
-  onFeaturesUploaded: (features: Feature[]) => void;
-  onTeamAdd: (teamName: string) => void;
-  onTeamRemove: (teamName: string) => void;
-  onTeamSizeChange: (team: string, value: number) => void;
-  onWipLimitChange: (team: string, value: number) => void;
-  onTeamSizeVariationAdd: (variation: { team: string; week: number; size: number }) => void;
-  onOverheadFactorChange: (value: number) => void;
-  onStartDateChange: (date: Date) => void;
 };

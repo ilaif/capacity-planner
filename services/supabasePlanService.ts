@@ -3,8 +3,8 @@ import { logger } from './loggerService';
 import { PlanState } from '@/types/capacity-planner';
 import { User } from '@supabase/supabase-js';
 
-export const PLANS_TABLE = 'plans';
-export const PLAN_SHARES_TABLE = 'plan_shares';
+const PLANS_TABLE = 'plans';
+const PLAN_SHARES_TABLE = 'plan_shares';
 
 export type Plan = {
   id: string;
