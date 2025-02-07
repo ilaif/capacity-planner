@@ -10,6 +10,7 @@ import { PlanManager } from './PlanManager';
 import { usePlannerStore } from '@/store/plannerStore';
 import { logger } from '@/services/loggerService';
 import { useSearchParams } from 'react-router-dom';
+import { PlanState } from '@/types/capacity-planner';
 
 type ConfigurationSheetProps = {
   open: boolean;
@@ -31,13 +32,18 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
       },
     }));
 
-    const { planState, setOverheadFactor, setStartDate, planName } = usePlannerStore();
+    const { planState, setOverheadFactor, setStartDate, planName, setState } = usePlannerStore();
 
     const handlePlanLoad = async (planId: string) => {
       logger.info('Loading plan', { planId });
       const newParams = new URLSearchParams(searchParams);
       newParams.set('id', planId);
       setSearchParams(newParams);
+    };
+
+    const handleImport = (state: PlanState) => {
+      logger.info('Importing plan state');
+      setState(state);
     };
 
     return (
@@ -55,7 +61,7 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
               </div>
               <div className="flex gap-2">
                 <ExportButton state={planState} />
-                <ImportButton onImport={handlePlanLoad} />
+                <ImportButton onImport={handleImport} />
               </div>
             </div>
           </SheetHeader>

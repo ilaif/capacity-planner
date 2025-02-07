@@ -2,18 +2,16 @@ import { Button } from '@/components/ui/button';
 import { importPlanStateFromJSON } from '@/services/jsonStateService';
 import { Download } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { upsertPlan } from '@/services/supabasePlanService';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/services/loggerService';
-import { useAuthStore } from '@/store/authStore';
+import { PlanState } from '@/types/capacity-planner';
 
 type ImportButtonProps = {
-  onImport: (planId: string) => void;
+  onImport: (state: PlanState) => void;
 };
 
 export function ImportButton({ onImport }: ImportButtonProps) {
   const { toast } = useToast();
-  const { user } = useAuthStore();
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -21,13 +19,11 @@ export function ImportButton({ onImport }: ImportButtonProps) {
 
     try {
       const state = await importPlanStateFromJSON(file);
-      const planId = crypto.randomUUID();
-      if (!user) throw new Error('You must be logged in to import a plan');
-      await upsertPlan(planId, { state, name: file.name.replace('.json', '') }, false, user);
-      onImport(planId);
+      onImport(state);
       toast({
         title: 'Import successful',
-        description: 'The configuration has been imported and saved.',
+        description:
+          'The configuration has been imported. You can now review and save it if desired.',
       });
     } catch (error) {
       logger.error('Failed to import configuration:', error as Error);
