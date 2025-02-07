@@ -48,8 +48,7 @@ export function ImportButton({ onImport }: ImportButtonProps) {
         <TooltipTrigger asChild>
           <Button asChild variant="outline" size="sm" className="h-full">
             <label className="flex items-center cursor-pointer">
-              <Download className="h-4 w-4 mr-2" />
-              Import JSON
+              <Download />
               <input
                 type="file"
                 accept=".json"

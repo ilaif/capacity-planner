@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 const CapacityPlanner = () => {
   const { undo, redo, pastStates, futureStates } = usePlannerStore.temporal.getState();
@@ -44,6 +45,7 @@ const CapacityPlanner = () => {
           <h2 className="text-2xl font-medium">Capacity Planner</h2>
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="gap-2">

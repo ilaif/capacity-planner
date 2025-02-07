@@ -222,10 +222,18 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
         <>
           <Dialog open={saveAsDialogOpen} onOpenChange={setSaveAsDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" disabled={isLoading || !user}>
-                <Copy className="h-4 w-4 mr-2" />
-                Copy
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" disabled={isLoading || !user}>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Save a copy of this plan</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -277,10 +285,18 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
           </Dialog>
           <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" disabled={isLoading || !user}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" disabled={isLoading || !user}>
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>Share this plan with other users</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

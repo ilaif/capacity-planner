@@ -129,7 +129,9 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
           startDate={startDate}
           configurationName={planName || 'Not set'}
         />
-        <Button onClick={handleExport}>Export PNG</Button>
+        <Button variant="outline" onClick={handleExport}>
+          Export PNG
+        </Button>
       </div>
       <div className="flex flex-col h-[calc(100vh-200px)] overflow-x-auto">
         <div className="grid grid-rows-[auto_1fr_auto]">
@@ -146,7 +148,7 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
             teams={teams}
           />
           <div
-            className="grid border-r border-l bg-muted/50"
+            className="grid border-r border-l border-border bg-muted/30"
             style={{
               gridTemplateColumns: `repeat(${getTimelineGridCount()}, ${columnWidth}px)`,
             }}

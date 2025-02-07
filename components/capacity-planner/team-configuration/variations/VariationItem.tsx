@@ -19,13 +19,13 @@ export function VariationItem({ variation, startDate, onEdit, onRemove }: Variat
   const { team, week, size } = variation;
 
   return (
-    <div className="flex items-center bg-gray-50 px-2 py-1 rounded text-sm">
+    <div className="flex items-center bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded text-sm">
       <div className="flex items-center space-x-2">
         <TeamAvatar teamName={team} size={16} />
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <span className="text-gray-500">W{week}:</span>
+              <span className="text-gray-500 dark:text-gray-400">W{week}:</span>
             </TooltipTrigger>
             <TooltipContent>
               <p>{format(addWeeks(startDate, week), 'MMM d, yyyy')}</p>

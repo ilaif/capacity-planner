@@ -37,12 +37,10 @@ export function TimelineItem({
     <div
       className={cn(
         'group',
-        'bg-gradient-to-r from-slate-100/95 to-purple-100/95',
-        'backdrop-blur-[2px] shadow-sm',
-        'border border-slate-300/50',
-        'rounded-md transition-all duration-200',
-        'hover:from-slate-200/95 hover:to-purple-200/95',
-        'hover:shadow-md hover:-translate-y-[1px]',
+        'bg-background dark:bg-muted',
+        'border border-border',
+        'rounded-md',
+        'hover:border-muted-foreground dark:hover:border-muted-foreground',
         'cursor-pointer'
       )}
       onClick={handleClick}
@@ -56,7 +54,7 @@ export function TimelineItem({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger className="w-full text-left p-2">
-            <div className="text-sm font-medium truncate text-slate-900">{allocation.feature}</div>
+            <div className="text-sm font-medium truncate">{allocation.feature}</div>
             <div className="flex flex-wrap gap-1.5 mt-1.5">
               {Object.entries(allocation.assignments)
                 .filter(([_, requirement]) => requirement.weeks > 0)
@@ -65,16 +63,16 @@ export function TimelineItem({
                     key={team}
                     className={cn(
                       'flex items-center gap-0.5 px-1.5 py-0.5 rounded-full',
-                      'bg-white/70 border border-slate-300/50',
-                      'transition-colors duration-200',
-                      'group-hover:bg-white/90'
+                      'bg-muted/50 dark:bg-background/5',
+                      'border border-border',
+                      'group-hover:border-muted-foreground/30 dark:group-hover:border-muted-foreground/30'
                     )}
                   >
                     <TeamAvatar teamName={team} size={14} showTooltip={false} />
-                    <span className="text-[11px] font-medium text-slate-800">
+                    <span className="text-[11px] font-medium">
                       {Math.ceil(requirement.weeks * overheadFactor)}w
                     </span>
-                    <span className="text-[11px] text-slate-600 ml-0.5 flex items-center">
+                    <span className="text-[11px] text-muted-foreground ml-0.5 flex items-center">
                       <Users className="h-3.5 w-3.5 mr-1" />
                       {requirement.parallel}
                     </span>
@@ -82,18 +80,15 @@ export function TimelineItem({
                 ))}
             </div>
           </TooltipTrigger>
-          <TooltipContent
-            className="bg-white/95 backdrop-blur-sm border-slate-300 shadow-lg"
-            sideOffset={5}
-          >
-            <div className="font-medium text-slate-900">{allocation.feature}</div>
+          <TooltipContent sideOffset={5}>
+            <div className="font-medium">{allocation.feature}</div>
             <div className="space-y-1.5 mt-2">
               {Object.entries(allocation.assignments)
                 .filter(([_, requirement]) => requirement.weeks > 0)
                 .map(([team, requirement]) => (
                   <div key={team} className="flex items-center gap-2">
                     <TeamAvatar teamName={team} size={18} />
-                    <span className="text-sm text-slate-800">
+                    <span className="text-sm">
                       {team}:{' '}
                       <span className="font-medium">
                         {requirement.weeks}w ({Math.ceil(requirement.weeks * overheadFactor)}w with
@@ -103,7 +98,7 @@ export function TimelineItem({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
-                          <span className="text-slate-600 flex items-center">
+                          <span className="text-muted-foreground flex items-center">
                             <Users className="h-3 w-3 mr-1" />
                             {requirement.parallel}
                           </span>
@@ -116,7 +111,7 @@ export function TimelineItem({
                   </div>
                 ))}
             </div>
-            <div className="mt-3 pt-2 text-xs text-slate-700 border-t border-slate-300">
+            <div className="mt-3 pt-2 text-xs text-muted-foreground border-t border-border">
               Weeks {allocation.startWeek}-{allocation.endWeek} (
               {getDateLabel(allocation.startWeek)} - {getDateLabel(allocation.endWeek)})
             </div>

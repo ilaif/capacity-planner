@@ -12,13 +12,13 @@ export function TeamSizeVariations({
   onVariationEdit,
 }: TeamSizeVariationsProps) {
   return (
-    <div>
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium">Size Variations</h4>
+        <h4 className="text-sm font-medium text-foreground">Size Variations</h4>
         <VariationForm teams={teams} startDate={startDate} onAdd={onVariationAdd} />
       </div>
 
-      <div className="mt-1">
+      <div>
         <VariationList
           teams={teams}
           startDate={startDate}

@@ -1,6 +1,7 @@
 import { Teams, TimelineItem } from '@/types/capacity-planner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TeamAvatar } from '@/components/ui/team-avatar';
+import { cn } from '@/lib/utils';
 
 type TeamUtilizationRowProps = {
   team: string;
@@ -37,9 +38,9 @@ export function TeamUtilizationRow({
   };
 
   const getUtilizationColor = (percentage: number) => {
-    if (percentage >= 90) return 'bg-red-500/50';
-    if (percentage >= 70) return 'bg-yellow-500/50';
-    return 'bg-green-500/50';
+    if (percentage >= 90) return 'bg-destructive/30 dark:bg-destructive/20';
+    if (percentage >= 70) return 'bg-warning/30 dark:bg-warning/20';
+    return 'bg-success/30 dark:bg-success/20';
   };
 
   return (
@@ -52,13 +53,16 @@ export function TeamUtilizationRow({
               <TooltipTrigger>
                 <div
                   key={week}
-                  className={`h-5 border-r border-border flex items-center justify-center ${getUtilizationColor(utilization)}`}
+                  className={cn(
+                    'h-5 border-r border-border flex items-center justify-center',
+                    getUtilizationColor(utilization)
+                  )}
                 >
                   <span className="text-xs font-medium">{Math.round(utilization)}%</span>
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="bg-white/95 backdrop-blur-sm border-slate-300 shadow-lg">
-                <div className="flex items-center gap-2 text-xs text-slate-900">
+              <TooltipContent>
+                <div className="flex items-center gap-2 text-xs">
                   <TeamAvatar teamName={team} size={20} />
                   <div>
                     <span className="font-medium">{team}&nbsp;</span>

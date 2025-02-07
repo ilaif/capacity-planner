@@ -26,7 +26,7 @@ export function AddTeamForm({ onAddTeam }: AddTeamFormProps) {
         onKeyDown={e => e.key === 'Enter' && handleSubmit()}
       />
       <Button onClick={handleSubmit} size="sm" className="h-8">
-        <Plus className="h-4 w-4 mr-1" /> Add Team
+        <Plus />
       </Button>
     </div>
   );
