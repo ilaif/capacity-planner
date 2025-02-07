@@ -33,7 +33,6 @@ export const updateCursorPosition = (
     return;
   }
 
-  logger.debug('Tracking cursor position', { x, y, userId: user.id });
   channel.track({
     x,
     y,
@@ -51,17 +50,14 @@ export const subscribeToCursorPresence = (
   channel
     .on('presence', { event: 'sync' }, () => {
       const state = channel.presenceState<CursorPosition>();
-      logger.debug('Presence sync', { state });
       onSync(state);
     })
-    .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-      logger.debug('Presence join', { key, newPresences });
+    .on('presence', { event: 'join' }, ({ newPresences }) => {
       newPresences.forEach(presence => {
         onJoin(presence as unknown as CursorPosition);
       });
     })
-    .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-      logger.debug('Presence leave', { key, leftPresences });
+    .on('presence', { event: 'leave' }, ({ leftPresences }) => {
       leftPresences.forEach(presence => {
         onLeave(presence as unknown as CursorPosition);
       });

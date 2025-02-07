@@ -15,6 +15,7 @@ import { AuthDialog } from '@/components/auth/AuthDialog';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { CursorOverlay } from './capacity-planner/CursorOverlay';
+import { Separator } from '@/components/ui/separator';
 
 const CapacityPlanner = () => {
   const { undo, redo, pastStates, futureStates } = usePlannerStore.temporal.getState();
@@ -41,19 +42,21 @@ const CapacityPlanner = () => {
 
   return (
     <div className="inset-0 flex flex-col h-screen">
-      <CursorOverlay />
       <div className="flex items-center justify-between p-4 relative">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-medium">Capacity Planner</h2>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <Separator orientation="vertical" className="h-4" />
+          <CursorOverlay />
+          <Separator orientation="vertical" className="h-4" />
           {user ? (
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="gap-2">
+              <Badge variant="secondary" className="gap-2 py-2">
                 <span>{user.email}</span>
               </Badge>
-              <Button variant="outline" size="sm" onClick={signOut}>
+              <Button variant="outline" onClick={signOut}>
                 Sign out
               </Button>
             </div>
@@ -67,62 +70,52 @@ const CapacityPlanner = () => {
               }
             />
           )}
-          <div className="flex gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => undo()}
-                      disabled={!canUndo}
-                    >
-                      <Undo2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Undo (⌘Z)</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => redo()}
-                      disabled={!canRedo}
-                    >
-                      <Redo2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Redo (⌘⇧Z / ⌘Y)</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setOpenConfigurationSheet(true)}
-                  >
-                    <Menu className="h-4 w-4" />
+          <Separator orientation="vertical" className="h-4" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button variant="outline" size="icon" onClick={() => undo()} disabled={!canUndo}>
+                    <Undo2 />
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Open Configuration (⌘K)</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Undo (⌘Z)</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button variant="outline" size="icon" onClick={() => redo()} disabled={!canRedo}>
+                    <Redo2 />
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Redo (⌘⇧Z / ⌘Y)</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <Separator orientation="vertical" className="h-4" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setOpenConfigurationSheet(true)}
+                >
+                  <Menu />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Open Configuration (⌘K)</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
       <div className="flex-1">

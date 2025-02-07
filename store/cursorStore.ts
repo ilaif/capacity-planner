@@ -39,9 +39,8 @@ export const useCursorStore = create<CursorState>((set, get) => ({
     subscribeToCursorPresence(
       channel,
       state => {
-        logger.debug('Processing presence sync', { state });
         const newCursors = new Map<string, CursorPosition>();
-        Object.entries(state).forEach(([key, presences]) => {
+        Object.entries(state).forEach(([_, presences]) => {
           const presence = presences[0];
           if (presence) {
             const cursorPosition: CursorPosition = {
@@ -53,11 +52,9 @@ export const useCursorStore = create<CursorState>((set, get) => ({
             newCursors.set(cursorPosition.userId, cursorPosition);
           }
         });
-        logger.debug('Updated cursors from sync', { cursors: Array.from(newCursors.entries()) });
         set({ cursors: newCursors });
       },
       presence => {
-        logger.debug('Processing presence join', { presence });
         const cursors = get().cursors;
         const cursorPosition: CursorPosition = {
           x: presence.x,
@@ -69,7 +66,6 @@ export const useCursorStore = create<CursorState>((set, get) => ({
         set({ cursors: new Map(cursors) });
       },
       presence => {
-        logger.debug('Processing presence leave', { presence });
         const cursors = get().cursors;
         cursors.delete(presence.userId);
         set({ cursors: new Map(cursors) });

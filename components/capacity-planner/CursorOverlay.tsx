@@ -1,9 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useCursorStore } from '@/store/cursorStore';
 import { useAuthStore } from '@/store/authStore';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { logger } from '@/services/loggerService';
+import { Users } from 'lucide-react';
+import { createAvatar } from '@dicebear/core';
+import { shapes } from '@dicebear/collection';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const CURSOR_COLORS = [
   { bg: '#FF5733', text: 'white' },
@@ -18,6 +22,39 @@ const getUserColor = (userId: string) => {
   // Use the last character of the userId to determine the color
   const colorIndex = parseInt(userId.slice(-1), 16) % CURSOR_COLORS.length;
   return CURSOR_COLORS[colorIndex];
+};
+
+type UserAvatarProps = {
+  email: string;
+  size?: number;
+  color: string;
+};
+
+const UserAvatar = ({ email, size = 32, color }: UserAvatarProps) => {
+  const avatar = useMemo(() => {
+    return createAvatar(shapes, {
+      seed: email,
+      size: size,
+      backgroundColor: [color.slice(1)], // Remove # from hex color
+    }).toDataUri();
+  }, [email, size, color]);
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <img
+            src={avatar}
+            alt={`${email} avatar`}
+            className="rounded-full ring-2 ring-background"
+            width={size}
+            height={size}
+          />
+        </TooltipTrigger>
+        <TooltipContent>{email}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 };
 
 export const CursorOverlay = () => {
@@ -60,14 +97,29 @@ export const CursorOverlay = () => {
 
   if (!user) return null;
 
-  logger.debug('Rendering cursors', {
-    count: cursors.size,
-    cursors: Array.from(cursors.entries()),
-  });
+  const allUsers = Array.from(cursors.entries());
 
   return (
     <>
-      {Array.from(cursors.entries()).map(([userId, cursor]) => {
+      {/* Presence List */}
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <div className="flex -space-x-2">
+            {allUsers.map(([userId, userData]) => {
+              const color = getUserColor(userId);
+              return (
+                <div key={userId} className="relative flex items-center">
+                  <UserAvatar email={userData.userEmail} color={color.bg} size={24} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Cursors */}
+      {allUsers.map(([userId, cursor]) => {
         if (userId === user.id) return null;
 
         const color = getUserColor(userId);
