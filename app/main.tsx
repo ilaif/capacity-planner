@@ -5,7 +5,6 @@ import CapacityPlanner from '../components/CapacityPlanner';
 import { SupabaseProvider } from '../components/providers/SupabaseProvider';
 import { ThemeProvider } from '../components/providers/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
-import MagicLinkErrorHandler from '@/components/MagicLinkErrorHandler';
 import '../app/globals.css';
 import '../app/styles.css';
 
@@ -16,7 +15,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <SupabaseProvider>
           <CapacityPlanner />
           <Toaster />
-          <MagicLinkErrorHandler />
         </SupabaseProvider>
       </ThemeProvider>
     </BrowserRouter>

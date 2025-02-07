@@ -6,7 +6,8 @@ import { logger } from '@/services/loggerService';
 type AuthState = {
   user: User | null;
   loadingAuthSession: boolean;
-  signInWithMagicLink: (email: string) => Promise<void>;
+  signInWithEmailOTP: (email: string) => Promise<void>;
+  verifyOTP: (email: string, token: string) => Promise<void>;
   signOut: () => Promise<void>;
   setUser: (user: User | null) => void;
   loadAuthSession: () => Promise<void>;
@@ -15,12 +16,20 @@ type AuthState = {
 export const useAuthStore = create<AuthState>(set => ({
   user: null,
   loadingAuthSession: false,
-  signInWithMagicLink: async (email: string) => {
+  signInWithEmailOTP: async (email: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: window.location.href,
+        shouldCreateUser: true,
       },
+    });
+    if (error) throw error;
+  },
+  verifyOTP: async (email: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
     });
     if (error) throw error;
   },
