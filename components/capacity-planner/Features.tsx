@@ -24,9 +24,9 @@ export type FeaturesHandle = {
   focusFeature: (featureName: string) => void;
 };
 
-type FeaturesProps = Record<string, never>;
+type FeaturesProps = React.PropsWithoutRef<object>;
 
-export const Features = forwardRef<FeaturesHandle, FeaturesProps>((_props, ref) => {
+export const Features = forwardRef<FeaturesHandle, FeaturesProps>((_, ref) => {
   const featureRefs = useRef<Map<number, FeatureItemHandle>>(new Map());
   const { planState, setFeatures } = usePlannerStore();
   const { features, teams } = planState;

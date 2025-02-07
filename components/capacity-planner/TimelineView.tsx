@@ -3,10 +3,11 @@ import type { TimelineItem as TimelineItemType } from '@/types/capacity-planner'
 import { useState, useCallback, useEffect } from 'react';
 import { format, addWeeks } from 'date-fns';
 import { calculateTimeline, exportTimelineAsPng } from '@/services/timelineService';
-import { TimelineItem, TimelineGrid } from './TimelineItem';
+import { TimelineItem } from './TimelineItem';
 import { TimelineStats } from './TimelineStats';
 import { usePlannerStore } from '@/store/plannerStore';
 import { TeamUtilizationRow } from './TeamUtilizationRow';
+import { TimelineGrid } from './TimelineGrid';
 
 type TimelineItemWithRow = TimelineItemType & {
   row: number;
