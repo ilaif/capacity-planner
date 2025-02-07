@@ -1,11 +1,11 @@
 import { startOfWeek } from 'date-fns';
 
-export interface PlanState {
+export type PlanState = {
   features: Feature[];
   teams: Teams;
   overheadFactor: number;
   startDate: Date;
-}
+};
 
 export const EMPTY_STATE: PlanState = {
   startDate: startOfWeek(new Date()),

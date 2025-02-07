@@ -1,2 +1,4 @@
 1. Use shadcn/ui components.
 2. Use tailwindcss for styling.
+3. Use zustand for state management.
+4. Prefer types over interfaces.

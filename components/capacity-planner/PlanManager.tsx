@@ -59,7 +59,7 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
         setPlans([]);
         return;
       }
-      const plans = await listPlans();
+      const plans = await listPlans(user);
       setPlans(plans);
     };
     loadPlans();
@@ -80,27 +80,27 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
 
   useEffect(() => {
     const loadShares = async () => {
-      if (selectedPlanId) {
-        const shares = await getPlanShares(selectedPlanId);
+      if (selectedPlanId && user) {
+        const shares = await getPlanShares(selectedPlanId, user);
         setPlanShares(shares);
       } else {
         setPlanShares([]);
       }
     };
     loadShares();
-  }, [selectedPlanId]);
+  }, [selectedPlanId, user]);
 
   const handleSaveNewPlan = async () => {
-    if (!newPlanName) return;
+    if (!newPlanName || !user) return;
     setIsLoading(true);
     try {
       logger.info(`Saving new plan: ${newPlanName}`);
       const newPlanId = crypto.randomUUID();
-      await upsertPlan(newPlanId, { state: currentState, name: newPlanName }, false);
+      await upsertPlan(newPlanId, { state: currentState, name: newPlanName }, false, user);
       setNewPlanName('');
       setSaveDialogOpen(false);
       onPlanLoad(newPlanId);
-      const updatedPlans = await listPlans();
+      const updatedPlans = await listPlans(user);
       setPlans(updatedPlans);
       setSelectedPlanId(newPlanId);
     } catch (error) {
@@ -111,11 +111,12 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
   };
 
   const handleDeletePlan = async () => {
+    if (!user) return;
     setIsLoading(true);
     try {
       logger.info('Deleting plan', { planId: selectedPlanId });
-      await deletePlan(selectedPlanId);
-      const updatedPlans = await listPlans();
+      await deletePlan(selectedPlanId, user);
+      const updatedPlans = await listPlans(user);
       setPlans(updatedPlans);
       setSelectedPlanId('');
       setDeleteDialogOpen(false);
@@ -134,16 +135,16 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
   };
 
   const handleSaveAsCopy = async () => {
-    if (!newPlanName) return;
+    if (!newPlanName || !user) return;
     setIsLoading(true);
     try {
       logger.info(`Saving plan as copy: ${newPlanName}`);
       const newPlanId = crypto.randomUUID();
-      await upsertPlan(newPlanId, { state: currentState, name: newPlanName }, false);
+      await upsertPlan(newPlanId, { state: currentState, name: newPlanName }, false, user);
       setNewPlanName('');
       setSaveAsDialogOpen(false);
       onPlanLoad(newPlanId);
-      const updatedPlans = await listPlans();
+      const updatedPlans = await listPlans(user);
       setPlans(updatedPlans);
       setSelectedPlanId(newPlanId);
     } catch (error) {
@@ -154,12 +155,12 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
   };
 
   const handleSharePlan = async () => {
-    if (!shareEmail || !selectedPlanId) return;
+    if (!shareEmail || !selectedPlanId || !user) return;
     setIsLoading(true);
     try {
-      await sharePlan(selectedPlanId, shareEmail);
+      await sharePlan(selectedPlanId, shareEmail, user);
       setShareEmail('');
-      const shares = await getPlanShares(selectedPlanId);
+      const shares = await getPlanShares(selectedPlanId, user);
       setPlanShares(shares);
     } catch (error) {
       logger.error('Failed to share plan', error as Error);
@@ -169,11 +170,11 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
   };
 
   const handleRemoveShare = async (email: string) => {
-    if (!selectedPlanId) return;
+    if (!selectedPlanId || !user) return;
     setIsLoading(true);
     try {
-      await removePlanShare(selectedPlanId, email);
-      const shares = await getPlanShares(selectedPlanId);
+      await removePlanShare(selectedPlanId, email, user);
+      const shares = await getPlanShares(selectedPlanId, user);
       setPlanShares(shares);
     } catch (error) {
       logger.error('Failed to remove share', error as Error);

@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { logger } from './loggerService';
 import { PlanState } from '@/types/capacity-planner';
-import { useAuthStore } from '@/store/authStore';
+import { User } from '@supabase/supabase-js';
 
 export const PLANS_TABLE = 'plans';
 export const PLAN_SHARES_TABLE = 'plan_shares';
@@ -59,9 +59,9 @@ export const getPlanById = async (id: string): Promise<Plan | null> => {
 export const upsertPlan = async (
   id: string,
   fields: { state?: PlanState; name?: string },
-  existingPlan: boolean
+  existingPlan: boolean,
+  user: User
 ): Promise<void> => {
-  const user = useAuthStore.getState().user;
   if (!user) {
     logger.warn('No user found, skipping state update');
     return;
@@ -107,9 +107,9 @@ export const upsertPlan = async (
 
 export const updatePlan = async (
   id: string,
-  fields: { state?: PlanState; name?: string }
+  fields: { state?: PlanState; name?: string },
+  user: User
 ): Promise<void> => {
-  const user = useAuthStore.getState().user;
   if (!user) {
     logger.warn('No user found, skipping plan update');
     return;
@@ -152,9 +152,8 @@ export const updatePlan = async (
   }
 };
 
-export const listPlans = async (): Promise<Plan[]> => {
+export const listPlans = async (user: User): Promise<Plan[]> => {
   try {
-    const user = useAuthStore.getState().user;
     if (!user) {
       logger.warn('No user found, returning empty configurations list');
       return [];
@@ -183,9 +182,8 @@ export const listPlans = async (): Promise<Plan[]> => {
   }
 };
 
-export const deletePlan = async (id: string): Promise<void> => {
+export const deletePlan = async (id: string, user: User): Promise<void> => {
   try {
-    const user = useAuthStore.getState().user;
     if (!user) {
       logger.warn('No user found, skipping configuration deletion');
       return;
@@ -222,13 +220,6 @@ export const subscribeToPlanChanges = (
       payload => {
         if (payload.new) {
           const plan = payload.new as Plan;
-          const currentUser = useAuthStore.getState().user;
-
-          // Ignore updates from the current user
-          if (currentUser && plan.last_updated_by === currentUser.id) {
-            logger.debug('Ignoring update from current user', { planId });
-            return;
-          }
 
           callback({
             ...plan.state,
@@ -244,9 +235,12 @@ export const subscribeToPlanChanges = (
   };
 };
 
-export const sharePlan = async (planId: string, sharedWithEmail: string): Promise<void> => {
+export const sharePlan = async (
+  planId: string,
+  sharedWithEmail: string,
+  user: User
+): Promise<void> => {
   try {
-    const user = useAuthStore.getState().user;
     if (!user) {
       logger.warn('No user found, skipping plan share');
       return;
@@ -274,9 +268,8 @@ export const sharePlan = async (planId: string, sharedWithEmail: string): Promis
   }
 };
 
-export const getPlanShares = async (planId: string): Promise<PlanShare[]> => {
+export const getPlanShares = async (planId: string, user: User): Promise<PlanShare[]> => {
   try {
-    const user = useAuthStore.getState().user;
     if (!user) {
       logger.warn('No user found, returning empty shares list');
       return [];
@@ -300,9 +293,12 @@ export const getPlanShares = async (planId: string): Promise<PlanShare[]> => {
   }
 };
 
-export const removePlanShare = async (planId: string, sharedWithEmail: string): Promise<void> => {
+export const removePlanShare = async (
+  planId: string,
+  sharedWithEmail: string,
+  user: User
+): Promise<void> => {
   try {
-    const user = useAuthStore.getState().user;
     if (!user) {
       logger.warn('No user found, skipping share removal');
       return;

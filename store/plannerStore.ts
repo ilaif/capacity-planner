@@ -6,7 +6,7 @@ import { PlanState } from '@/types/capacity-planner';
 import { getPlanById, updatePlan } from '@/services/supabasePlanService';
 import { useAuthStore } from '@/store/authStore';
 
-interface PlannerStore {
+type PlannerStore = {
   planState: PlanState;
   planName: string;
   isLoading: boolean;
@@ -15,11 +15,11 @@ interface PlannerStore {
   setOverheadFactor: (factor: number) => void;
   setStartDate: (date: Date) => void;
   setState: (state: PlanState) => void;
-  loadPlanById: (id: string) => Promise<boolean>;
-}
+  loadPlanById: (id: string, { showLoading }: { showLoading: boolean }) => Promise<boolean>;
+};
 
 export const usePlannerStore = create<PlannerStore>()(
-  temporal(set => ({
+  temporal((set, get) => ({
     planState: { ...EMPTY_STATE },
     planName: '',
     isLoading: false,
@@ -73,23 +73,41 @@ export const usePlannerStore = create<PlannerStore>()(
       set({ planState: state });
     },
 
-    loadPlanById: async (id: string): Promise<boolean> => {
+    loadPlanById: async (
+      id: string,
+      { showLoading }: { showLoading: boolean }
+    ): Promise<boolean> => {
       logger.debug('Loading plan by ID', { id });
-      set({ isLoading: true });
+      if (showLoading) {
+        set({ isLoading: true });
+      }
       try {
         const plan = await getPlanById(id);
         if (!plan) {
           return false;
         }
+
+        const { planState } = get();
+        if (JSON.stringify(plan.state) === JSON.stringify(planState)) {
+          console.log(
+            'Plan state is the same as the current state, skipping',
+            plan.state,
+            planState
+          );
+          return true;
+        }
+
         set({
           planState: plan?.state,
           planName: plan?.name,
-          isLoading: false,
         });
         return true;
       } catch (error) {
-        set({ isLoading: false });
         return false;
+      } finally {
+        if (showLoading) {
+          set({ isLoading: false });
+        }
       }
     },
   }))
@@ -102,6 +120,6 @@ const syncStateToSupabase = async (state?: PlanState, planName?: string) => {
   const user = useAuthStore.getState().user;
 
   if (id && user) {
-    await updatePlan(id, { state, name: planName });
+    await updatePlan(id, { state, name: planName }, user);
   }
 };
