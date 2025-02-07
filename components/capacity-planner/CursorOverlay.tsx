@@ -10,12 +10,12 @@ import { shapes } from '@dicebear/collection';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const CURSOR_COLORS = [
-  { bg: '#FF5733', text: 'white' },
-  { bg: '#33FF57', text: 'black' },
-  { bg: '#3357FF', text: 'white' },
-  { bg: '#FF33F5', text: 'white' },
-  { bg: '#33FFF5', text: 'black' },
-  { bg: '#FFD700', text: 'black' },
+  { bg: '#0EA5E9', text: 'white' }, // sky-500
+  { bg: '#8B5CF6', text: 'white' }, // violet-500
+  { bg: '#EC4899', text: 'white' }, // pink-500
+  { bg: '#F97316', text: 'white' }, // orange-500
+  { bg: '#22C55E', text: 'white' }, // green-500
+  { bg: '#EAB308', text: 'black' }, // yellow-500
 ];
 
 const getUserColor = (userId: string) => {
