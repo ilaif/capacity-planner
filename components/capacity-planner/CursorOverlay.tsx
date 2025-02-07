@@ -98,15 +98,25 @@ export const CursorOverlay = () => {
   if (!user) return null;
 
   const allUsers = Array.from(cursors.entries());
+  const otherUsers = allUsers.filter(([userId]) => userId !== user.id);
 
   return (
     <>
       {/* Presence List */}
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Active users viewing this plan</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <div className="flex -space-x-2">
-            {allUsers.map(([userId, userData]) => {
+            {otherUsers.map(([userId, userData]) => {
               const color = getUserColor(userId);
               return (
                 <div key={userId} className="relative flex items-center">
