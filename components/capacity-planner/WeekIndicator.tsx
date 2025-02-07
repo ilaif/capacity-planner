@@ -48,24 +48,24 @@ export function WeekIndicator({
 
   return (
     <div className="p-2">
-      <div className="text-sm font-medium text-slate-900">
+      <div className="text-sm font-medium text-slate-100">
         Week {week} ({format(addWeeks(startDate, week), 'MMM d, yyyy')})
       </div>
       <div className="mt-2 space-y-3">
         {featuresInWeek.map(item => (
           <div key={item.feature} className="space-y-1.5">
-            <div className="font-medium text-slate-800">{item.feature}</div>
+            <div className="font-medium text-slate-200">{item.feature}</div>
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(item.assignments).map(([team, requirement]) => (
                 <div
                   key={team}
-                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200"
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-800 border border-slate-700"
                 >
                   <TeamAvatar teamName={team} size={14} />
-                  <span className="text-[11px] font-medium text-slate-800">
+                  <span className="text-[11px] font-medium text-slate-200">
                     {Math.ceil(requirement.weeks * overheadFactor)}w
                   </span>
-                  <span className="text-[11px] text-slate-600 flex items-center">
+                  <span className="text-[11px] text-slate-400 flex items-center">
                     <Users className="h-3 w-3 mr-0.5" />
                     {requirement.parallel}
                   </span>
@@ -75,22 +75,22 @@ export function WeekIndicator({
           </div>
         ))}
       </div>
-      <div className="mt-3 pt-2 border-t border-slate-200">
-        <div className="text-xs font-medium text-slate-700">Team Members:</div>
+      <div className="mt-3 pt-2 border-t border-slate-700">
+        <div className="text-xs font-medium text-slate-300">Team Members:</div>
         <div className="mt-1 space-y-1">
           {Object.entries(teamUtilization).map(([team, { used, total }]) => {
             const utilization = total > 0 ? Math.round((used / total) * 100) : 0;
             const utilizationColor =
               utilization > 100
-                ? 'text-red-500'
+                ? 'text-red-400'
                 : utilization > 80
-                  ? 'text-amber-500'
-                  : 'text-green-500';
+                  ? 'text-amber-400'
+                  : 'text-green-400';
 
             return (
               <div key={team} className="flex items-center gap-1.5">
                 <TeamAvatar teamName={team} size={14} />
-                <span className="text-xs text-slate-600">
+                <span className="text-xs text-slate-400">
                   {team}:{' '}
                   <span className="font-medium">
                     {used} of {total} engineers
