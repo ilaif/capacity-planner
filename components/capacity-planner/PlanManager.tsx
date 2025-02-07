@@ -284,20 +284,20 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
             </DialogContent>
           </Dialog>
           <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-            <DialogTrigger asChild>
-              <TooltipProvider>
-                <Tooltip>
+            <TooltipProvider>
+              <Tooltip>
+                <DialogTrigger asChild>
                   <TooltipTrigger asChild>
                     <Button variant="outline" disabled={isLoading || !user}>
                       <Share2 className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    <p>Share this plan with other users</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </DialogTrigger>
+                </DialogTrigger>
+                <TooltipContent side="bottom">
+                  <p>Share this plan with other users</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Share Plan</DialogTitle>
