@@ -13,10 +13,10 @@ export type Plan = {
   created_at: string;
   updated_at: string;
   last_updated_by: string;
+  owner_id: string;
 };
 
 export type PlanShare = {
-  owner_id: string;
   shared_with_email: string;
   plan_id: string;
   created_at: string;
@@ -49,7 +49,7 @@ export const getPlanById = async (id: string): Promise<Plan | null> => {
         ...plan.state,
         startDate: new Date(plan.state.startDate),
       },
-    };
+    } as Plan;
   } catch (error) {
     logger.error('Error fetching plan', error as Error);
     throw new Error('Failed to fetch plan');
@@ -248,12 +248,11 @@ export const sharePlan = async (
 
     const { error } = await supabase.from(PLAN_SHARES_TABLE).upsert(
       {
-        owner_id: user.id,
-        shared_with_email: sharedWithEmail,
         plan_id: planId,
+        shared_with_email: sharedWithEmail,
         created_at: new Date().toISOString(),
       },
-      { onConflict: 'owner_id,shared_with_email,plan_id' }
+      { onConflict: 'plan_id,shared_with_email' }
     );
 
     if (error) {
@@ -268,18 +267,12 @@ export const sharePlan = async (
   }
 };
 
-export const getPlanShares = async (planId: string, user: User): Promise<PlanShare[]> => {
+export const getPlanShares = async (planId: string): Promise<PlanShare[]> => {
   try {
-    if (!user) {
-      logger.warn('No user found, returning empty shares list');
-      return [];
-    }
-
     const { data, error } = await supabase
       .from(PLAN_SHARES_TABLE)
       .select('*')
-      .eq('plan_id', planId)
-      .eq('owner_id', user.id);
+      .eq('plan_id', planId);
 
     if (error) {
       logger.error('Failed to load plan shares', error);
@@ -293,22 +286,12 @@ export const getPlanShares = async (planId: string, user: User): Promise<PlanSha
   }
 };
 
-export const removePlanShare = async (
-  planId: string,
-  sharedWithEmail: string,
-  user: User
-): Promise<void> => {
+export const removePlanShare = async (planId: string, sharedWithEmail: string): Promise<void> => {
   try {
-    if (!user) {
-      logger.warn('No user found, skipping share removal');
-      return;
-    }
-
     const { error } = await supabase
       .from(PLAN_SHARES_TABLE)
       .delete()
       .eq('plan_id', planId)
-      .eq('owner_id', user.id)
       .eq('shared_with_email', sharedWithEmail);
 
     if (error) {

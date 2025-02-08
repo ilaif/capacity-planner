@@ -81,7 +81,7 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
   useEffect(() => {
     const loadShares = async () => {
       if (selectedPlanId && user) {
-        const shares = await getPlanShares(selectedPlanId, user);
+        const shares = await getPlanShares(selectedPlanId);
         setPlanShares(shares);
       } else {
         setPlanShares([]);
@@ -160,7 +160,7 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
     try {
       await sharePlan(selectedPlanId, shareEmail, user);
       setShareEmail('');
-      const shares = await getPlanShares(selectedPlanId, user);
+      const shares = await getPlanShares(selectedPlanId);
       setPlanShares(shares);
     } catch (error) {
       logger.error('Failed to share plan', error as Error);
@@ -173,8 +173,8 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
     if (!selectedPlanId || !user) return;
     setIsLoading(true);
     try {
-      await removePlanShare(selectedPlanId, email, user);
-      const shares = await getPlanShares(selectedPlanId, user);
+      await removePlanShare(selectedPlanId, email);
+      const shares = await getPlanShares(selectedPlanId);
       setPlanShares(shares);
     } catch (error) {
       logger.error('Failed to remove share', error as Error);
@@ -184,6 +184,7 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
   };
 
   const selectedPlan = plans.find(p => p.id === selectedPlanId);
+  const isOwner = selectedPlan?.owner_id === user?.id;
 
   return (
     <div className="flex gap-2 items-center">
@@ -255,15 +256,24 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
             </DialogContent>
           </Dialog>
           <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                disabled={isLoading || !user}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
+            <TooltipProvider>
+              <Tooltip>
+                <DialogTrigger asChild>
+                  <TooltipTrigger className="cursor-not-allowed">
+                    <Button
+                      variant="outline"
+                      className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                      disabled={isLoading || !user || !isOwner}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                </DialogTrigger>
+                <TooltipContent>
+                  {!isOwner ? 'Only the plan owner can delete' : 'Delete this plan'}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Delete Plan</DialogTitle>
@@ -287,14 +297,18 @@ export function PlanManager({ currentState, planName, onPlanLoad }: PlanManagerP
             <TooltipProvider>
               <Tooltip>
                 <DialogTrigger asChild>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" disabled={isLoading || !user}>
+                  <TooltipTrigger className="cursor-not-allowed">
+                    <Button variant="outline" disabled={isLoading || !user || !isOwner}>
                       <Share2 className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                 </DialogTrigger>
                 <TooltipContent side="bottom">
-                  <p>Share this plan with other users</p>
+                  <p>
+                    {!isOwner
+                      ? 'Only the plan owner can share'
+                      : 'Share this plan with other users'}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
