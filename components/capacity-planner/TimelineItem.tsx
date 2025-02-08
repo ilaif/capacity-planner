@@ -37,7 +37,7 @@ export function TimelineItem({
     <div
       className={cn(
         'group',
-        'bg-background dark:bg-muted',
+        'bg-muted dark:bg-muted',
         'border border-border',
         'rounded-md',
         'hover:border-muted-foreground dark:hover:border-muted-foreground',
