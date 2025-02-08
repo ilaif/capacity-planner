@@ -48,7 +48,8 @@ export function TimelineItem({
         gridColumn: `${allocation.startWeek + 1} / span ${allocation.endWeek - allocation.startWeek}`,
         gridRow: `${allocation.row + 1}`,
         minWidth: '30px',
-        margin: '4px',
+        marginLeft: '5px',
+        marginTop: '5px',
       }}
     >
       <TooltipProvider>
