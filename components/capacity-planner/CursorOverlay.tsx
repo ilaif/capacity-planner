@@ -18,22 +18,9 @@ const CURSOR_COLORS = [
 ];
 
 const getUserColor = (userId: string) => {
-  const { colorAssignments } = useCursorStore.getState();
-
-  // If user already has a color assigned, use it
-  if (colorAssignments.has(userId)) {
-    const colorIndex = colorAssignments.get(userId)!;
-    return CURSOR_COLORS[colorIndex];
-  }
-
-  // Assign next available color
-  const nextColorIndex = colorAssignments.size % CURSOR_COLORS.length;
-  colorAssignments.set(userId, nextColorIndex);
-
-  // Update the store
-  useCursorStore.setState({ colorAssignments: new Map(colorAssignments) });
-
-  return CURSOR_COLORS[nextColorIndex];
+  // Use the last character of the userId to determine the color
+  const colorIndex = parseInt(userId.slice(-1), 16) % CURSOR_COLORS.length;
+  return CURSOR_COLORS[colorIndex];
 };
 
 type UserAvatarProps = {

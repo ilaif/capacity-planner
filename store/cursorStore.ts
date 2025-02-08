@@ -13,7 +13,6 @@ import { User } from '@supabase/supabase-js';
 type CursorState = {
   cursors: Map<string, CursorPosition>;
   channel: ReturnType<typeof supabase.channel> | null;
-  colorAssignments: Map<string, number>;
   updatePosition: (x: number, y: number) => void;
   initializePresence: (planId: string, user: User) => void;
   cleanup: () => void;
@@ -22,7 +21,6 @@ type CursorState = {
 export const useCursorStore = create<CursorState>((set, get) => ({
   cursors: new Map(),
   channel: null,
-  colorAssignments: new Map(),
 
   updatePosition: (x: number, y: number) => {
     const user = useAuthStore.getState().user;
@@ -94,7 +92,7 @@ export const useCursorStore = create<CursorState>((set, get) => ({
     if (channel) {
       logger.info('Cleaning up cursor presence');
       channel.unsubscribe();
-      set({ channel: null, cursors: new Map(), colorAssignments: new Map() });
+      set({ channel: null, cursors: new Map() });
     }
   },
 }));
