@@ -14,14 +14,17 @@ import { useAuthStore } from '@/store/authStore';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { CursorOverlay } from './capacity-planner/CursorOverlay';
 import { Separator } from '@/components/ui/separator';
+import { ActiveUsers } from './capacity-planner/ActiveUsers';
+import { useSearchParams } from 'react-router-dom';
 
 const CapacityPlanner = () => {
   const { undo, redo, pastStates, futureStates } = usePlannerStore.temporal.getState();
   const canUndo = !!pastStates.length;
   const canRedo = !!futureStates.length;
   const { user, signOut } = useAuthStore();
+  const [searchParams] = useSearchParams();
+  const planId = searchParams.get('id');
 
   const [openConfigurationSheet, setOpenConfigurationSheet] = useState(false);
   const configSheetRef = useRef<ConfigurationSheetHandle>(null);
@@ -65,7 +68,7 @@ const CapacityPlanner = () => {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Separator orientation="vertical" className="h-4" />
-          <CursorOverlay />
+          {planId && <ActiveUsers planId={planId} />}
           <Separator orientation="vertical" className="h-4" />
           {user ? (
             <div className="flex items-center gap-2">
@@ -90,11 +93,9 @@ const CapacityPlanner = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div>
-                  <Button variant="outline" size="icon" onClick={() => undo()} disabled={!canUndo}>
-                    <Undo2 />
-                  </Button>
-                </div>
+                <Button variant="outline" size="icon" onClick={() => undo()} disabled={!canUndo}>
+                  <Undo2 />
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Undo (⌘Z)</p>
@@ -104,11 +105,9 @@ const CapacityPlanner = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div>
-                  <Button variant="outline" size="icon" onClick={() => redo()} disabled={!canRedo}>
-                    <Redo2 />
-                  </Button>
-                </div>
+                <Button variant="outline" size="icon" onClick={() => redo()} disabled={!canRedo}>
+                  <Redo2 />
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Redo (⌘⇧Z / ⌘Y)</p>
