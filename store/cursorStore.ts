@@ -8,18 +8,21 @@ import {
   subscribeToCursorPresence,
 } from '@/services/cursorService';
 import { logger } from '@/services/loggerService';
+import { User } from '@supabase/supabase-js';
 
 type CursorState = {
   cursors: Map<string, CursorPosition>;
   channel: ReturnType<typeof supabase.channel> | null;
+  colorAssignments: Map<string, number>;
   updatePosition: (x: number, y: number) => void;
-  initializePresence: (planId: string) => void;
+  initializePresence: (planId: string, user: User) => void;
   cleanup: () => void;
 };
 
 export const useCursorStore = create<CursorState>((set, get) => ({
   cursors: new Map(),
   channel: null,
+  colorAssignments: new Map(),
 
   updatePosition: (x: number, y: number) => {
     const user = useAuthStore.getState().user;
@@ -29,12 +32,12 @@ export const useCursorStore = create<CursorState>((set, get) => ({
     updateCursorPosition(channel, x, y, user);
   },
 
-  initializePresence: (planId: string) => {
+  initializePresence: (planId: string, user: User) => {
     // Clean up existing subscription if any
     get().cleanup();
 
     logger.info('Initializing cursor presence', { planId });
-    const channel = createCursorChannel(planId);
+    const channel = createCursorChannel(planId, user);
 
     subscribeToCursorPresence(
       channel,
@@ -62,8 +65,9 @@ export const useCursorStore = create<CursorState>((set, get) => ({
           userId: presence.userId,
           userEmail: presence.userEmail,
         };
-        cursors.set(cursorPosition.userId, cursorPosition);
-        set({ cursors: new Map(cursors) });
+        const newCursors = new Map(cursors);
+        newCursors.set(cursorPosition.userId, cursorPosition);
+        set({ cursors: newCursors });
       },
       presence => {
         const cursors = get().cursors;
@@ -90,7 +94,7 @@ export const useCursorStore = create<CursorState>((set, get) => ({
     if (channel) {
       logger.info('Cleaning up cursor presence');
       channel.unsubscribe();
-      set({ channel: null, cursors: new Map() });
+      set({ channel: null, cursors: new Map(), colorAssignments: new Map() });
     }
   },
 }));

@@ -12,11 +12,11 @@ export type CursorPosition = {
 
 export type CursorPresenceState = RealtimePresenceState<CursorPosition>;
 
-export const createCursorChannel = (planId: string) => {
+export const createCursorChannel = (planId: string, user: User) => {
   return supabase.channel(`cursor_${planId}`, {
     config: {
       presence: {
-        key: 'cursor',
+        key: user.id,
       },
     },
   });

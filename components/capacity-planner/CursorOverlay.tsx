@@ -3,7 +3,6 @@ import { useCursorStore } from '@/store/cursorStore';
 import { useAuthStore } from '@/store/authStore';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { logger } from '@/services/loggerService';
 import { Users } from 'lucide-react';
 import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
@@ -19,9 +18,22 @@ const CURSOR_COLORS = [
 ];
 
 const getUserColor = (userId: string) => {
-  // Use the last character of the userId to determine the color
-  const colorIndex = parseInt(userId.slice(-1), 16) % CURSOR_COLORS.length;
-  return CURSOR_COLORS[colorIndex];
+  const { colorAssignments } = useCursorStore.getState();
+
+  // If user already has a color assigned, use it
+  if (colorAssignments.has(userId)) {
+    const colorIndex = colorAssignments.get(userId)!;
+    return CURSOR_COLORS[colorIndex];
+  }
+
+  // Assign next available color
+  const nextColorIndex = colorAssignments.size % CURSOR_COLORS.length;
+  colorAssignments.set(userId, nextColorIndex);
+
+  // Update the store
+  useCursorStore.setState({ colorAssignments: new Map(colorAssignments) });
+
+  return CURSOR_COLORS[nextColorIndex];
 };
 
 type UserAvatarProps = {
@@ -66,10 +78,8 @@ export const CursorOverlay = () => {
   useEffect(() => {
     const planId = searchParams.get('id');
     if (planId && user) {
-      logger.info('Initializing cursor presence in component', { planId });
-      initializePresence(planId);
+      initializePresence(planId, user);
       return () => {
-        logger.info('Cleaning up cursor presence in component');
         cleanup();
       };
     }
@@ -119,7 +129,7 @@ export const CursorOverlay = () => {
             {otherUsers.map(([userId, userData]) => {
               const color = getUserColor(userId);
               return (
-                <div key={userId} className="relative flex items-center">
+                <div key={userId} className="flex items-center">
                   <UserAvatar email={userData.userEmail} color={color.bg} size={24} />
                 </div>
               );
@@ -129,9 +139,7 @@ export const CursorOverlay = () => {
       </div>
 
       {/* Cursors */}
-      {allUsers.map(([userId, cursor]) => {
-        if (userId === user.id) return null;
-
+      {otherUsers.map(([userId, cursor]) => {
         const color = getUserColor(userId);
 
         return (
