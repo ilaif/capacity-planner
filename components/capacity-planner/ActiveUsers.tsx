@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { useCursorStore } from '@/store/cursorStore';
+import { useActiveUsersStore } from '@/store/activeUsersStore';
 import { useAuthStore } from '@/store/authStore';
 import { Users } from 'lucide-react';
 import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-const CURSOR_COLORS = [
+const ACTIVE_USER_COLORS = [
   { bg: '#0EA5E9', text: 'white' }, // sky-500
   { bg: '#8B5CF6', text: 'white' }, // violet-500
   { bg: '#EC4899', text: 'white' }, // pink-500
@@ -16,8 +16,8 @@ const CURSOR_COLORS = [
 ];
 
 const getUserColor = (userId: string) => {
-  const colorIndex = parseInt(userId.slice(-1), 16) % CURSOR_COLORS.length;
-  return CURSOR_COLORS[colorIndex];
+  const colorIndex = parseInt(userId.slice(-1), 16) % ACTIVE_USER_COLORS.length;
+  return ACTIVE_USER_COLORS[colorIndex];
 };
 
 type UserAvatarProps = {
@@ -56,7 +56,7 @@ type ActiveUsersProps = {
 };
 
 export const ActiveUsers = ({ planId }: ActiveUsersProps) => {
-  const { cursors, initializePresence, cleanup } = useCursorStore();
+  const { activeUsers, initializePresence, cleanup } = useActiveUsersStore();
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export const ActiveUsers = ({ planId }: ActiveUsersProps) => {
 
   if (!user) return null;
 
-  const allUsers = Array.from(cursors.entries());
+  const allUsers = Array.from(activeUsers.entries());
   const otherUsers = allUsers.filter(([userId]) => userId !== user.id);
 
   return (
