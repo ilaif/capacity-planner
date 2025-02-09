@@ -7,6 +7,7 @@ describe('timelineService', () => {
       {
         id: 1,
         name: 'Feature 1',
+        description: 'Feature 1 description',
         requirements: {
           'Team A': { weeks: 2, parallel: 1 },
         },
@@ -34,6 +35,7 @@ describe('timelineService', () => {
       {
         id: 1,
         name: 'Feature 1',
+        description: 'Feature 1 description',
         requirements: {
           'Team A': { weeks: 2, parallel: 1 },
         },
@@ -41,6 +43,7 @@ describe('timelineService', () => {
       {
         id: 2,
         name: 'Feature 2',
+        description: 'Feature 2 description',
         requirements: {
           'Team A': { weeks: 3, parallel: 1 },
         },
@@ -62,6 +65,7 @@ describe('timelineService', () => {
       {
         id: 1,
         name: 'Feature 1',
+        description: 'Feature 1 description',
         requirements: {
           'Team A': { weeks: 2, parallel: 1 },
         },
@@ -82,6 +86,7 @@ describe('timelineService', () => {
       {
         id: 1,
         name: 'Feature 1',
+        description: 'Feature 1 description',
         requirements: {
           'Team A': { weeks: 9, parallel: 2 },
         },
@@ -111,6 +116,7 @@ describe('timelineService', () => {
       {
         id: 1,
         name: 'Feature 1',
+        description: 'Feature 1 description',
         requirements: {
           'Team A': { weeks: 2, parallel: 1 },
           'Team B': { weeks: 3, parallel: 1 },
@@ -133,6 +139,7 @@ describe('timelineService', () => {
       {
         id: 1,
         name: 'Feature 1',
+        description: 'Feature 1 description',
         requirements: {
           'Team A': { weeks: 2, parallel: 3 }, // Requires 3 people in parallel
         },
@@ -152,6 +159,7 @@ describe('timelineService', () => {
       {
         id: 1,
         name: 'Feature 1',
+        description: 'Feature 1 description',
         requirements: {
           'Team A': { weeks: 4, parallel: 1 },
         },
@@ -159,6 +167,7 @@ describe('timelineService', () => {
       {
         id: 2,
         name: 'Feature 2',
+        description: 'Feature 2 description',
         requirements: {
           'Team A': { weeks: 4, parallel: 1 },
         },

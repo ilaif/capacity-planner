@@ -16,7 +16,7 @@ export function TeamConfiguration() {
       logger.info(`Adding team: ${teamName}`);
       setTeams({
         ...teams,
-        [teamName]: { sizes: [{ week: 0, size: 1 }], teamLoad: 1 },
+        [teamName]: { sizes: [{ week: 0, size: 1 }], teamLoad: 1, description: '' },
       });
       // Update all existing features to include the new team
       setFeatures(
@@ -92,6 +92,17 @@ export function TeamConfiguration() {
     });
   };
 
+  const handleDescriptionChange = (team: string, description: string) => {
+    logger.info(`Updating description for team ${team}`);
+    setTeams({
+      ...teams,
+      [team]: {
+        ...teams[team],
+        description,
+      },
+    });
+  };
+
   const handleVariationAdd = (variation: { team: string; week: number; size: number }) => {
     logger.info(
       `Adding size variation for team ${variation.team} at week ${variation.week} with size ${variation.size}`
@@ -142,6 +153,7 @@ export function TeamConfiguration() {
             onTeamRename={handleTeamRename}
             onTeamSizeChange={handleTeamSizeChange}
             onWipLimitChange={handleWipLimitChange}
+            onDescriptionChange={handleDescriptionChange}
           />
         ))}
       </div>

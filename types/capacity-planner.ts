@@ -67,6 +67,7 @@ export type SizeVariation = {
 export type TeamConfig = {
   sizes: SizeVariation[];
   teamLoad: number;
+  description?: string;
 };
 
 export type Teams = {

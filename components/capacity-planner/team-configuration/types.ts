@@ -13,6 +13,7 @@ export type TeamCardProps = {
   onTeamRename: (oldName: string, newName: string) => void;
   onTeamSizeChange: (team: string, size: number) => void;
   onWipLimitChange: (team: string, value: number) => void;
+  onDescriptionChange: (team: string, description: string) => void;
 };
 
 export type AddTeamFormProps = {

@@ -42,10 +42,12 @@ export function FeatureUpload({ onFeaturesUploaded, teamNames }: FeatureUploadPr
             });
 
             const featureKey = findCaseInsensitiveKey(row, 'feature');
+            const descriptionKey = findCaseInsensitiveKey(row, 'description');
             return {
               id: index + 1,
               name: featureKey ? row[featureKey] : `Feature ${index + 1}`,
               requirements,
+              description: descriptionKey ? row[descriptionKey] : '',
             };
           });
           onFeaturesUploaded(newFeatures);
