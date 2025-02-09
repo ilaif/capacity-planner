@@ -1,5 +1,5 @@
 import { createAvatar } from '@dicebear/core';
-import { shapes } from '@dicebear/collection';
+import { identicon } from '@dicebear/collection';
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -18,10 +18,9 @@ export function TeamAvatar({
   showTooltip = true,
 }: TeamAvatarProps) {
   const avatar = useMemo(() => {
-    return createAvatar(shapes, {
+    return createAvatar(identicon, {
       seed: teamName,
       size: size,
-      backgroundColor: ['b6e3f4', 'c0aede', 'd1d4f9', 'ffd5dc', 'ffdfbf'],
     }).toDataUri();
   }, [teamName, size]);
 

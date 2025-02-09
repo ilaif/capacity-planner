@@ -10,6 +10,7 @@ import { NumberInput } from '@/components/ui/number-input';
 import { TeamAvatar } from '@/components/ui/team-avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DebouncedInput } from '@/components/ui/debounced-input';
+import { DebouncedTextarea } from '@/components/ui/debounced-textarea';
 
 type SortableHandleProps = {
   listeners: SyntheticListenerMap | undefined;
@@ -35,6 +36,7 @@ const SortableHandle = lazy(() => Promise.resolve({ default: Handle }));
 type FeatureItemProps = {
   feature: Feature;
   onFeatureNameChange: (featureId: number, name: string) => void;
+  onDescriptionChange: (featureId: number, description: string) => void;
   onRequirementChange: (featureId: number, team: string, field: string, value: string) => void;
   onFeatureRemove: (featureId: number) => void;
 };
@@ -44,7 +46,10 @@ export type FeatureItemHandle = {
 };
 
 export const FeatureItem = forwardRef<FeatureItemHandle, FeatureItemProps>(
-  ({ feature, onFeatureNameChange, onRequirementChange, onFeatureRemove }, ref) => {
+  (
+    { feature, onFeatureNameChange, onDescriptionChange, onRequirementChange, onFeatureRemove },
+    ref
+  ) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
       id: feature.id.toString(),
     });
@@ -84,6 +89,11 @@ export const FeatureItem = forwardRef<FeatureItemHandle, FeatureItemProps>(
             </Button>
           </div>
         </div>
+        <DebouncedTextarea
+          placeholder="Enter feature description..."
+          value={feature.description}
+          onChange={value => onDescriptionChange(feature.id, value)}
+        />
         <div className="flex flex-wrap gap-2">
           {Object.entries(feature.requirements).map(([team, requirement]) => (
             <React.Fragment key={team}>

@@ -35,6 +35,7 @@ export const Features = forwardRef<FeaturesHandle, FeaturesProps>((_, ref) => {
     const newFeature = {
       id: features.length + 1,
       name: `Feature ${features.length + 1}`,
+      description: '',
       requirements: Object.keys(teams).reduce(
         (acc, team) => ({
           ...acc,
@@ -54,6 +55,10 @@ export const Features = forwardRef<FeaturesHandle, FeaturesProps>((_, ref) => {
 
   const handleFeatureNameChange = (featureId: number, name: string) => {
     setFeatures(features.map(f => (f.id === featureId ? { ...f, name } : f)));
+  };
+
+  const handleDescriptionChange = (featureId: number, description: string) => {
+    setFeatures(features.map(f => (f.id === featureId ? { ...f, description } : f)));
   };
 
   const handleRequirementChange = (
@@ -130,6 +135,7 @@ export const Features = forwardRef<FeaturesHandle, FeaturesProps>((_, ref) => {
                 }}
                 feature={feature}
                 onFeatureNameChange={handleFeatureNameChange}
+                onDescriptionChange={handleDescriptionChange}
                 onRequirementChange={handleRequirementChange}
                 onFeatureRemove={handleFeatureRemove}
               />

@@ -27,6 +27,7 @@ export const DEFAULT_STATE: PlanState = {
     {
       id: 1,
       name: 'Feature 1',
+      description: 'A sample feature description',
       requirements: {
         'Team 1': {
           weeks: 2,
@@ -89,5 +90,6 @@ export type Requirements = {
 export type Feature = {
   id: number;
   name: string;
+  description: string;
   requirements: Requirements;
 };

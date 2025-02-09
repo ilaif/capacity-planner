@@ -68,9 +68,12 @@ export const usePlannerStore = create<PlannerStore>()(
       });
     },
 
-    setState: (state: PlanState) => {
-      logger.debug('Setting state', { state });
-      set({ planState: state });
+    setState: (newState: PlanState) => {
+      logger.debug('Setting state', { newState });
+      set(state => {
+        syncStateToSupabase(newState, state.planName);
+        return { ...state, planState: newState };
+      });
     },
 
     loadPlanById: async (
@@ -120,5 +123,7 @@ const syncStateToSupabase = async (state?: PlanState, planName?: string) => {
 
   if (id && user) {
     await updatePlan(id, { state, name: planName }, user);
+  } else {
+    logger.debug('No plan id or user found, skipping sync');
   }
 };

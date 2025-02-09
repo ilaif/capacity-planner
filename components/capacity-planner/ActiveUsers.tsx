@@ -3,7 +3,7 @@ import { useActiveUsersStore } from '@/store/activeUsersStore';
 import { useAuthStore } from '@/store/authStore';
 import { Users } from 'lucide-react';
 import { createAvatar } from '@dicebear/core';
-import { shapes } from '@dicebear/collection';
+import { initials } from '@dicebear/collection';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const ACTIVE_USER_COLORS = [
@@ -27,7 +27,7 @@ type UserAvatarProps = {
 };
 
 const UserAvatar = ({ email, size = 32, color }: UserAvatarProps) => {
-  const avatar = createAvatar(shapes, {
+  const avatar = createAvatar(initials, {
     seed: email,
     size: size,
     backgroundColor: [color.slice(1)],
