@@ -11,6 +11,7 @@ import { usePlannerStore } from '@/store/plannerStore';
 import { logger } from '@/services/loggerService';
 import { useSearchParams } from 'react-router-dom';
 import { PlanState } from '@/types/capacity-planner';
+import { ProjectConfiguration } from './ProjectConfiguration';
 
 type ConfigurationSheetProps = {
   open: boolean;
@@ -99,6 +100,8 @@ export const ConfigurationSheet = forwardRef<ConfigurationSheetHandle, Configura
                 <TeamConfiguration />
               </div>
             </div>
+
+            <ProjectConfiguration />
 
             <div>
               <h3 className="text-lg font-medium">Features</h3>

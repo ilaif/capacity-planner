@@ -8,10 +8,10 @@ import { Separator } from '@/components/ui/separator';
 type TimelineStatsProps = {
   timeline: TimelineItem[];
   startDate: Date;
-  configurationName: string;
+  planName: string;
 };
 
-export function TimelineStats({ timeline, startDate, configurationName }: TimelineStatsProps) {
+export function TimelineStats({ timeline, startDate, planName }: TimelineStatsProps) {
   if (timeline.length === 0) return null;
 
   const lastEndWeek = Math.max(...timeline.map(t => t.endWeek));
@@ -25,7 +25,7 @@ export function TimelineStats({ timeline, startDate, configurationName }: Timeli
         <LetterText className="h-4 w-4 text-muted-foreground" />
         <div>
           <span className="text-muted-foreground">Name:</span>{' '}
-          <span className="font-medium">{configurationName}</span>
+          <span className="font-medium">{planName}</span>
         </div>
       </div>
 

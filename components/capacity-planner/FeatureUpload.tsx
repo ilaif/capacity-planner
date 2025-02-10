@@ -4,6 +4,8 @@ import Papa from 'papaparse';
 import { Feature, FeatureCSV } from '@/types/capacity-planner';
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { usePlannerStore } from '@/store/plannerStore';
+import { PROJECT_COLORS } from '@/lib/colors';
 
 type FeatureUploadProps = {
   onFeaturesUploaded: (features: Feature[]) => void;
@@ -12,6 +14,8 @@ type FeatureUploadProps = {
 
 export function FeatureUpload({ onFeaturesUploaded, teamNames }: FeatureUploadProps) {
   const [isRequirementsOpen, setIsRequirementsOpen] = useState(false);
+  const projects = usePlannerStore(state => state.planState.projects);
+  const addProject = usePlannerStore(state => state.addProject);
 
   const findCaseInsensitiveKey = (
     obj: Record<string, string>,
@@ -19,6 +23,26 @@ export function FeatureUpload({ onFeaturesUploaded, teamNames }: FeatureUploadPr
   ): string | undefined => {
     const lowerSearchKey = searchKey.toLowerCase();
     return Object.keys(obj).find(key => key.toLowerCase() === lowerSearchKey);
+  };
+
+  const getOrCreateProject = (projectName: string): number | null => {
+    if (!projectName) return null;
+
+    const existingProject = projects.find(p => p.name.toLowerCase() === projectName.toLowerCase());
+    if (existingProject) return existingProject.id;
+
+    // Create new project with a random color from presets
+    const randomColor = PROJECT_COLORS[Math.floor(Math.random() * PROJECT_COLORS.length)].value;
+    const newProject = {
+      name: projectName,
+      description: '',
+      color: randomColor,
+    };
+    addProject(newProject);
+
+    // Find the newly created project to get its ID
+    const createdProject = projects.find(p => p.name.toLowerCase() === projectName.toLowerCase());
+    return createdProject?.id ?? null;
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,11 +67,15 @@ export function FeatureUpload({ onFeaturesUploaded, teamNames }: FeatureUploadPr
 
             const featureKey = findCaseInsensitiveKey(row, 'feature');
             const descriptionKey = findCaseInsensitiveKey(row, 'description');
+            const projectKey = findCaseInsensitiveKey(row, 'project');
+            const projectName = projectKey ? row[projectKey] : '';
+
             return {
               id: index + 1,
               name: featureKey ? row[featureKey] : `Feature ${index + 1}`,
               requirements,
               description: descriptionKey ? row[descriptionKey] : '',
+              projectId: getOrCreateProject(projectName),
             };
           });
           onFeaturesUploaded(newFeatures);
@@ -89,6 +117,16 @@ export function FeatureUpload({ onFeaturesUploaded, teamNames }: FeatureUploadPr
                 <td className="pr-4">text</td>
                 <td>Feature name (e.g., "Login System") - Case insensitive</td>
               </tr>
+              <tr>
+                <td className="pr-4">project</td>
+                <td className="pr-4">text</td>
+                <td>Project name (e.g., "Phase 1") - Case insensitive</td>
+              </tr>
+              <tr>
+                <td className="pr-4">description</td>
+                <td className="pr-4">text</td>
+                <td>Feature description (optional) - Case insensitive</td>
+              </tr>
               {teamNames.map(teamName => (
                 <>
                   <tr key={`${teamName}_weeks`}>
@@ -112,10 +150,10 @@ export function FeatureUpload({ onFeaturesUploaded, teamNames }: FeatureUploadPr
             </tbody>
           </table>
           <p className="mt-2">Example row:</p>
-          <code className="block bg-gray-100 p-2 rounded">
-            {`Feature Name,${teamNames.map(teamName => `${teamName}_weeks,${teamName}_parallel`).join(',')}`}
+          <code className="block bg-gray-100 p-2 rounded dark:bg-gray-800">
+            {`Feature Name,Project,${teamNames.map(teamName => `${teamName}_weeks,${teamName}_parallel`).join(',')}`}
             <br />
-            {`Login System,${teamNames.map(() => '3,2').join(',')}`}
+            {`Login System,Phase 1,${teamNames.map(() => '3,2').join(',')}`}
           </code>
           <p className="mt-2 text-xs text-gray-500">Note: Column names are case-insensitive</p>
         </div>

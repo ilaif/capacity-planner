@@ -124,11 +124,7 @@ export function TimelineView({ onFeatureClick }: TimelineViewProps) {
   return (
     <>
       <div className="flex justify-between items-center p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <TimelineStats
-          timeline={timeline}
-          startDate={startDate}
-          configurationName={planName || 'Not set'}
-        />
+        <TimelineStats timeline={timeline} startDate={startDate} planName={planName || 'Not set'} />
         <Button variant="outline" onClick={handleExport}>
           Export PNG
         </Button>

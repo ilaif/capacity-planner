@@ -42,7 +42,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
         <ResponsiveContainer width="100%" height="100%">
           <RechartsLineChart
             data={data}
-            margin={{ top: 5, right: 5, left: 0, bottom: 25 }}
+            margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
             style={{ background: 'transparent' }}
             {...props}
           >

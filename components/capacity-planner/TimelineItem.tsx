@@ -4,6 +4,8 @@ import { format, addWeeks } from 'date-fns';
 import { TeamAvatar } from '@/components/ui/team-avatar';
 import { cn } from '@/lib/utils';
 import { Users } from 'lucide-react';
+import { usePlannerStore } from '@/store/plannerStore';
+import { PROJECT_COLORS } from '@/lib/colors';
 
 type TimelineItemWithRow = TimelineItemType & {
   row: number;
@@ -33,11 +35,18 @@ export function TimelineItem({
     onFeatureClick?.(allocation.feature);
   };
 
+  // TODO: Should we move this to the TimelineView component? (performance wise)
+  // Get the project color for this feature
+  const { features, projects } = usePlannerStore(state => state.planState);
+  const feature = features.find(f => f.name === allocation.feature);
+  const project = feature ? projects.find(p => p.id === feature.projectId) : undefined;
+  const colorConfig = project ? PROJECT_COLORS.find(c => c.value === project.color) : undefined;
+
   return (
     <div
       className={cn(
         'group',
-        'bg-muted dark:bg-muted',
+        colorConfig?.bgClass ?? 'bg-muted dark:bg-muted',
         'border border-border',
         'rounded-md',
         'hover:border-muted-foreground dark:hover:border-muted-foreground',
@@ -64,7 +73,7 @@ export function TimelineItem({
                     key={team}
                     className={cn(
                       'flex items-center gap-0.5 px-1.5 py-0.5 rounded-full',
-                      'bg-muted/50 dark:bg-background/5',
+                      'bg-background/50 dark:bg-background/10',
                       'border border-border',
                       'group-hover:border-muted-foreground/30 dark:group-hover:border-muted-foreground/30'
                     )}

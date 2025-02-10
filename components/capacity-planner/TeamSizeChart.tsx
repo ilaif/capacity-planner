@@ -40,7 +40,7 @@ export function TeamSizeChart({ teams }: TeamSizeChartProps) {
   return (
     <Card className="p-2">
       <h3 className="text-sm font-medium mb-1">Team Size Over Time</h3>
-      <div className="h-[200px]">
+      <div className="h-[150px]">
         <LineChart
           data={chartData}
           lines={lines}

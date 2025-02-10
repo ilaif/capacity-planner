@@ -43,6 +43,7 @@ export const Features = forwardRef<FeaturesHandle, FeaturesProps>((_, ref) => {
         }),
         {}
       ),
+      projectId: null,
     };
     setFeatures([...features, newFeature]);
     logger.debug('New feature added', newFeature);

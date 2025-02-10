@@ -45,10 +45,7 @@ export const getPlanById = async (id: string): Promise<Plan | null> => {
 
     return {
       ...plan,
-      state: {
-        ...plan.state,
-        startDate: new Date(plan.state.startDate),
-      },
+      state: migratePlanState(plan.state),
     } as Plan;
   } catch (error) {
     logger.error('Error fetching plan', error as Error);
@@ -171,10 +168,7 @@ export const listPlans = async (user: User): Promise<Plan[]> => {
 
     return data.map((plan: Plan) => ({
       ...plan,
-      state: {
-        ...plan.state,
-        startDate: new Date(plan.state.startDate),
-      },
+      state: migratePlanState(plan.state),
     }));
   } catch (error) {
     logger.error('Failed to load saved configurations', error as Error);
@@ -221,10 +215,7 @@ export const subscribeToPlanChanges = (
         if (payload.new) {
           const plan = payload.new as Plan;
 
-          callback({
-            ...plan.state,
-            startDate: new Date(plan.state.startDate),
-          });
+          callback(migratePlanState(plan.state));
         }
       }
     )
@@ -305,3 +296,15 @@ export const removePlanShare = async (planId: string, sharedWithEmail: string): 
     throw new Error('Failed to remove plan share');
   }
 };
+
+function migratePlanState(planState: PlanState) {
+  // set the date
+  planState.startDate = new Date(planState.startDate);
+
+  // fill projects if are missing
+  if (!planState.projects) {
+    planState.projects = [];
+  }
+
+  return planState;
+}

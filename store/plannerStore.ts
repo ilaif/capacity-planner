@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { temporal } from 'zundo';
-import { EMPTY_STATE, Feature, Teams } from '@/types/capacity-planner';
+import { EMPTY_STATE, Feature, Teams, Project } from '@/types/capacity-planner';
 import { logger } from '@/services/loggerService';
 import { PlanState } from '@/types/capacity-planner';
 import { getPlanById, updatePlan } from '@/services/supabasePlanService';
@@ -16,6 +16,11 @@ type PlannerStore = {
   setStartDate: (date: Date) => void;
   setState: (state: PlanState) => void;
   loadPlanById: (id: string, { showLoading }: { showLoading: boolean }) => Promise<boolean>;
+  setProjects: (projects: Project[]) => void;
+  addProject: (project: Omit<Project, 'id'>) => void;
+  updateProject: (project: Project) => void;
+  removeProject: (projectId: number) => void;
+  setFeatureProject: (featureId: number, projectId: number | null) => void;
 };
 
 export const usePlannerStore = create<PlannerStore>()(
@@ -111,6 +116,71 @@ export const usePlannerStore = create<PlannerStore>()(
           set({ isLoading: false });
         }
       }
+    },
+
+    setProjects: projects => {
+      logger.debug('Setting projects', { count: projects.length });
+      set(state => {
+        const newPlanState = { ...state.planState, projects };
+        syncStateToSupabase(newPlanState, state.planName);
+        return { ...state, planState: newPlanState };
+      });
+    },
+
+    addProject: project => {
+      logger.debug('Adding project', { project });
+      set(state => {
+        const newProjects = [
+          ...state.planState.projects,
+          {
+            ...project,
+            id: Math.max(0, ...state.planState.projects.map(p => p.id)) + 1,
+          },
+        ];
+        const newPlanState = { ...state.planState, projects: newProjects };
+        syncStateToSupabase(newPlanState, state.planName);
+        return { ...state, planState: newPlanState };
+      });
+    },
+
+    updateProject: project => {
+      logger.debug('Updating project', { project });
+      set(state => {
+        const newProjects = state.planState.projects.map(p => (p.id === project.id ? project : p));
+        const newPlanState = { ...state.planState, projects: newProjects };
+        syncStateToSupabase(newPlanState, state.planName);
+        return { ...state, planState: newPlanState };
+      });
+    },
+
+    removeProject: projectId => {
+      logger.debug('Removing project', { projectId });
+      set(state => {
+        const newProjects = state.planState.projects.filter(p => p.id !== projectId);
+        // Also remove project from features
+        const newFeatures = state.planState.features.map(f =>
+          f.projectId === projectId ? { ...f, projectId: null } : f
+        );
+        const newPlanState = {
+          ...state.planState,
+          projects: newProjects,
+          features: newFeatures,
+        };
+        syncStateToSupabase(newPlanState, state.planName);
+        return { ...state, planState: newPlanState };
+      });
+    },
+
+    setFeatureProject: (featureId, projectId) => {
+      logger.debug('Setting feature project', { featureId, projectId });
+      set(state => {
+        const newFeatures = state.planState.features.map(f =>
+          f.id === featureId ? { ...f, projectId } : f
+        );
+        const newPlanState = { ...state.planState, features: newFeatures };
+        syncStateToSupabase(newPlanState, state.planName);
+        return { ...state, planState: newPlanState };
+      });
     },
   }))
 );

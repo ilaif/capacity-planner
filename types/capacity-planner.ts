@@ -1,10 +1,18 @@
 import { startOfWeek } from 'date-fns';
 
+export type Project = {
+  id: number;
+  name: string;
+  description: string;
+  color: string;
+};
+
 export type PlanState = {
   features: Feature[];
   teams: Teams;
   overheadFactor: number;
   startDate: Date;
+  projects: Project[];
 };
 
 export const EMPTY_STATE: PlanState = {
@@ -12,6 +20,7 @@ export const EMPTY_STATE: PlanState = {
   overheadFactor: 1.2,
   teams: {},
   features: [],
+  projects: [],
 };
 
 export const DEFAULT_STATE: PlanState = {
@@ -21,8 +30,17 @@ export const DEFAULT_STATE: PlanState = {
     'Team 1': {
       sizes: [{ week: 0, size: 5 }],
       teamLoad: 2,
+      description: 'A sample team description',
     },
   },
+  projects: [
+    {
+      id: 1,
+      name: 'Project 1',
+      description: 'A sample project',
+      color: '#2563eb',
+    },
+  ],
   features: [
     {
       id: 1,
@@ -34,6 +52,7 @@ export const DEFAULT_STATE: PlanState = {
           parallel: 1,
         },
       },
+      projectId: 1,
     },
   ],
 };
@@ -93,4 +112,5 @@ export type Feature = {
   name: string;
   description: string;
   requirements: Requirements;
+  projectId: number | null;
 };
